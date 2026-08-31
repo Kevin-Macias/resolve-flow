@@ -1,0 +1,23 @@
+{
+  "name": "resolve-flow",
+  "private": true,
+  "packageManager": "pnpm@10.15.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "concurrently -n api,web -c blue,green \"pnpm dev:api\" \"pnpm --filter @resolve-flow/web dev\"",
+    "dev:api": "uv run --directory apps/api fastapi dev src/api/main.py",
+    "setup": "uv sync --directory apps/api",
+    "build": "pnpm --filter @resolve-flow/web build",
+    "test": "uv run --directory apps/api pytest",
+    "typecheck": "pnpm --filter @resolve-flow/web typecheck",
+    "check": "pnpm typecheck && pnpm test",
+    "docker:up": "docker compose up --build",
+    "docker:down": "docker compose down",
+    "docker:logs": "docker compose logs --follow"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}

@@ -1,0 +1,37 @@
+# Virtual environments
+.venv/
+
+# Python-generated files
+__pycache__/
+*.py[codz]
+
+# Testing and coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Type-checkers and linters
+.mypy_cache/
+.ruff_cache/
+
+# Build output
+build/
+dist/
+*.egg-info/
+.output/
+node_modules/
+.pnpm-store/
+.tanstack/
+
+# Local secrets and settings
+.env
+.env.*
+!.env.example
+
+# Editors
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
