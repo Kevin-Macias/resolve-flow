@@ -3,7 +3,7 @@
   "private": true,
   "packageManager": "pnpm@10.15.0",
   "engines": {
-    "node": ">=22"
+    "node": ">=24.18.1 <25"
   },
   "scripts": {
     "dev": "concurrently -n api,web -c blue,green \"pnpm dev:api\" \"pnpm --filter @resolve-flow/web dev\"",
@@ -11,8 +11,12 @@
     "setup": "uv sync --directory apps/api",
     "build": "pnpm --filter @resolve-flow/web build",
     "test": "uv run --directory apps/api pytest",
-    "typecheck": "pnpm --filter @resolve-flow/web typecheck",
-    "check": "pnpm typecheck && pnpm test",
+    "format:check": "uv run --directory apps/api ruff format --check .",
+    "lint": "uv run --directory apps/api ruff check .",
+    "typecheck": "pnpm typecheck:web && pnpm typecheck:api",
+    "typecheck:api": "uv run --directory apps/api pyright",
+    "typecheck:web": "pnpm --filter @resolve-flow/web typecheck",
+    "check": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test",
     "docker:up": "docker compose up --build",
     "docker:down": "docker compose down",
     "docker:logs": "docker compose logs --follow"

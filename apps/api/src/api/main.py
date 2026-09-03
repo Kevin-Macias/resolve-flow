@@ -1,8 +1,7 @@
 import os
 
 import psycopg
-from fastapi import FastAPI
-from fastapi import HTTPException
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(title="Resolve Flow API", version="0.1.0")
@@ -35,6 +34,8 @@ async def readiness() -> dict[str, str]:
         ) as connection:
             await connection.execute("SELECT 1")
     except psycopg.Error as error:
-        raise HTTPException(status_code=503, detail="Database is unavailable") from error
+        raise HTTPException(
+            status_code=503, detail="Database is unavailable"
+        ) from error
 
     return {"status": "ready", "database": "connected"}

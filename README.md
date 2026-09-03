@@ -3,9 +3,23 @@
 Resolve Flow is a pnpm monorepo with a TanStack Start web application and a
 FastAPI service.
 
+It is being built as a portfolio project for an AI engineering role: a support
+and incident copilot that turns an unstructured technical issue into a cited,
+human-approved action plan. The project intentionally emphasizes durable LLM
+workflows, evaluation, retrieval, and safe tool execution rather than a generic
+chat interface.
+
+## Project documentation
+
+- [Product brief](docs/product.md): users, scope, workflow, and success criteria
+- [Architecture](docs/architecture.md): current and target system design
+- [Roadmap](docs/roadmap.md): phased tickets, ownership, and progress
+- [Working agreement](docs/working-agreement.md): how Kevin and AI collaborate
+- [Documentation index](docs/README.md): how these documents stay current
+
 ## Prerequisites
 
-- Node.js 22 or newer
+- Node.js 24.18.1 (the version pinned in `.nvmrc`)
 - pnpm 10
 - Python 3.12 or newer
 - [uv](https://docs.astral.sh/uv/)
@@ -13,9 +27,15 @@ FastAPI service.
 ## Setup
 
 ```bash
+nvm install
+nvm use
 pnpm install
 pnpm setup
 ```
+
+Later sessions only need `nvm use` before running the Node.js commands. The
+root `package.json` accepts compatible Node 24 releases but rejects other major
+versions.
 
 ## Development
 
@@ -29,7 +49,14 @@ pnpm dev
 - API: http://localhost:8000
 - API docs: http://localhost:8000/docs
 
-Run all checks with `pnpm check`. The web app uses
+Run formatting verification, linting, Python and TypeScript type checking,
+backend tests, and informational branch coverage with:
+
+```bash
+pnpm check
+```
+
+The web app uses
 `VITE_API_URL=http://localhost:8000` by default; copy `apps/web/.env.example`
 to `apps/web/.env` to override it.
 
