@@ -25,8 +25,9 @@ Ownership:
 
 RF-001 established the two-sided product and RF-002 defined its domain language,
 access boundaries, and report aggregation model. RF-004 established the Python
-quality baseline. The next ticket is RF-101: model the issue-report domain in
-typed Python before persistence is designed.
+quality baseline, and RF-101 added validated issue-report schemas and their first
+pytest suite. The next ticket is RF-102: refactor the API around an application
+factory and define tested liveness and readiness behavior.
 
 ## Phase 0 — Scope and foundation
 
@@ -43,8 +44,8 @@ typed Python before persistence is designed.
 
 | ID | Ticket | Owner | Status | Acceptance |
 | --- | --- | --- | --- | --- |
-| RF-101 | Model the issue-report domain in Python | HAND | NEXT | Typed customer/account references, report lifecycle, service, create, update, and response models validate correctly |
-| RF-102 | Implement application factory and health API | HAND | PLANNED | Factory-based app exposes tested health/readiness behavior; existing global app is refactored as needed |
+| RF-101 | Model the issue-report domain in Python | HAND | DONE | Typed user/account references, report lifecycle, service, create, update, and response models validate correctly |
+| RF-102 | Implement application factory and health API | HAND | NEXT | Factory-based app exposes tested health/readiness behavior; existing global app is refactored as needed |
 | RF-103 | Design the initial relational schema | HAND | PLANNED | Diagram documents issue-report ownership, keys, constraints, timestamps, and lifecycle status |
 | RF-104 | Configure async SQLAlchemy sessions | HAND | PLANNED | Engine, session lifecycle, transactions, and test override are implemented |
 | RF-105 | Create initial Alembic migration | PAIR | PLANNED | Migration creates and cleanly rolls back the reviewed incident schema |

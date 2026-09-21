@@ -10,11 +10,11 @@ would make status, ownership, deduplication, and visibility ambiguous.
 
 ## People and access
 
-### Customer
+### User
 
-A person using ResolveFlow to report a problem or view information available to
-their organization. A customer is always associated with one customer account
-in the MVP.
+A person with an identity in ResolveFlow. A user can act in a customer or
+internal role. A customer is a user acting on behalf of a customer account; in
+the MVP, each customer user is associated with one customer account.
 
 ### Support engineer
 
@@ -42,7 +42,7 @@ metadata. It preserves what the customer said and does not claim that the cause
 or impact has been verified.
 
 An issue report belongs to exactly one customer account and records its
-submitting customer. It can be linked to one or more possible support tickets;
+submitting user. It can be linked to one or more possible support tickets;
 the link records whether each match is suspected, confirmed, or rejected.
 
 ### Support ticket
@@ -155,7 +155,7 @@ The model may not promote a record or field to a broader visibility level.
 
 ```text
 CustomerAccount
-  `-- Customer
+  `-- User acting as customer
         `-- IssueReport
               `-- ReportTicketLink -- SupportTicket
                                           |-- owned by SupportTeam
@@ -183,7 +183,7 @@ The relationship model supports manager-facing questions without exposing
 customer details:
 
 - Number of linked reports per ticket or known incident
-- Number of distinct reporting customers
+- Number of distinct reporting users
 - Number of distinct affected customer accounts
 - Suspected, confirmed, and rejected match counts
 - Report volume over time

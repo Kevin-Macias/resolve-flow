@@ -45,6 +45,18 @@ Even when implementation is paired, Kevin owns decisions about:
 - Evaluation cases, expected behavior, and metric interpretation
 - Architecture tradeoffs and portfolio claims
 
+## Testing progression
+
+For RF-101, Kevin writes the first schema tests by hand to learn pytest test
+discovery, assertions, exception checks, and Pydantic runtime validation.
+
+After RF-101, AI may implement routine unit and integration test code even when
+the main ticket is `HAND`. Kevin still defines or approves the important
+behaviors and edge cases, reviews the generated tests, and confirms that they
+would fail when the implementation is wrong. Evaluation expectations, safety
+policy, authorization boundaries, and adversarial cases remain human-owned even
+when AI writes their test mechanics.
+
 ## AI implementation rules
 
 Before AI starts a ticket, the request should identify:

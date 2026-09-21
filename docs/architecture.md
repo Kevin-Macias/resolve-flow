@@ -84,7 +84,8 @@ Customer request
 
 ## Planned core records
 
-- `CustomerAccount` and `Customer`: tenant boundary and submitting actor
+- `CustomerAccount` and `User`: tenant boundary and submitting identity; the
+  user's role determines whether they act as a customer or internal operator
 - `RequestContext`: application-established identity, role, and permissions
 - `IssueReport`: immutable customer observation owned by one customer account
 - `ReportTicketLink`: reviewed suspected, confirmed, or rejected match

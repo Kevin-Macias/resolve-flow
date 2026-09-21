@@ -1,2 +1,1 @@
-def main() -> None:
-    print("Hello from resolve-flow!")
+"""ResolveFlow API package."""

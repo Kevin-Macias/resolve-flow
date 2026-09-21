@@ -49,6 +49,12 @@ ticket. If Kevin explicitly asks Codex to take over, confirm that this changes
 the ticket to `PAIR` or `DELEGATE`, update the roadmap after agreement, and then
 proceed under the new mode.
 
+Testing exception: Kevin writes the first RF-101 schema tests to learn pytest.
+After RF-101, Codex may implement routine test code for `HAND` tickets while
+Kevin owns and reviews the expected behavior and important edge cases. Do not
+use this exception to decide evaluation expectations, safety policy,
+authorization boundaries, or adversarial scenarios for Kevin.
+
 ### PAIR
 
 Kevin owns behavior, acceptance criteria, and architectural decisions. Codex
