@@ -14,7 +14,11 @@ would make status, ownership, deduplication, and visibility ambiguous.
 
 A person with an identity in ResolveFlow. A user can act in a customer or
 internal role. A customer is a user acting on behalf of a customer account; in
-the MVP, each customer user is associated with one customer account.
+the MVP, each customer user is associated with one customer account. The initial
+relational design stores a `customer` or `support` user type: customer users
+have one account, while support users have none. A report still belongs to a
+customer account even when an authorized support user submits it on that
+account's behalf.
 
 ### Support engineer
 

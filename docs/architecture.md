@@ -26,12 +26,21 @@ The monorepo currently provides:
 - A TanStack Start placeholder interface that checks API health
 - A FastAPI service with liveness and database-readiness endpoints
 - Async PostgreSQL connectivity through psycopg
-- Tests for health and missing database configuration
+- An app-scoped async SQLAlchemy engine and session factory, with a fresh
+  session per database request and engine disposal at shutdown
+- Factory-based tests for health and successful, misconfigured, and unavailable
+  database-readiness behavior
 - Dockerfiles and Docker Compose for web, API, and PostgreSQL
 - Root development, test, build, and Docker commands
 
 It does not yet provide incident persistence, an LLM integration, LangGraph,
 retrieval, an API client package, or the incident workspace UI.
+
+The SQLAlchemy session dependency owns session lifetime, not transaction success:
+application operations will explicitly commit writes. Closing an uncommitted
+session rolls back its pending transaction. The dependency can be replaced with
+FastAPI's `dependency_overrides` in tests. Missing database configuration leaves
+`/health` available; database-backed operations require a configured factory.
 
 ## Target monorepo
 
