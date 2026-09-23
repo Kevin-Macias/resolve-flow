@@ -26,9 +26,10 @@ Ownership:
 RF-001 established the two-sided product and RF-002 defined its domain language,
 access boundaries, and report aggregation model. RF-004 established the Python
 quality baseline, RF-101 added validated issue-report schemas, RF-102 added a
-tested application factory and system-readiness boundary, and RF-103 defined the
-initial relational design. The next ticket is RF-104: configure async SQLAlchemy
-sessions and a test override before implementing persistence.
+tested application factory and system-readiness boundary, RF-103 defined the
+initial relational design, RF-104 added async SQLAlchemy sessions with a test
+override, and RF-105 added the reviewed initial migration. The next ticket is
+RF-106: create and read issue reports within customer scope.
 
 ## Phase 0 — Scope and foundation
 
@@ -48,9 +49,9 @@ sessions and a test override before implementing persistence.
 | RF-101 | Model the issue-report domain in Python | HAND | DONE | Typed user/account references, report lifecycle, service, create, update, and response models validate correctly |
 | RF-102 | Implement application factory and health API | HAND | DONE | Factory-based app exposes tested health/readiness behavior; existing global app is refactored as needed |
 | RF-103 | Design the initial relational schema | HAND | DONE | Diagram documents issue-report ownership, keys, constraints, timestamps, and lifecycle status |
-| RF-104 | Configure async SQLAlchemy sessions | PAIR | NEXT | Engine, session lifecycle, transactions, and test override are implemented |
-| RF-105 | Create initial Alembic migration | PAIR | PLANNED | Migration creates and cleanly rolls back the reviewed incident schema |
-| RF-106 | Create and read issue reports | HAND | PLANNED | POST, GET by ID, and list endpoints persist typed data within customer scope |
+| RF-104 | Configure async SQLAlchemy sessions | PAIR | DONE | Engine, session lifecycle, transactions, and test override are implemented |
+| RF-105 | Create initial Alembic migration | PAIR | DONE | Migration creates and cleanly rolls back the reviewed incident schema |
+| RF-106 | Create and read issue reports | HAND | NEXT | POST, GET by ID, and list endpoints persist typed data within customer scope |
 | RF-107 | Update and archive issue reports | HAND | PLANNED | Partial update, missing record, ownership, and invalid transition behavior are tested |
 | RF-108 | Define API error contracts | PAIR | PLANNED | Validation, not-found, conflict, and unexpected errors share a documented shape |
 | RF-109 | Add database integration tests | HAND | PLANNED | CRUD, validation, rollback/isolation, missing records, and transitions are covered |

@@ -28,12 +28,14 @@ The monorepo currently provides:
 - Async PostgreSQL connectivity through psycopg
 - An app-scoped async SQLAlchemy engine and session factory, with a fresh
   session per database request and engine disposal at shutdown
+- Declarative models and a reversible Alembic migration for customer accounts,
+  users, services, and issue reports
 - Factory-based tests for health and successful, misconfigured, and unavailable
   database-readiness behavior
 - Dockerfiles and Docker Compose for web, API, and PostgreSQL
 - Root development, test, build, and Docker commands
 
-It does not yet provide incident persistence, an LLM integration, LangGraph,
+It does not yet provide issue-report CRUD, an LLM integration, LangGraph,
 retrieval, an API client package, or the incident workspace UI.
 
 The SQLAlchemy session dependency owns session lifetime, not transaction success:

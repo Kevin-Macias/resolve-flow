@@ -1,7 +1,9 @@
-# Initial relational schema (RF-103 draft)
+# Initial relational schema
 
 This diagram covers the first issue-report persistence milestone. The tables and
-constraints below are design decisions, not migrations yet.
+constraints below are the reviewed design implemented by RF-105. SQL table names
+are plural (`customer_accounts`, `users`, `services`, `issue_reports`); foreign-key
+columns are indexed for account-scoped and relationship queries.
 
 ```mermaid
 erDiagram
