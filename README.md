@@ -56,6 +56,11 @@ backend tests, and informational branch coverage with:
 pnpm check
 ```
 
+The API client in `packages/api-client` uses types generated from FastAPI's
+OpenAPI schema. After changing an API route or schema, run
+`pnpm generate:api-client` and commit both generated files. `pnpm check` detects
+client drift. The web app imports the typed client from the workspace package.
+
 The web app uses
 `VITE_API_URL=http://localhost:8000` by default; copy `apps/web/.env.example`
 to `apps/web/.env` to override it.

@@ -9,6 +9,7 @@
     "typecheck": "vite build && tsc --noEmit"
   },
   "dependencies": {
+    "@resolve-flow/api-client": "workspace:*",
     "@tanstack/react-router": "^1.131.35",
     "@tanstack/react-start": "^1.131.35",
     "nitro": "3.0.260610-beta",

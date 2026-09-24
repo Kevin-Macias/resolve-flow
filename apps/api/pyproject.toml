@@ -36,7 +36,7 @@ branch = true
 source = ["api"]
 
 [tool.pyright]
-include = ["src", "tests", "migrations"]
+include = ["src", "tests", "migrations", "scripts"]
 pythonVersion = "3.12"
 typeCheckingMode = "strict"
 venv = ".venv"

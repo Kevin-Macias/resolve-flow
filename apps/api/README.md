@@ -15,6 +15,41 @@ archive (`DELETE /issue-reports/{id}`). PATCH accepts only
 clears the association, while omitting it leaves the association unchanged.
 Archived reports are hidden from customer reads and cannot be changed again.
 
+## API errors
+
+Error responses use one JSON shape:
+
+```json
+{
+  "error": {
+    "code": "validation_error",
+    "message": "Request validation failed",
+    "details": [{ "location": ["body", "description"], "code": "string_too_short" }]
+  }
+}
+```
+
+`code` is stable for client logic and localization. `message` is human-readable
+and may change. `details` is always a list; request validation errors include
+field locations and validation codes without submitted values. Other errors
+currently use an empty list. The HTTP status remains authoritative.
+
+| Status | Code |
+| --- | --- |
+| 401 | `unauthorized` |
+| 403 | `forbidden` |
+| 404 | `not_found` |
+| 409 | `conflict` |
+| 422 | `validation_error` |
+| 503 | `service_unavailable` |
+| 500 | `internal_error` |
+
+Other HTTP errors use `http_error`, except 405 (`method_not_allowed`).
+Unexpected errors and HTTP errors with status 500 or above use generic public
+messages. Unexpected errors log the exception type without its potentially
+sensitive message. No current endpoint raises 409, but the contract is ready
+for one.
+
 ## Database migrations
 
 Start PostgreSQL and set `DATABASE_URL` to a local PostgreSQL connection string
@@ -51,6 +86,10 @@ the web type check together.
 The issue-report HTTP/database tests run when `TEST_DATABASE_URL` is set to a
 local PostgreSQL database URL. They create their own temporary schema inside a
 transaction and roll it back after each test, leaving existing tables untouched.
+The fixture verifies that its outer transaction rollback removed the schema.
+Tests also check that a flushed report disappears after session rollback, a
+session commit is visible to another session on the same test connection, and
+archiving persists the `deleted` status during the test.
 Without this variable, those tests are skipped; for example:
 
 ```bash

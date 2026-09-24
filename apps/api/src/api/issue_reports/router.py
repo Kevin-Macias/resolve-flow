@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.db.models import IssueReport
 from api.db.session import get_session
+from api.errors import ErrorResponse
 from api.identity.context import RequestContext
 from api.identity.dependencies import get_request_context
 from api.issue_reports.schemas import (
@@ -17,7 +18,16 @@ from api.issue_reports.schemas import (
 )
 from api.issue_reports.service import full_issue_report_response, get_service_from_code
 
-router = APIRouter(prefix="/issue-reports", tags=["issue-reports"])
+router = APIRouter(
+    prefix="/issue-reports",
+    tags=["issue-reports"],
+    responses={
+        401: {"model": ErrorResponse},
+        403: {"model": ErrorResponse},
+        422: {"model": ErrorResponse},
+        500: {"model": ErrorResponse},
+    },
+)
 
 Context = Annotated[RequestContext, Depends(get_request_context)]
 Session = Annotated[AsyncSession, Depends(get_session)]
@@ -44,7 +54,11 @@ async def get_issue_reports_list(
     return [await full_issue_report_response(report, session) for report in reports]
 
 
-@router.get("/{report_id}", response_model=IssueReportResponse)
+@router.get(
+    "/{report_id}",
+    response_model=IssueReportResponse,
+    responses={404: {"model": ErrorResponse}},
+)
 async def get_issue_report(
     report_id: UUID, context: Context, session: Session
 ) -> IssueReportResponse:
@@ -97,7 +111,10 @@ async def create_issue_report(
 
 
 @router.patch(
-    "/{report_id}", response_model=IssueReportResponse, status_code=status.HTTP_200_OK
+    "/{report_id}",
+    response_model=IssueReportResponse,
+    status_code=status.HTTP_200_OK,
+    responses={404: {"model": ErrorResponse}},
 )
 async def update_report(
     report_id: UUID,
@@ -137,7 +154,11 @@ async def update_report(
     return await full_issue_report_response(report, session)
 
 
-@router.delete("/{report_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    "/{report_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    responses={404: {"model": ErrorResponse}},
+)
 async def delete_report(report_id: UUID, context: Context, session: Session) -> None:
     if context.user_type != "customer" or context.customer_account_id is None:
         raise HTTPException(

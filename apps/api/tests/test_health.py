@@ -77,7 +77,13 @@ async def test_readiness_rejects_missing_database_configuration() -> None:
     response = await get(create_test_app(NotConfiguredSystemService()), "/ready")
 
     assert response.status_code == 503
-    assert response.json() == {"detail": "Database configuration is missing"}
+    assert response.json() == {
+        "error": {
+            "code": "service_unavailable",
+            "message": "Service unavailable",
+            "details": [],
+        }
+    }
 
 
 @pytest.mark.anyio
@@ -85,4 +91,10 @@ async def test_readiness_rejects_unavailable_database() -> None:
     response = await get(create_test_app(UnavailableSystemService()), "/ready")
 
     assert response.status_code == 503
-    assert response.json() == {"detail": "Database is unavailable"}
+    assert response.json() == {
+        "error": {
+            "code": "service_unavailable",
+            "message": "Service unavailable",
+            "details": [],
+        }
+    }

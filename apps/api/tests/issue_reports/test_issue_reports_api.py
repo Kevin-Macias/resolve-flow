@@ -13,7 +13,7 @@ from sqlalchemy import text
 from sqlalchemy.engine import make_url
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
-from api.db.models import Base, CustomerAccount, Service, User
+from api.db.models import Base, CustomerAccount, IssueReport, Service, User
 from api.db.session import get_session
 from api.identity.context import RequestContext
 from api.identity.dependencies import get_request_context
@@ -26,8 +26,8 @@ def anyio_backend() -> str:
 
 
 @pytest.fixture
-async def api() -> AsyncGenerator[
-    tuple[AsyncClient, list[RequestContext], dict[str, UUID], FastAPI], None
+async def database() -> AsyncGenerator[
+    tuple[async_sessionmaker[AsyncSession], dict[str, UUID]], None
 ]:
     database_url = os.getenv("TEST_DATABASE_URL")
     if not database_url:
@@ -81,29 +81,84 @@ async def api() -> AsyncGenerator[
                     "second_user": second_user.id,
                     "service": service.id,
                 }
-                current_context = [
-                    RequestContext(first_user.id, "customer", first_account.id)
-                ]
-                app: FastAPI = create_app()
-
-                async def override_session() -> AsyncGenerator[AsyncSession]:
-                    async with sessions() as session:
-                        yield session
-
-                def override_context() -> RequestContext:
-                    return current_context[0]
-
-                app.dependency_overrides[get_session] = override_session
-                app.dependency_overrides[get_request_context] = override_context
-
-                async with AsyncClient(
-                    transport=ASGITransport(app=app), base_url="http://test"
-                ) as client:
-                    yield client, current_context, identities, app
+                yield sessions, identities
             finally:
                 await transaction.rollback()
+        async with engine.connect() as connection:
+            schema_exists = await connection.scalar(
+                text("SELECT 1 FROM pg_namespace WHERE nspname = :schema"),
+                {"schema": schema},
+            )
+            assert schema_exists is None, "Temporary test schema survived rollback"
     finally:
         await engine.dispose()
+
+
+@pytest.fixture
+async def api(
+    database: tuple[async_sessionmaker[AsyncSession], dict[str, UUID]],
+) -> AsyncGenerator[
+    tuple[AsyncClient, list[RequestContext], dict[str, UUID], FastAPI], None
+]:
+    sessions, identities = database
+    current_context = [
+        RequestContext(
+            identities["first_user"], "customer", identities["first_account"]
+        )
+    ]
+    app = create_app()
+
+    async def override_session() -> AsyncGenerator[AsyncSession]:
+        async with sessions() as session:
+            yield session
+
+    def override_context() -> RequestContext:
+        return current_context[0]
+
+    app.dependency_overrides[get_session] = override_session
+    app.dependency_overrides[get_request_context] = override_context
+
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as client:
+        yield client, current_context, identities, app
+
+
+@pytest.mark.anyio
+async def test_session_rollback_discards_flush_but_commit_is_visible_to_next_session(
+    database: tuple[async_sessionmaker[AsyncSession], dict[str, UUID]],
+) -> None:
+    sessions, ids = database
+    async with sessions() as session:
+        uncommitted = IssueReport(
+            customer_account_id=ids["first_account"],
+            submitted_by_user_id=ids["first_user"],
+            description="Rolled back report",
+            status="submitted",
+        )
+        session.add(uncommitted)
+        await session.flush()
+        uncommitted_id = uncommitted.id
+        await session.rollback()
+
+    async with sessions() as session:
+        assert await session.get(IssueReport, uncommitted_id) is None
+
+        committed = IssueReport(
+            customer_account_id=ids["first_account"],
+            submitted_by_user_id=ids["first_user"],
+            description="Committed report",
+            status="submitted",
+        )
+        session.add(committed)
+        await session.commit()
+        committed_id = committed.id
+
+    async with sessions() as session:
+        saved = await session.get(IssueReport, committed_id)
+        assert saved is not None
+        assert saved.description == "Committed report"
+        assert await session.get(IssueReport, uncommitted_id) is None
 
 
 @pytest.mark.anyio
@@ -162,7 +217,15 @@ async def test_reports_are_scoped_to_the_customer_account(
     assert other_report.status_code == 201
     assert other_report.json()["customer_account_id"] == str(ids["second_account"])
     assert other_report.json()["affected_service"] is None
-    assert (await client.get(f"/issue-reports/{uuid4()}")).status_code == 404
+    missing = await client.get(f"/issue-reports/{uuid4()}")
+    assert missing.status_code == 404
+    assert missing.json() == {
+        "error": {
+            "code": "not_found",
+            "message": "Issue report not found",
+            "details": [],
+        }
+    }
 
 
 @pytest.mark.anyio
@@ -177,6 +240,7 @@ async def test_invalid_input_and_unknown_service_do_not_create_reports(
     ):
         response = await client.post("/issue-reports/", json=payload)
         assert response.status_code == 422
+        assert response.json()["error"]["code"] == "validation_error"
 
     assert (await client.get("/issue-reports/")).json() == []
 
@@ -293,8 +357,10 @@ async def test_patch_and_delete_are_scoped_to_the_customer_account(
 @pytest.mark.anyio
 async def test_delete_archives_report_from_customer_reads(
     api: tuple[AsyncClient, list[RequestContext], dict[str, UUID], FastAPI],
+    database: tuple[async_sessionmaker[AsyncSession], dict[str, UUID]],
 ) -> None:
     client, _, _, _ = api
+    sessions, _ = database
     created = await client.post(
         "/issue-reports/", json={"description": "Export failed"}
     )
@@ -302,6 +368,10 @@ async def test_delete_archives_report_from_customer_reads(
 
     deleted = await client.delete(report_url)
     assert deleted.status_code == 204
+    async with sessions() as session:
+        persisted = await session.get(IssueReport, UUID(created.json()["id"]))
+        assert persisted is not None
+        assert persisted.status == "deleted"
     assert (await client.get(report_url)).status_code == 404
     assert (await client.get("/issue-reports/")).json() == []
     assert (

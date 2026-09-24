@@ -2,6 +2,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException
 
+from api.errors import ErrorResponse
 from api.system.service import (
     DatabaseNotConfiguredError,
     DatabaseUnavailableError,
@@ -27,7 +28,7 @@ async def health() -> dict[str, str]:
     }
 
 
-@router.get("/ready")
+@router.get("/ready", responses={503: {"model": ErrorResponse}})
 async def readiness(service: SystemServiceDependency) -> dict[str, str]:
     try:
         await service.check_database_readiness()

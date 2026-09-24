@@ -21,17 +21,11 @@ Ownership:
 
 ## Current milestone
 
-**Milestone 1: tested IssueReport CRUD backed by PostgreSQL.**
+**Milestone 2: validated structured AI extraction with deterministic tests.**
 
-RF-001 established the two-sided product and RF-002 defined its domain language,
-access boundaries, and report aggregation model. RF-004 established the Python
-quality baseline, RF-101 added validated issue-report schemas, RF-102 added a
-tested application factory and system-readiness boundary, RF-103 defined the
-initial relational design, RF-104 added async SQLAlchemy sessions with a test
-override, RF-105 added the reviewed initial migration, and RF-106 added tested
-customer-scoped create and read endpoints. RF-107 added reviewed, tested
-customer service updates and soft archiving. The next ticket is RF-108: define
-API error contracts.
+Milestone 1 is complete: PostgreSQL-backed IssueReport CRUD, API error contracts,
+database integration tests, and a generated TypeScript client are in place. The
+next ticket is RF-201: define the extraction contract.
 
 ## Phase 0 — Scope and foundation
 
@@ -55,9 +49,9 @@ API error contracts.
 | RF-105 | Create initial Alembic migration | PAIR | DONE | Migration creates and cleanly rolls back the reviewed incident schema |
 | RF-106 | Create and read issue reports | PAIR | DONE | POST, GET by ID, and list endpoints persist typed data within customer scope |
 | RF-107 | Update and archive issue reports | PAIR | DONE | Partial update, missing record, ownership, and invalid transition behavior are tested |
-| RF-108 | Define API error contracts | PAIR | NEXT | Validation, not-found, conflict, and unexpected errors share a documented shape |
-| RF-109 | Add database integration tests | HAND | PLANNED | CRUD, validation, rollback/isolation, missing records, and transitions are covered |
-| RF-110 | Generate TypeScript API client | DELEGATE | PLANNED | Repeatable generation produces a workspace package and drift can be detected |
+| RF-108 | Define API error contracts | PAIR | DONE | Validation, not-found, conflict, and unexpected errors share a documented shape |
+| RF-109 | Add database integration tests | PAIR | DONE | CRUD, validation, rollback/isolation, missing records, and transitions are covered |
+| RF-110 | Generate TypeScript API client | DELEGATE | DONE | Repeatable generation produces a workspace package and drift can be detected |
 
 ## Phase 2 — Direct LLM integration
 
@@ -65,7 +59,7 @@ LangChain and LangGraph are intentionally excluded from this phase.
 
 | ID | Ticket | Owner | Status | Acceptance |
 | --- | --- | --- | --- | --- |
-| RF-201 | Define extraction contract | HAND | PLANNED | Schema includes summary, service, severity, confidence, facts, missing data, and questions |
+| RF-201 | Define extraction contract | PAIR | NEXT | Schema includes summary, service, severity, confidence, facts, missing data, and questions |
 | RF-202 | Build the LLM provider boundary | HAND | PLANNED | OpenAI and deterministic fake providers satisfy one application-owned interface |
 | RF-203 | Implement structured extraction | HAND | PLANNED | Validated output handles malformed, missing, refusal, empty, and SDK-error cases |
 | RF-204 | Define severity policy | HAND | PLANNED | Written rules and examples prevent invented impact from raising severity |

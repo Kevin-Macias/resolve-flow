@@ -1,3 +1,4 @@
+import { createApiClient } from '@resolve-flow/api-client'
 import { createFileRoute } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
 
@@ -11,8 +12,9 @@ function Home() {
   useEffect(() => {
     const apiUrl = import.meta.env.VITE_API_URL ?? 'http://localhost:8000'
 
-    fetch(`${apiUrl}/health`)
-      .then((response) => {
+    createApiClient(apiUrl)
+      .GET('/health')
+      .then(({ response }) => {
         if (!response.ok) throw new Error('API health check failed')
         setApiState('connected')
       })

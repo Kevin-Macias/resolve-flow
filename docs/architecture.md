@@ -33,6 +33,10 @@ The monorepo currently provides:
   users, services, and issue reports
 - Customer-scoped issue-report create, list, read-by-ID, service update, and
   archive endpoints using simulated identity and validated request bodies
+- Shared API error responses with stable codes, safe messages, and validation
+  field details
+- A workspace API client generated from FastAPI OpenAPI output, with checked-in
+  schema artifacts and a drift check
 - Database-backed endpoint tests isolated in rolled-back temporary schemas
 - Factory-based tests for health and successful, misconfigured, and unavailable
   database-readiness behavior
@@ -46,8 +50,8 @@ SQLAlchemy uses the database clock to refresh `updated_at` on ORM updates;
 direct SQL writes do not currently have an update trigger. Internal status
 transitions have not yet been implemented.
 
-The monorepo does not yet provide an LLM integration, LangGraph, retrieval, an
-API client package, or the incident workspace UI.
+The monorepo does not yet provide an LLM integration, LangGraph, retrieval, or
+the incident workspace UI.
 
 The SQLAlchemy session dependency owns session lifetime, not transaction success:
 application operations will explicitly commit writes. Closing an uncommitted
