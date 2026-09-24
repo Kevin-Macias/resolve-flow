@@ -33,7 +33,6 @@ class IssueReportUpdate(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     affected_service_code: str | None = None
-    status: IssueReportStatus | None = None
 
 
 class IssueReportResponse(BaseModel):

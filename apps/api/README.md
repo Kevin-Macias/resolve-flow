@@ -8,6 +8,13 @@ uv run fastapi dev src/api/main.py
 The health endpoint is available at `GET /health` and interactive OpenAPI docs
 at `/docs`.
 
+Customer issue-report routes support create (`POST /issue-reports/`), list,
+read by ID, affected-service update (`PATCH /issue-reports/{id}`), and soft
+archive (`DELETE /issue-reports/{id}`). PATCH accepts only
+`affected_service_code`; status changes are internal-only. A `null` service code
+clears the association, while omitting it leaves the association unchanged.
+Archived reports are hidden from customer reads and cannot be changed again.
+
 ## Database migrations
 
 Start PostgreSQL and set `DATABASE_URL` to a local PostgreSQL connection string
@@ -40,3 +47,12 @@ uv run pytest
 `pytest` reports statement and branch coverage without enforcing a minimum
 percentage. From the repository root, `pnpm check` runs the backend checks and
 the web type check together.
+
+The issue-report HTTP/database tests run when `TEST_DATABASE_URL` is set to a
+local PostgreSQL database URL. They create their own temporary schema inside a
+transaction and roll it back after each test, leaving existing tables untouched.
+Without this variable, those tests are skipped; for example:
+
+```bash
+TEST_DATABASE_URL=postgresql://resolve_flow:resolve_flow_local@localhost:5432/resolve_flow uv run pytest
+```

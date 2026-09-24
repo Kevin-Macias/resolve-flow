@@ -21,6 +21,7 @@ def test_initial_model_metadata_matches_reviewed_tables() -> None:
         assert table.c.id.server_default is not None
         assert table.c.created_at.server_default is not None
         assert table.c.updated_at.server_default is not None
+        assert table.c.updated_at.onupdate is not None
 
 
 def test_foreign_keys_restrict_physical_deletion() -> None:

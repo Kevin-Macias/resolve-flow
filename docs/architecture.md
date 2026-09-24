@@ -16,7 +16,8 @@ TanStack Start + React + TypeScript        apps/web
   v
 FastAPI                                   apps/api
   |-- GET /health
-  `-- GET /ready -- psycopg --> PostgreSQL
+  |-- GET /ready -- psycopg --> PostgreSQL
+  `-- POST/GET/PATCH/DELETE /issue-reports -- SQLAlchemy --> PostgreSQL
 ```
 
 The monorepo currently provides:
@@ -30,13 +31,23 @@ The monorepo currently provides:
   session per database request and engine disposal at shutdown
 - Declarative models and a reversible Alembic migration for customer accounts,
   users, services, and issue reports
+- Customer-scoped issue-report create, list, read-by-ID, service update, and
+  archive endpoints using simulated identity and validated request bodies
+- Database-backed endpoint tests isolated in rolled-back temporary schemas
 - Factory-based tests for health and successful, misconfigured, and unavailable
   database-readiness behavior
 - Dockerfiles and Docker Compose for web, API, and PostgreSQL
 - Root development, test, build, and Docker commands
 
-It does not yet provide issue-report CRUD, an LLM integration, LangGraph,
-retrieval, an API client package, or the incident workspace UI.
+Customer PATCH can set or clear the affected service, but cannot change status.
+DELETE archives the report by setting its status to `deleted`; archived reports
+are excluded from customer reads and cannot be patched or archived again.
+SQLAlchemy uses the database clock to refresh `updated_at` on ORM updates;
+direct SQL writes do not currently have an update trigger. Internal status
+transitions have not yet been implemented.
+
+The monorepo does not yet provide an LLM integration, LangGraph, retrieval, an
+API client package, or the incident workspace UI.
 
 The SQLAlchemy session dependency owns session lifetime, not transaction success:
 application operations will explicitly commit writes. Closing an uncommitted

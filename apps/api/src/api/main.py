@@ -4,6 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from api.db.session import database_lifespan
+from api.issue_reports.router import router as issues_router
 from api.system.router import router as system_router
 
 
@@ -20,6 +21,7 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
     app.include_router(system_router)
+    app.include_router(issues_router)
     return app
 
 

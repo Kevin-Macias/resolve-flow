@@ -57,14 +57,9 @@ def test_create_issue_unexpected_value() -> None:
         )
 
 
-def test_update_issue_report_valid_status() -> None:
-    updated_report = IssueReportUpdate(status=IssueReportStatus.CLOSED)
-    assert updated_report.status == IssueReportStatus.CLOSED
-
-
-def test_update_issue_report_invalid_status() -> None:
+def test_customer_update_rejects_status() -> None:
     with pytest.raises(ValidationError):
-        IssueReportUpdate(status="out_of_scope")  # type: ignore
+        IssueReportUpdate.model_validate({"status": IssueReportStatus.CLOSED})
 
 
 def mock_issue_report_response() -> dict[str, Any]:
