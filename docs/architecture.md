@@ -37,6 +37,19 @@ The monorepo currently provides:
   field details
 - A workspace API client generated from FastAPI OpenAPI output, with checked-in
   schema artifacts and a drift check
+- A validated extraction output model for summary, tentative classification,
+  reported facts, missing data, and questions
+- An application-owned async LLM provider interface with OpenAI and deterministic
+  fake adapters; the OpenAI adapter can request strict Structured Outputs
+- An extraction service that requests the schema, validates returned JSON, and
+  distinguishes refusal, empty output, malformed or invalid data, and provider
+  failures; transient provider failures are retried within a fixed attempt and
+  timeout budget, each outcome or error carries in-memory prompt and model
+  settings metadata, and no endpoint invokes it yet
+- A clarification policy that exposes missing or conflicting context and keeps
+  at most two distinct model-proposed questions per extraction
+- An opt-in live extraction check that reports schema shape, latency, and token
+  usage without entering the normal test suite
 - Database-backed endpoint tests isolated in rolled-back temporary schemas
 - Factory-based tests for health and successful, misconfigured, and unavailable
   database-readiness behavior
@@ -50,8 +63,8 @@ SQLAlchemy uses the database clock to refresh `updated_at` on ORM updates;
 direct SQL writes do not currently have an update trigger. Internal status
 transitions have not yet been implemented.
 
-The monorepo does not yet provide an LLM integration, LangGraph, retrieval, or
-the incident workspace UI.
+The monorepo does not yet invoke extraction from an endpoint or provide LangGraph,
+retrieval, or the incident workspace UI.
 
 The SQLAlchemy session dependency owns session lifetime, not transaction success:
 application operations will explicitly commit writes. Closing an uncommitted

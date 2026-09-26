@@ -21,11 +21,18 @@ Ownership:
 
 ## Current milestone
 
-**Milestone 2: validated structured AI extraction with deterministic tests.**
+**Milestone 3: durable workflow with clarification and resume.**
 
 Milestone 1 is complete: PostgreSQL-backed IssueReport CRUD, API error contracts,
-database integration tests, and a generated TypeScript client are in place. The
-next ticket is RF-201: define the extraction contract.
+database integration tests, and a generated TypeScript client are in place.
+RF-201 defined the reviewed extraction contract, RF-202 added the OpenAI and
+fake provider boundary, and RF-203 added structured extraction with typed
+failure reasons. RF-204 documented the tentative severity policy and examples,
+and RF-205 added versioned prompts and per-call model settings records. RF-207
+added bounded timeout and retry behavior, RF-208 added the reviewed offline
+scenario suite, and RF-206 added the reviewed clarification policy. RF-209
+verified the opt-in live check with schema shape, latency, and usage reporting.
+The next ticket is RF-301: design typed workflow state.
 
 ## Phase 0 — Scope and foundation
 
@@ -59,21 +66,21 @@ LangChain and LangGraph are intentionally excluded from this phase.
 
 | ID | Ticket | Owner | Status | Acceptance |
 | --- | --- | --- | --- | --- |
-| RF-201 | Define extraction contract | PAIR | NEXT | Schema includes summary, service, severity, confidence, facts, missing data, and questions |
-| RF-202 | Build the LLM provider boundary | HAND | PLANNED | OpenAI and deterministic fake providers satisfy one application-owned interface |
-| RF-203 | Implement structured extraction | HAND | PLANNED | Validated output handles malformed, missing, refusal, empty, and SDK-error cases |
-| RF-204 | Define severity policy | HAND | PLANNED | Written rules and examples prevent invented impact from raising severity |
-| RF-205 | Version prompts and model settings | PAIR | PLANNED | Calls record prompt ID/version and model configuration |
-| RF-206 | Implement clarification policy | HAND | PLANNED | Explicit rules identify missing or contradictory context and limit questions |
-| RF-207 | Add timeout and retry policy | PAIR | PLANNED | Transient and permanent failures are distinguished; retries are bounded |
-| RF-208 | Add deterministic AI tests | HAND | PLANNED | Default suite covers valid, ambiguous, malformed, timeout, refusal, and low-confidence cases offline |
-| RF-209 | Add opt-in live model tests | PAIR | PLANNED | Separate command records shape, latency, and usage without exact-prose assertions |
+| RF-201 | Define extraction contract | PAIR | DONE | Schema includes summary, service, severity, confidence, facts, missing data, and questions |
+| RF-202 | Build the LLM provider boundary | PAIR | DONE | OpenAI and deterministic fake providers satisfy one application-owned interface |
+| RF-203 | Implement structured extraction | PAIR | DONE | Validated output handles malformed, missing, refusal, empty, and SDK-error cases |
+| RF-204 | Define severity policy | PAIR | DONE | Written rules and examples prevent invented impact from raising severity |
+| RF-205 | Version prompts and model settings | PAIR | DONE | Calls record prompt ID/version and model configuration |
+| RF-206 | Implement clarification policy | PAIR | DONE | Explicit rules identify missing or contradictory context and limit questions |
+| RF-207 | Add timeout and retry policy | PAIR | DONE | Transient and permanent failures are distinguished; retries are bounded |
+| RF-208 | Add deterministic AI tests | PAIR | DONE | Default suite covers valid, ambiguous, malformed, timeout, refusal, and low-confidence cases offline |
+| RF-209 | Add opt-in live model tests | PAIR | DONE | Separate command records shape, latency, and usage without exact-prose assertions |
 
 ## Phase 3 — Durable LangGraph workflow
 
 | ID | Ticket | Owner | Status | Acceptance |
 | --- | --- | --- | --- | --- |
-| RF-301 | Design typed workflow state | HAND | PLANNED | Durable and recomputable fields are identified for every workflow stage |
+| RF-301 | Design typed workflow state | HAND | NEXT | Durable and recomputable fields are identified for every workflow stage |
 | RF-302 | Document transitions and failures | HAND | PLANNED | Normal, clarification, rejection, provider failure, retrieval failure, and resume paths are drawn |
 | RF-303 | Implement the minimal graph | HAND | PLANNED | Classify, evaluate, diagnose, and report nodes execute with typed state |
 | RF-304 | Add bounded clarification branch | HAND | PLANNED | Workflow pauses/resumes, appends answers, limits loops, and permits incomplete continuation |

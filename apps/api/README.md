@@ -15,6 +15,17 @@ archive (`DELETE /issue-reports/{id}`). PATCH accepts only
 clears the association, while omitting it leaves the association unchanged.
 Archived reports are hidden from customer reads and cannot be changed again.
 
+## LLM provider boundary
+
+`api.extraction.provider` defines one async interface with an OpenAI adapter
+and a deterministic fake. The OpenAI adapter uses the Responses API and needs
+`OPENAI_API_KEY` only when constructed for a real call. No API endpoint invokes
+it yet; ordinary tests use the fake or an injected SDK stub. The extraction
+service validates provider output, applies a bounded retry and clarification
+policy, and returns prompt/model metadata. For the separate live model check,
+add `OPENAI_API_KEY` and `OPENAI_MODEL` to the ignored root `.env` file and run
+`pnpm test:live` from the root.
+
 ## API errors
 
 Error responses use one JSON shape:
