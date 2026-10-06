@@ -21,7 +21,7 @@ Ownership:
 
 ## Current milestone
 
-**Milestone 3: durable workflow with clarification and resume.**
+**Milestone 4: small retrieval slice with verifiable citations.**
 
 Milestone 1 is complete: PostgreSQL-backed IssueReport CRUD, API error contracts,
 database integration tests, and a generated TypeScript client are in place.
@@ -47,10 +47,10 @@ binding and current support access checks; all 184 tests and quality checks
 passed. RF-308 connected reviewed simulated execution with fresh support access
 checks and deterministic checkpointed results; all 195 tests and quality checks
 passed. RF-309 added reviewed guarded submissions, concurrent-process checks,
-and sanitized failures; all 211 tests and quality checks passed. The next ticket
-is RF-310: persist the execution timeline. Its implementation now saves ordered,
-sanitized events with graph state; all 227 tests and quality checks passed. It
-remains NEXT pending Kevin's final PAIR review for Phase 3.
+and sanitized failures; all 211 tests and quality checks passed. RF-310 saves
+ordered, sanitized events with graph state; all 227 tests and quality checks
+passed, and Kevin confirmed his final PAIR review on 2026-10-06. Phase 3 is
+complete. The next ticket is RF-401: author the curated knowledge dataset.
 
 ## Phase 0 — Scope and foundation
 
@@ -107,35 +107,35 @@ LangChain and LangGraph are intentionally excluded from this phase.
 | RF-307 | Implement approval interrupt | PAIR | DONE | Execution pauses and approval binds to exact immutable arguments |
 | RF-308 | Implement simulated create-ticket tool | PAIR | DONE | Application code validates arguments and produces a deterministic fake result |
 | RF-309 | Test approval edge cases | PAIR | DONE | Stale, changed, duplicate, rejected, concurrent, resumed, and failed executions are safe |
-| RF-310 | Persist execution timeline | PAIR | NEXT | Ordered, sanitized events explain all meaningful state transitions |
+| RF-310 | Persist execution timeline | PAIR | DONE | Ordered, sanitized events explain all meaningful state transitions |
 
 ## Phase 4 — Retrieval and citations
 
 | ID | Ticket | Owner | Status | Acceptance |
 | --- | --- | --- | --- | --- |
-| RF-401 | Author curated knowledge dataset | HAND | PLANNED | Realistic runbooks include similar causes, stale advice, irrelevant text, and ambiguity |
-| RF-402 | Define document metadata | HAND | PLANNED | Source, title, type, service, version, date, access class, and location are typed |
-| RF-403 | Ingest Markdown documents | HAND | PLANNED | Parsing, hashing, idempotent re-ingestion, and errors are tested |
+| RF-401 | Author curated knowledge dataset | PAIR | NEXT | Realistic runbooks include similar causes, stale advice, irrelevant text, and ambiguity |
+| RF-402 | Define document metadata | PAIR | PLANNED | Source, title, type, service, version, date, access class, and location are typed |
+| RF-403 | Ingest Markdown documents | PAIR | PLANNED | Parsing, hashing, idempotent re-ingestion, and errors are tested |
 | RF-404 | Ingest PDF documents | PAIR | PLANNED | Empty pages, bad extraction, tables, and page citations are handled |
 | RF-405 | Add pgvector schema and index | PAIR | PLANNED | Migration stores embeddings with documented index choice |
-| RF-406 | Select chunking strategy | HAND | PLANNED | Fixed and heading-aware approaches are compared and the decision is recorded |
-| RF-407 | Implement retrieval boundary | HAND | PLANNED | Framework-independent interface returns ranked typed evidence |
+| RF-406 | Select chunking strategy | PAIR | PLANNED | Fixed and heading-aware approaches are compared and the decision is recorded |
+| RF-407 | Implement retrieval boundary | PAIR | PLANNED | Framework-independent interface returns ranked typed evidence |
 | RF-408 | Integrate selected LangChain pieces | PAIR | PLANNED | LangChain is limited to documented integration value, not domain contracts |
-| RF-409 | Generate verifiable citations | HAND | PLANNED | Claims distinguish support, inference, missing evidence, and conflict by stable location |
-| RF-410 | Add retrieval tests | HAND | PLANNED | Top-k relevance, exclusion, filters, duplicates, empty results, and stale sources are measured |
-| RF-411 | Defend against document injection | HAND | PLANNED | Malicious document instructions cannot alter system or tool policy |
+| RF-409 | Generate verifiable citations | PAIR | PLANNED | Claims distinguish support, inference, missing evidence, and conflict by stable location |
+| RF-410 | Add retrieval tests | PAIR | PLANNED | Top-k relevance, exclusion, filters, duplicates, empty results, and stale sources are measured |
+| RF-411 | Defend against document injection | PAIR | PLANNED | Malicious document instructions cannot alter system or tool policy |
 
 ## Phase 5 — Incident workspace
 
 | ID | Ticket | Owner | Status | Acceptance |
 | --- | --- | --- | --- | --- |
-| RF-501 | Design workspace information architecture | HAND | PLANNED | Summary, state, questions, evidence, diagnosis, actions, approval, timeline, and metrics are placed |
+| RF-501 | Design workspace information architecture | PAIR | PLANNED | Summary, state, questions, evidence, diagnosis, actions, approval, timeline, and metrics are placed |
 | RF-502 | Implement incident CRUD screens | DELEGATE | PLANNED | Typed client and TanStack Query support create, list, view, and update states |
 | RF-503 | Implement SSE transport | PAIR | PLANNED | Ordering, duplicate events, event IDs, reconnect, and terminal state are tested |
 | RF-504 | Implement execution timeline | DELEGATE | PLANNED | UI renders persisted events rather than reconstructing them from chat |
 | RF-505 | Implement clarification UI | DELEGATE | PLANNED | Current questions, previous answers, submit state, and resume are visible |
 | RF-506 | Implement evidence panel | DELEGATE | PLANNED | Each citation exposes source, location, relevance, and supporting text |
-| RF-507 | Design approval experience | HAND | PLANNED | Exact action, arguments, reason, effect, risk, and reversibility are visible |
+| RF-507 | Design approval experience | PAIR | PLANNED | Exact action, arguments, reason, effect, risk, and reversibility are visible |
 | RF-508 | Implement approve/reject controls | PAIR | PLANNED | Double submission, stale proposals, reconnects, and completed actions are safe |
 | RF-509 | Display execution metrics | DELEGATE | PLANNED | Latency, model, tokens, cost estimate, and prompt version are shown |
 | RF-510 | Add frontend tests | DELEGATE | PLANNED | Important loading, error, stream, evidence, clarification, and approval states are covered |

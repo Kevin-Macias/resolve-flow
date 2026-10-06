@@ -2,7 +2,7 @@
 
 Kevin chose a typed event list in graph state, persisted by the existing
 PostgreSQL checkpointer. Events use a closed metadata contract rather than free
-text. The implementation awaits the PAIR review.
+text. Kevin completed the PAIR review, confirmed on 2026-10-06.
 
 ## Event contract
 

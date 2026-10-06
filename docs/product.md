@@ -16,7 +16,7 @@ ResolveFlow is an AI support and incident intake platform with two connected
 experiences: a customer assistant and an internal support workspace. A customer
 or support engineer can submit an unstructured issue such as:
 
-> Payments sometimes remain pending after a successful Stripe checkout.
+> I submitted an issue report, but I can't find it in my list.
 
 ResolveFlow then:
 
@@ -44,7 +44,8 @@ ResolveFlow then:
 
 The first complete demonstration must take less than five minutes:
 
-1. A simulated authenticated customer reports an ambiguous payment problem.
+1. A simulated authenticated customer reports that a previously submitted
+   issue report is missing from their list.
 2. ResolveFlow checks public incidents and that customer's tickets, then asks a
    clarification question because it cannot safely identify a match.
 3. The customer answers and confirms the structured report.
@@ -98,17 +99,17 @@ The first complete demonstration must take less than five minutes:
 
 ### 1. Existing issue status
 
-A customer asks why a reported export problem is still open. ResolveFlow
+A customer asks whether support is investigating their missing-report problem. ResolveFlow
 verifies the simulated customer context, finds that customer's ticket, and
 returns its public status and latest customer-visible update. It does not expose
 internal comments, assignees, or similar tickets owned by other customers.
 
 ### 2. Known incident match
 
-A customer reports that payments remain pending. ResolveFlow finds an active
-customer-visible incident affecting the payment service, asks for the minimum
-information needed to determine whether it applies, and links the report rather
-than creating a duplicate ticket. The internal workspace records the match and
+A customer reports trouble submitting issue reports. In this planned journey,
+ResolveFlow finds a published incident affecting report submission, asks for
+the minimum information needed to determine whether it applies, and links the
+report rather than creating a duplicate ticket. The internal workspace records the match and
 supporting evidence.
 
 ### 3. New issue requiring internal review
@@ -130,3 +131,10 @@ ResolveFlow ticket. The customer receives only its public identifier and status.
 - Every diagnosis identifies its evidence and any unsupported inference.
 - Evaluation results compare at least one design change against a baseline.
 - The repository explains architectural decisions and known limitations.
+
+## Initial retrieval scenario
+
+RF-401 focuses on ResolveFlow issue-report submission and visibility, grounded
+in the existing API. The [feature summary](issue-report-troubleshooting.md)
+explains the behavior and troubleshooting distinctions. Historical investigations
+will be fictional fixtures. The end-to-end assistant and workspace remain planned.

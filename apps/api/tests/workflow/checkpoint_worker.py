@@ -8,7 +8,7 @@ from dataclasses import is_dataclass
 from typing import cast
 from uuid import UUID, uuid5
 
-from langgraph.types import Command  # pyright: ignore[reportMissingTypeStubs]
+from langgraph.types import Command
 from pydantic import BaseModel
 
 from api.extraction.clarification import ClarificationDecision

@@ -1,25 +1,19 @@
 """A reusable approval stage for a saved, reviewed proposal."""
 
 from collections.abc import Awaitable, Callable
-from typing import Literal
+from typing import Literal, cast
 from uuid import UUID
 
 from langchain_core.runnables import RunnableConfig
-from langgraph.checkpoint.base import (  # pyright: ignore[reportMissingTypeStubs]
+from langgraph.checkpoint.base import (
     BaseCheckpointSaver,
 )
-from langgraph.checkpoint.memory import (  # pyright: ignore[reportMissingTypeStubs]
+from langgraph.checkpoint.memory import (
     InMemorySaver,
 )
-from langgraph.graph import (  # pyright: ignore[reportMissingTypeStubs]
-    END,
-    START,
-    StateGraph,
-)
-from langgraph.graph.state import (  # pyright: ignore[reportMissingTypeStubs]
-    CompiledStateGraph,
-)
-from langgraph.types import interrupt  # pyright: ignore[reportMissingTypeStubs]
+from langgraph.constants import END, START
+from langgraph.graph.state import StateGraph
+from langgraph.types import interrupt
 
 from api.identity.context import RequestContext
 from api.workflow.actions import ProposedAction
@@ -35,6 +29,7 @@ from api.workflow.execution import (
     ToolExecutionFailure,
     execute_approved_action,
 )
+from api.workflow.langgraph_types import WorkflowBuilder, WorkflowGraph
 from api.workflow.state import (
     ApprovalInput,
     ApprovalState,
@@ -57,7 +52,7 @@ def build_approval_stage(
     *,
     checkpointer: BaseCheckpointSaver[str] | None = None,
     tool: SimulatedCreateTicketTool | None = None,
-) -> CompiledStateGraph[ApprovalState, None, ApprovalInput, ApprovalState]:
+) -> WorkflowGraph[ApprovalInput]:
     """load_context must authenticate the current actor and authorize this report.
 
     Saved proposal input comes from trusted application orchestration, never
@@ -190,7 +185,10 @@ def build_approval_stage(
             ),
         }
 
-    builder = StateGraph(ApprovalState, input_schema=ApprovalInput)
+    builder = cast(
+        WorkflowBuilder[ApprovalState, ApprovalInput, WorkflowUpdate],
+        StateGraph(ApprovalState, input_schema=ApprovalInput),
+    )
     builder.add_node("prepare_review", prepare_review)
     builder.add_node("review_action", review_action)
     builder.add_edge(START, "prepare_review")

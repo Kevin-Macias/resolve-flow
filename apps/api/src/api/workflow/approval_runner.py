@@ -7,16 +7,14 @@ from contextlib import AbstractAsyncContextManager, asynccontextmanager
 from typing import cast
 from uuid import UUID
 
-from langgraph.graph.state import (  # pyright: ignore[reportMissingTypeStubs]
-    CompiledStateGraph,
-)
-from langgraph.types import Command  # pyright: ignore[reportMissingTypeStubs]
+from langgraph.types import Command
 from psycopg import AsyncConnection
 
 from api.workflow.actions import ProposedAction
 from api.workflow.approval import ApprovalDecision, matches, validate_approval_reply
 from api.workflow.approval_graph import ApprovalContextLoader, approval_config
 from api.workflow.checkpoints import postgres_connection_url
+from api.workflow.langgraph_types import WorkflowGraph
 from api.workflow.state import ApprovalInput, ApprovalState
 
 type RunLock = Callable[[UUID], AbstractAsyncContextManager[None]]
@@ -63,7 +61,7 @@ class ApprovalRunner:
 
     def __init__(
         self,
-        stage: CompiledStateGraph[ApprovalState, None, ApprovalInput, ApprovalState],
+        stage: WorkflowGraph[ApprovalInput],
         load_context: ApprovalContextLoader,
         lock: RunLock,
     ) -> None:
@@ -98,8 +96,6 @@ class ApprovalRunner:
                 return state
             if not any(task.interrupts for task in snapshot.tasks):
                 raise ValueError("Approval run is not awaiting a decision")
-            await self._stage.ainvoke(
-                Command(resume=reply), config, durability="sync"
-            )
+            await self._stage.ainvoke(Command(resume=reply), config, durability="sync")
             completed = await self._stage.aget_state(config)
             return cast(ApprovalState, completed.values)

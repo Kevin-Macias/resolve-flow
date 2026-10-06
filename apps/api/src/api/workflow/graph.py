@@ -1,24 +1,18 @@
 """Typed workflow with bounded clarification and checkpointed transition events."""
 
 from collections.abc import Awaitable, Callable
-from typing import Literal
+from typing import Literal, cast
 from uuid import UUID
 
-from langgraph.checkpoint.base import (  # pyright: ignore[reportMissingTypeStubs]
+from langgraph.checkpoint.base import (
     BaseCheckpointSaver,
 )
-from langgraph.checkpoint.memory import (  # pyright: ignore[reportMissingTypeStubs]
+from langgraph.checkpoint.memory import (
     InMemorySaver,
 )
-from langgraph.graph import (  # pyright: ignore[reportMissingTypeStubs]
-    END,
-    START,
-    StateGraph,
-)
-from langgraph.graph.state import (  # pyright: ignore[reportMissingTypeStubs]
-    CompiledStateGraph,
-)
-from langgraph.types import interrupt  # pyright: ignore[reportMissingTypeStubs]
+from langgraph.constants import END, START
+from langgraph.graph.state import StateGraph
+from langgraph.types import interrupt
 
 from api.extraction.clarification import decide_clarification
 from api.extraction.provider import LLMProvider
@@ -35,6 +29,7 @@ from api.workflow.clarification import (
     prepare_clarification,
     validate_reply,
 )
+from api.workflow.langgraph_types import WorkflowBuilder, WorkflowGraph
 from api.workflow.state import (
     CustomerSafeReport,
     DiagnosisDraft,
@@ -55,7 +50,7 @@ def build_workflow(
     retry_policy: RetryPolicy = DEFAULT_RETRY_POLICY,
     *,
     checkpointer: BaseCheckpointSaver[str] | None = None,
-) -> CompiledStateGraph[WorkflowState, None, WorkflowInput, WorkflowState]:
+) -> WorkflowGraph[WorkflowInput]:
     """Use a trusted loader that checks current access before returning text.
 
     The returned state is internal. Expose only customer_update to customers;
@@ -251,9 +246,11 @@ def build_workflow(
             "customer_update": update,
         }
 
-    # LangGraph ships partial typing here. Keep suppressions at its API calls;
-    # application state, nodes, and updates remain checked in strict mode.
-    builder = StateGraph(WorkflowState, input_schema=WorkflowInput)
+    # Give the partially typed library a checked application-facing interface.
+    builder = cast(
+        WorkflowBuilder[WorkflowState, WorkflowInput, WorkflowUpdate],
+        StateGraph(WorkflowState, input_schema=WorkflowInput),
+    )
     builder.add_node("start", start)
     builder.add_node("classify", classify)
     builder.add_node("evaluate", evaluate)

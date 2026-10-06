@@ -7,7 +7,7 @@ from uuid import UUID
 
 from langchain_core.runnables import RunnableConfig
 from langgraph.checkpoint.postgres.aio import AsyncPostgresSaver
-from langgraph.checkpoint.serde.jsonplus import (  # pyright: ignore[reportMissingTypeStubs]
+from langgraph.checkpoint.serde.jsonplus import (
     JsonPlusSerializer,
 )
 from psycopg import AsyncConnection, sql
