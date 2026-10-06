@@ -113,9 +113,10 @@ an inference. A diagnosis is internal-only in the MVP.
 
 ### Workflow run
 
-One durable execution of the ResolveFlow process for a support ticket. It owns
-workflow state, clarification progress, model calls, pauses, and its terminal
-outcome. Retrying or resuming the same execution does not create a new run.
+One durable execution of the ResolveFlow process, starting from an issue report.
+It owns workflow state, clarification progress, model calls, pauses, and its
+terminal outcome. A support ticket may be linked later after approval. Retrying
+or resuming the same execution does not create a new run.
 
 ### Proposed action
 
@@ -161,16 +162,16 @@ The model may not promote a record or field to a broader visibility level.
 CustomerAccount
   `-- User acting as customer
         `-- IssueReport
+              |-- WorkflowRun
+              |     |-- Clarification
+              |     |-- Evidence -> KnowledgeDocument
+              |     |-- Diagnosis
+              |     |-- ProposedAction -> Approval
+              |     |                    `-- ToolExecution
+              |     `-- ExecutionEvent
               `-- ReportTicketLink -- SupportTicket
                                           |-- owned by SupportTeam
-                                          |-- assigned to SupportEngineer
-                                          |-- Clarification
-                                          `-- WorkflowRun
-                                                |-- Evidence -> KnowledgeDocument
-                                                |-- Diagnosis
-                                                |-- ProposedAction -> Approval
-                                                |                    `-- ToolExecution
-                                                `-- ExecutionEvent
+                                          `-- assigned to SupportEngineer
 
 KnownIncident
   `-- many SupportTickets

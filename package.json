@@ -14,6 +14,7 @@
     "build": "pnpm --filter @resolve-flow/web build",
     "test": "uv run --directory apps/api pytest",
     "test:live": "uv run --directory apps/api --env-file ../../.env python scripts/live_extraction_check.py",
+    "setup:checkpoints": "uv run --directory apps/api --env-file ../../.env python scripts/setup_workflow_checkpoints.py",
     "format": "uv run --directory apps/api ruff format .",
     "format:check": "uv run --directory apps/api ruff format --check .",
     "fix": "pnpm format && uv run --directory apps/api ruff check --fix .",

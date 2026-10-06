@@ -63,6 +63,11 @@ for one.
 
 ## Database migrations
 
+Workflow checkpoint tables have a separate explicit setup command,
+`pnpm setup:checkpoints` from the repository root. See
+[workflow checkpoints](../../docs/workflow-checkpoints.md) for the host-side
+`DATABASE_URL`, schema ownership, connection lifetime, and restart behavior.
+
 Start PostgreSQL and set `DATABASE_URL` to a local PostgreSQL connection string
 (for example, `postgresql://resolve_flow:resolve_flow_local@localhost:5432/resolve_flow`).
 Alembic selects the async psycopg driver automatically from that URL.

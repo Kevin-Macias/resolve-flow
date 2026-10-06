@@ -50,6 +50,27 @@ The monorepo currently provides:
   at most two distinct model-proposed questions per extraction
 - An opt-in live extraction check that reports schema shape, latency, and token
   usage without entering the normal test suite
+- A minimal LangGraph workflow with typed classify, evaluate, preliminary
+  diagnose, and report results; an injected trusted loader supplies report text,
+  and typed extraction failures route directly to a safe report
+- A bounded clarification branch with in-memory checkpoints: two rounds of
+  questions, validated ordered answers, and explicit incomplete continuation
+- An injectable async PostgreSQL checkpointer in a separate `workflow` schema,
+  with explicit setup and typed-state restoration tested across process restarts
+- Immutable typed `create_ticket` proposal contracts with revisions, risk,
+  application-generated identities, and a fingerprint of the full snapshot;
+  graph proposal generation is not implemented yet
+- A separate reusable approval stage for saved proposals, with current support
+  access checks, exact snapshot binding, typed decisions, and restart restoration
+- An optionally injected simulated create-ticket tool after approval, with
+  execution access rechecks and checkpointed deterministic fake results; no
+  `SupportTicket` database row or external write is performed
+- A guarded approval runner with per-run PostgreSQL advisory locks, first-decision
+  preservation, duplicate outcome reuse, and checkpointed sanitized tool failures;
+  real effect reconciliation and idempotency remain RF-703
+- Typed execution timelines stored with graph transitions in checkpoint state,
+  with ordered stage streams, stable event IDs, and closed sanitized metadata;
+  a combined internal view preserves intake-before-approval order
 - Database-backed endpoint tests isolated in rolled-back temporary schemas
 - Factory-based tests for health and successful, misconfigured, and unavailable
   database-readiness behavior
@@ -63,8 +84,13 @@ SQLAlchemy uses the database clock to refresh `updated_at` on ORM updates;
 direct SQL writes do not currently have an update trigger. Internal status
 transitions have not yet been implemented.
 
-The monorepo does not yet invoke extraction from an endpoint or provide LangGraph,
-retrieval, or the incident workspace UI.
+The monorepo does not yet invoke extraction or the graph from an endpoint, or
+provide retrieval or the incident
+workspace UI. The [minimal workflow](minimal-workflow.md) records its scope:
+diagnosis preserves reported facts and gaps with cause unknown until evidence
+is available.
+The [checkpoint integration](workflow-checkpoints.md) supports durable storage
+when explicitly injected; the graph's default remains in-memory for offline tests.
 
 The SQLAlchemy session dependency owns session lifetime, not transaction success:
 application operations will explicitly commit writes. Closing an uncommitted
@@ -97,14 +123,19 @@ Customer request
   -> new report: extract and clarify -> customer confirms summary
   -> internal support queue
   -> retrieve authorized internal evidence
-  -> classify and evaluate context
-       -> insufficient: ask clarification -> resume retrieval
-       -> sufficient: generate cited diagnosis
+  -> generate diagnosis with evidence and uncertainty
   -> no action: final report
   -> action proposed: pause for human approval
        -> rejected: final report
        -> approved: validate and create ResolveFlow ticket -> safe customer status
 ```
+
+The [workflow transitions](workflow-transitions.md) draw the new-report path,
+including customer corrections, pauses, rejection, and explicit retries after
+provider or retrieval failures. These are planned transitions, not implemented
+graph behavior. The [clarification branch](workflow-clarification.md) implements
+the reviewed RF-304 limits; evidence adequacy
+rules belong to the retrieval tickets.
 
 ## Planned backend boundaries
 
@@ -130,7 +161,8 @@ Customer request
 - `ReportTicketLink`: reviewed suspected, confirmed, or rejected match
 - `SupportTicket`: team-owned internal work aggregating many issue reports
 - `KnownIncident`: verified service event with an explicit public projection
-- `WorkflowRun`: durable execution state and terminal outcome
+- `WorkflowRun`: durable execution starting from an issue report, with an
+  optional support-ticket link after approval and a terminal outcome
 - `Clarification`: question, answer, and ordering metadata
 - `Document` and `Chunk`: source metadata, content, and embeddings
 - `Evidence`: retrieved chunk plus rank and relevance metadata

@@ -32,7 +32,25 @@ and RF-205 added versioned prompts and per-call model settings records. RF-207
 added bounded timeout and retry behavior, RF-208 added the reviewed offline
 scenario suite, and RF-206 added the reviewed clarification policy. RF-209
 verified the opt-in live check with schema shape, latency, and usage reporting.
-The next ticket is RF-301: design typed workflow state.
+RF-301 defined the reviewed workflow state: report references, saved extraction,
+and typed drafts for later stages. RF-302 documented the reviewed normal,
+clarification, rejection, failure, and resume paths. RF-303 implemented the
+reviewed minimal typed graph; the full check passed, including all 127 tests
+against local PostgreSQL (see `minimal-workflow.md`). RF-304 added the reviewed
+bounded clarification branch with ordered answers and explicit incomplete
+continuation; all 138 tests and quality checks passed. RF-305 added reviewed
+PostgreSQL checkpoints and verified restoration in separate processes; all 146
+tests and quality checks passed. RF-306 added reviewed immutable ticket proposals,
+revision identities, risk details, and fingerprints; all 169 tests and quality
+checks passed. RF-307 added the reviewed approval stage with exact proposal
+binding and current support access checks; all 184 tests and quality checks
+passed. RF-308 connected reviewed simulated execution with fresh support access
+checks and deterministic checkpointed results; all 195 tests and quality checks
+passed. RF-309 added reviewed guarded submissions, concurrent-process checks,
+and sanitized failures; all 211 tests and quality checks passed. The next ticket
+is RF-310: persist the execution timeline. Its implementation now saves ordered,
+sanitized events with graph state; all 227 tests and quality checks passed. It
+remains NEXT pending Kevin's final PAIR review for Phase 3.
 
 ## Phase 0 — Scope and foundation
 
@@ -80,16 +98,16 @@ LangChain and LangGraph are intentionally excluded from this phase.
 
 | ID | Ticket | Owner | Status | Acceptance |
 | --- | --- | --- | --- | --- |
-| RF-301 | Design typed workflow state | HAND | NEXT | Durable and recomputable fields are identified for every workflow stage |
-| RF-302 | Document transitions and failures | HAND | PLANNED | Normal, clarification, rejection, provider failure, retrieval failure, and resume paths are drawn |
-| RF-303 | Implement the minimal graph | HAND | PLANNED | Classify, evaluate, diagnose, and report nodes execute with typed state |
-| RF-304 | Add bounded clarification branch | HAND | PLANNED | Workflow pauses/resumes, appends answers, limits loops, and permits incomplete continuation |
-| RF-305 | Persist graph checkpoints | PAIR | PLANNED | A workflow resumes correctly after a process restart |
-| RF-306 | Model proposed actions | HAND | PLANNED | Action includes tool, arguments, explanation, effect, risk, version, and idempotency key |
-| RF-307 | Implement approval interrupt | HAND | PLANNED | Execution pauses and approval binds to exact immutable arguments |
-| RF-308 | Implement simulated create-ticket tool | PAIR | PLANNED | Application code validates arguments and produces a deterministic fake result |
-| RF-309 | Test approval edge cases | HAND | PLANNED | Stale, changed, duplicate, rejected, concurrent, resumed, and failed executions are safe |
-| RF-310 | Persist execution timeline | PAIR | PLANNED | Ordered, sanitized events explain all meaningful state transitions |
+| RF-301 | Design typed workflow state | PAIR | DONE | Durable and recomputable fields are identified for every workflow stage |
+| RF-302 | Document transitions and failures | PAIR | DONE | Normal, clarification, rejection, provider failure, retrieval failure, and resume paths are drawn |
+| RF-303 | Implement the minimal graph | PAIR | DONE | Classify, evaluate, diagnose, and report nodes execute with typed state |
+| RF-304 | Add bounded clarification branch | PAIR | DONE | Workflow pauses/resumes, appends answers, limits loops, and permits incomplete continuation |
+| RF-305 | Persist graph checkpoints | PAIR | DONE | A workflow resumes correctly after a process restart |
+| RF-306 | Model proposed actions | PAIR | DONE | Action includes tool, arguments, explanation, effect, risk, version, and idempotency key |
+| RF-307 | Implement approval interrupt | PAIR | DONE | Execution pauses and approval binds to exact immutable arguments |
+| RF-308 | Implement simulated create-ticket tool | PAIR | DONE | Application code validates arguments and produces a deterministic fake result |
+| RF-309 | Test approval edge cases | PAIR | DONE | Stale, changed, duplicate, rejected, concurrent, resumed, and failed executions are safe |
+| RF-310 | Persist execution timeline | PAIR | NEXT | Ordered, sanitized events explain all meaningful state transitions |
 
 ## Phase 4 — Retrieval and citations
 

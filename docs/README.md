@@ -23,6 +23,16 @@ next?" and how to respect each ticket's ownership mode.
 | [Deterministic AI tests](deterministic-ai-tests.md) | Lists offline extraction scenarios and their limits | Test expectations change |
 | [Live model check](live-model-check.md) | Explains the opt-in extraction check and its output | Live command or metrics change |
 | [Provider boundary](provider-boundary.md) | Defines the OpenAI and fake model adapters | Provider behavior or interface changes |
+| [Workflow state](workflow-state.md) | Defines durable and recomputable fields for each workflow stage | Workflow state or persistence boundaries change |
+| [Workflow transitions](workflow-transitions.md) | Draws normal, pause, rejection, failure, and resume paths | Workflow routing or failure behavior changes |
+| [Minimal workflow](minimal-workflow.md) | Explains the four-node graph, typed results, and integration boundary | Implemented graph behavior changes |
+| [Workflow clarification](workflow-clarification.md) | Explains bounded rounds, human pause/resume, and incomplete continuation | Clarification workflow behavior changes |
+| [Workflow checkpoints](workflow-checkpoints.md) | Explains PostgreSQL setup, typed snapshots, and restart restoration | Checkpoint storage or lifecycle changes |
+| [Proposed actions](proposed-actions.md) | Defines immutable ticket proposals, revisions, risk, and idempotency keys | Action contracts change |
+| [Action approval](action-approval.md) | Explains exact proposal binding, support decisions, and the approval pause | Approval behavior changes |
+| [Simulated ticket tool](simulated-ticket-tool.md) | Defines validated execution and deterministic fake ticket results | Tool execution behavior changes |
+| [Approval edge cases](approval-edge-cases.md) | Explains serialized submissions, duplicates, and safe failures | Approval submission behavior changes |
+| [Execution timeline](execution-timeline.md) | Defines ordered, sanitized checkpoint events and restart behavior | Timeline contracts or transitions change |
 | [Roadmap](roadmap.md) | Tracks tickets, phases, ownership, and status | Work starts, finishes, or is reprioritized |
 | [Working agreement](working-agreement.md) | Defines which work is for learning and which may be delegated | Collaboration rules change |
 

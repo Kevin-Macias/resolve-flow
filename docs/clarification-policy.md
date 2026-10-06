@@ -9,8 +9,9 @@ When a gap exists, the policy keeps the first two distinct questions proposed
 by the model, preserving their order. Duplicate comparison ignores letter case.
 When no gap exists, it returns no questions. If a gap exists but the model
 proposes no question, the gap remains visible and no fallback question is
-invented. The later workflow decides how to proceed in that case and how many
-clarification rounds to allow.
+invented. The [RF-304 workflow](workflow-clarification.md) permits at most two
+answered rounds and pauses for explicit incomplete continuation if no question
+is available or the round limit is reached.
 
 For example, “Payments sometimes remain pending” has unknown impact and can
 request the reported affected count. A report that says both “my card was

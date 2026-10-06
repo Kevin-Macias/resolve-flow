@@ -2,7 +2,9 @@
 
 The issue-report extraction prompt lives in `apps/api/src/api/extraction/prompts.py`
 as `EXTRACTION_PROMPT`. Its stable ID is `issue_report_extraction`; its current
-version is `2`. Change the version when changing the instructions so later
+version is `3`. Version 3 adds instructions for the original report plus ordered
+clarification answers, distinguishing questions as context from reported facts.
+Change the version when changing the instructions so later
 evaluations can identify which instructions produced a result.
 
 `OpenAIProvider` is configured with a model name and optional `temperature` and

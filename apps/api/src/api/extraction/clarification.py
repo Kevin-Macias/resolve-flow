@@ -21,6 +21,11 @@ class ClarificationDecision:
     reasons: tuple[ClarificationReason, ...]
     questions: tuple[str, ...]
 
+    def __post_init__(self) -> None:
+        # MessagePack checkpoints decode arrays as lists. Restore immutable fields.
+        object.__setattr__(self, "reasons", tuple(self.reasons))
+        object.__setattr__(self, "questions", tuple(self.questions))
+
     @property
     def needs_clarification(self) -> bool:
         return bool(self.reasons)
