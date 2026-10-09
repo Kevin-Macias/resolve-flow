@@ -33,6 +33,13 @@ next?" and how to respect each ticket's ownership mode.
 | [Simulated ticket tool](simulated-ticket-tool.md) | Defines validated execution and deterministic fake ticket results | Tool execution behavior changes |
 | [Approval edge cases](approval-edge-cases.md) | Explains serialized submissions, duplicates, and safe failures | Approval submission behavior changes |
 | [Execution timeline](execution-timeline.md) | Defines ordered, sanitized checkpoint events and restart behavior | Timeline contracts or transitions change |
+| [Vector storage](vector-storage.md) | Defines durable knowledge revisions and pgvector storage | Knowledge storage or embedding profile changes |
+| [Chunking strategy](chunking-strategy.md) | Compares fixed and heading-aware passages for the current corpus | Chunk boundaries or the selected strategy change |
+| [Retrieval boundary](retrieval-boundary.md) | Defines typed search requests, ranked evidence, and the offline adapter | Retrieval contracts or eligibility rules change |
+| [Retrieval integration](retrieval-integration.md) | Documents the selected LangChain embedding integration and PostgreSQL search | Retrieval integration scope or provider configuration changes |
+| [Citations](citations.md) | Defines claim categories and source-backed citation validation | Claim attribution or citation contracts change |
+| [Retrieval tests](retrieval-tests.md) | Defines reviewed relevance cases, measurements, and baseline verification | Retrieval evaluation expectations or metrics change |
+| [Document injection](document-injection.md) | Documents evidence-input defenses and structural attack tests | Untrusted evidence handling or defense expectations change |
 | [Roadmap](roadmap.md) | Tracks tickets, phases, ownership, and status | Work starts, finishes, or is reprioritized |
 | [Working agreement](working-agreement.md) | Defines which work is for learning and which may be delegated | Collaboration rules change |
 

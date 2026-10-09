@@ -46,7 +46,20 @@ async def database() -> AsyncGenerator[
                 await connection.execute(
                     text(f'SET LOCAL search_path TO "{schema}", public')
                 )
-                await connection.run_sync(Base.metadata.create_all)
+                await connection.run_sync(
+                    lambda conn: Base.metadata.create_all(
+                        conn,
+                        tables=[
+                            Base.metadata.tables[name]
+                            for name in (
+                                "customer_accounts",
+                                "users",
+                                "services",
+                                "issue_reports",
+                            )
+                        ],
+                    )
+                )
                 sessions = async_sessionmaker(
                     connection,
                     expire_on_commit=False,

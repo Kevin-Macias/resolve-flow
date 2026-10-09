@@ -52,10 +52,10 @@ async def test_transition_nodes_preserve_facts_and_report_gaps() -> None:
     inputs = WorkflowInput(workflow_run_id=uuid4(), issue_report_id=report_id)
     steps = [
         step
-        async for step in graph.astream(  
+        async for step in graph.astream(
             inputs, {"configurable": {"thread_id": uuid4().hex}}, stream_mode="updates"
         )
-    ]  
+    ]
 
     assert [next(iter(step)) for step in steps] == [
         "start",
@@ -92,7 +92,7 @@ async def test_failed_extraction_skips_assessment_and_sanitizes_report(
 
     provider = FakeProvider(result)
     graph = build_workflow(load_report, provider)
-    state = await graph.ainvoke(  
+    state = await graph.ainvoke(
         WorkflowInput(workflow_run_id=uuid4(), issue_report_id=uuid4()),
         {"configurable": {"thread_id": uuid4().hex}},
     )
@@ -129,7 +129,7 @@ async def test_provider_retry_budget_is_not_multiplied_by_graph() -> None:
     graph = build_workflow(
         load_report, provider, RetryPolicy(max_attempts=3, base_delay_seconds=0)
     )
-    state = await graph.ainvoke(  
+    state = await graph.ainvoke(
         WorkflowInput(workflow_run_id=uuid4(), issue_report_id=uuid4()),
         {"configurable": {"thread_id": uuid4().hex}},
     )
@@ -147,7 +147,7 @@ async def test_loader_denial_stops_before_model_call() -> None:
     provider = FakeProvider(ProviderResult(text=extraction().model_dump_json()))
     graph = build_workflow(deny, provider)
     with pytest.raises(PermissionError):
-        await graph.ainvoke(  
+        await graph.ainvoke(
             WorkflowInput(workflow_run_id=uuid4(), issue_report_id=uuid4()),
             {"configurable": {"thread_id": uuid4().hex}},
         )

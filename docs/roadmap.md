@@ -21,7 +21,7 @@ Ownership:
 
 ## Current milestone
 
-**Milestone 4: small retrieval slice with verifiable citations.**
+**Milestone 5: incident workspace with visible state and approval.**
 
 Milestone 1 is complete: PostgreSQL-backed IssueReport CRUD, API error contracts,
 database integration tests, and a generated TypeScript client are in place.
@@ -50,7 +50,61 @@ passed. RF-309 added reviewed guarded submissions, concurrent-process checks,
 and sanitized failures; all 211 tests and quality checks passed. RF-310 saves
 ordered, sanitized events with graph state; all 227 tests and quality checks
 passed, and Kevin confirmed his final PAIR review on 2026-10-06. Phase 3 is
-complete. The next ticket is RF-401: author the curated knowledge dataset.
+complete. RF-401 added eight reviewed sources for issue-report submission and
+visibility, including fictional historical investigations and superseded advice.
+Kevin completed the PAIR review; document links and whitespace checks passed.
+RF-402 added reviewed typed document metadata and version-bound passage
+locations. A typed LangGraph boundary replaced inline Pyright ignores; API
+types, formatting, and lint passed, with 252 tests passing and 21 database tests
+skipped. Kevin completed the PAIR review. RF-403 added reviewed manifest-driven Markdown
+ingestion, source locations, hashes, and atomic in-memory revision storage. All
+280 offline Python tests passed; 21 database tests were skipped. Types, lint,
+formatting, and lockfile checks passed. Kevin completed the PAIR review.
+RF-405 added reviewed PostgreSQL
+knowledge revisions, chunks, 1536-dimensional vector storage, and async durable
+ingestion. The local database was migrated with its named volume preserved;
+all 311 tests and root quality checks passed. Kevin completed the PAIR review.
+RF-406 compared fixed-size and heading-aware splitting on the eight sources.
+Kevin approved one substantive section per chunk without overlap, preserving
+metadata and source locations; documentation checks passed. The decision is
+recorded in `chunking-strategy.md`.
+RF-407's approved contract is implemented with typed requests/evidence, checked
+adapter responses, and an offline fake. All 108 non-database knowledge tests,
+strict API type checks, and knowledge lint/format checks pass. Kevin completed
+the final PAIR review. RF-408's approved implementation prepares exact
+heading chunks, validates bounded embedding inputs, persists vectors atomically,
+and searches PostgreSQL with policy filters before ranking. LangChain is limited
+to the embedding provider adapter. All 366 tests and root quality checks passed
+against a disposable pgvector database. Kevin completed RF-408's final PAIR
+review on 2026-10-08; no live embedding calls ran.
+RF-409's approved contract is implemented with typed claim categories,
+source-backed citation snapshots, eligibility/hash/excerpt/location checks,
+and explicit supporting/contradicting references. Root quality checks and 366
+offline tests passed, including 38 citation tests; 38 existing database tests
+were skipped without `TEST_DATABASE_URL`. Kevin completed RF-409's final PAIR
+review on 2026-10-08. The workflow diagnosis remains unchanged. The next ticket
+is RF-410: measure retrieval relevance and exclusion behavior.
+Kevin approved RF-410's six-case relevance specification and measurement rules.
+The evaluator, fixture/live report format, and opt-in baseline command are
+implemented. All 428 tests and root quality checks passed against a disposable
+pgvector database. On 2026-10-09 Kevin completed the implementation review and
+requested RF-410 be closed and work proceed. Its completion scope is the reviewed
+evaluator, cases, and mechanical coverage; the live provider baseline is deferred.
+No live embedding calls ran and provider relevance remains unmeasured. The next
+ticket is RF-411: defend against document injection.
+Kevin approved RF-411's defense rules and structural attack expectations. The
+input/output boundary is implemented: verified evidence is serialized separately
+from fixed instructions, generated output accepts only claim drafts, and source
+references resolve through citation checks. Kevin completed the final PAIR review
+on 2026-10-09; RF-411 is DONE. Root quality checks passed with 410 tests passing (including 22 new
+boundary cases); 40 existing database tests skipped without `TEST_DATABASE_URL`.
+Scope is deterministic application-boundary defenses; no diagnosis
+model has been exercised and model-level injection resistance remains unmeasured.
+The next ticket is RF-501: design the incident workspace information architecture.
+The MVP Phase 4 tickets are complete within their recorded scopes; retrieval and
+diagnosis generation are not yet connected to the workflow.
+RF-404 PDF ingestion remains deferred beyond the MVP; the approved retrieval
+corpus remains Markdown-only.
 
 ## Phase 0 — Scope and foundation
 
@@ -113,23 +167,23 @@ LangChain and LangGraph are intentionally excluded from this phase.
 
 | ID | Ticket | Owner | Status | Acceptance |
 | --- | --- | --- | --- | --- |
-| RF-401 | Author curated knowledge dataset | PAIR | NEXT | Realistic runbooks include similar causes, stale advice, irrelevant text, and ambiguity |
-| RF-402 | Define document metadata | PAIR | PLANNED | Source, title, type, service, version, date, access class, and location are typed |
-| RF-403 | Ingest Markdown documents | PAIR | PLANNED | Parsing, hashing, idempotent re-ingestion, and errors are tested |
-| RF-404 | Ingest PDF documents | PAIR | PLANNED | Empty pages, bad extraction, tables, and page citations are handled |
-| RF-405 | Add pgvector schema and index | PAIR | PLANNED | Migration stores embeddings with documented index choice |
-| RF-406 | Select chunking strategy | PAIR | PLANNED | Fixed and heading-aware approaches are compared and the decision is recorded |
-| RF-407 | Implement retrieval boundary | PAIR | PLANNED | Framework-independent interface returns ranked typed evidence |
-| RF-408 | Integrate selected LangChain pieces | PAIR | PLANNED | LangChain is limited to documented integration value, not domain contracts |
-| RF-409 | Generate verifiable citations | PAIR | PLANNED | Claims distinguish support, inference, missing evidence, and conflict by stable location |
-| RF-410 | Add retrieval tests | PAIR | PLANNED | Top-k relevance, exclusion, filters, duplicates, empty results, and stale sources are measured |
-| RF-411 | Defend against document injection | PAIR | PLANNED | Malicious document instructions cannot alter system or tool policy |
+| RF-401 | Author curated knowledge dataset | PAIR | DONE | Realistic runbooks include similar causes, stale advice, irrelevant text, and ambiguity |
+| RF-402 | Define document metadata | PAIR | DONE | Source, title, type, service, version, date, access class, and location are typed |
+| RF-403 | Ingest Markdown documents | PAIR | DONE | Parsing, hashing, idempotent re-ingestion, and errors are tested |
+| RF-404 | Ingest PDF documents (post-MVP) | PAIR | PLANNED | Deferred beyond MVP by Kevin; future scope handles empty pages, bad extraction, tables, and page citations |
+| RF-405 | Add pgvector schema and index | PAIR | DONE | Migration stores embeddings with documented index choice |
+| RF-406 | Select chunking strategy | PAIR | DONE | Fixed and heading-aware approaches are compared and the decision is recorded |
+| RF-407 | Implement retrieval boundary | PAIR | DONE | Framework-independent interface returns ranked typed evidence |
+| RF-408 | Integrate selected LangChain pieces | PAIR | DONE | LangChain is limited to documented integration value, not domain contracts |
+| RF-409 | Generate verifiable citations | PAIR | DONE | Claims distinguish support, inference, missing evidence, and conflict by stable location |
+| RF-410 | Add retrieval tests | PAIR | DONE | Reviewed relevance cases/metrics and mechanical tests cover exclusion, filters, duplicates, empty results, and stale sources; live provider relevance baseline deferred at Kevin's request on 2026-10-09 |
+| RF-411 | Defend against document injection | PAIR | DONE | Reviewed structural input/output defenses preserve application policy and tool approval boundaries; model-level resistance remains unmeasured |
 
 ## Phase 5 — Incident workspace
 
 | ID | Ticket | Owner | Status | Acceptance |
 | --- | --- | --- | --- | --- |
-| RF-501 | Design workspace information architecture | PAIR | PLANNED | Summary, state, questions, evidence, diagnosis, actions, approval, timeline, and metrics are placed |
+| RF-501 | Design workspace information architecture | PAIR | NEXT | Summary, state, questions, evidence, diagnosis, actions, approval, timeline, and metrics are placed |
 | RF-502 | Implement incident CRUD screens | DELEGATE | PLANNED | Typed client and TanStack Query support create, list, view, and update states |
 | RF-503 | Implement SSE transport | PAIR | PLANNED | Ordering, duplicate events, event IDs, reconnect, and terminal state are tested |
 | RF-504 | Implement execution timeline | DELEGATE | PLANNED | UI renders persisted events rather than reconstructing them from chat |
@@ -139,6 +193,13 @@ LangChain and LangGraph are intentionally excluded from this phase.
 | RF-508 | Implement approve/reject controls | PAIR | PLANNED | Double submission, stale proposals, reconnects, and completed actions are safe |
 | RF-509 | Display execution metrics | DELEGATE | PLANNED | Latency, model, tokens, cost estimate, and prompt version are shown |
 | RF-510 | Add frontend tests | DELEGATE | PLANNED | Important loading, error, stream, evidence, clarification, and approval states are covered |
+
+| RF-512 | Add authorized support report-state lookup | PAIR | PLANNED | Read-only lookup includes archived state within application-authorized account scope; permitted, denied, missing, and archived reads are tested; customer read behavior is unchanged; current state does not claim archive actor or time |
+
+RF-512 requires Kevin's reviewed authorization contract before implementation
+and must precede frontend demonstrations that verify a report is archived. It
+builds on RF-106/107 and simulated identity; production authorization remains
+RF-702. Archive history and restoration are outside this ticket.
 
 ## Phase 6 — Evaluations
 

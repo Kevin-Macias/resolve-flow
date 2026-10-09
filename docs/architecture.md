@@ -68,6 +68,31 @@ The monorepo currently provides:
 - A guarded approval runner with per-run PostgreSQL advisory locks, first-decision
   preservation, duplicate outcome reuse, and checkpointed sanitized tool failures;
   real effect reconciliation and idempotency remain RF-703
+- Immutable Pydantic knowledge metadata and version-bound Markdown/PDF passage
+  location contracts
+- Manifest-driven CommonMark ingestion with exact text/line sections, SHA-256
+  content and metadata hashes, and atomic in-memory revision storage
+- PostgreSQL knowledge revision storage with an async transactional ingestion
+  adapter, chunk and 1536-dimensional embedding tables, and exact cosine search
+  support
+- An application-owned async retrieval boundary with typed requests, ranked
+  evidence, explicit access and active-revision scope, checked responses, and a
+  deterministic offline fake
+- Exact heading-aware chunk preparation, transactional/idempotent vector
+  indexing, a LangChain OpenAI embedding adapter, and PostgreSQL cosine search
+  with access/revision/status/profile filters before ranking; tested with
+  deterministic vectors, with live provider quality unverified
+- Typed supported/inference/gap/conflict claim contracts and source-backed
+  citation assembly that rechecks eligibility, hashes, exact sections, and
+  versioned locations; immutable citation snapshots and plain text source labels
+  remain separate from the preliminary workflow diagnosis
+- Evidence analysis: fixed versioned instructions separate from JSON query/source
+  data; all input passages verified before serialization, generated output limited
+  to claim drafts with application-resolved citations. This internal boundary has
+  no model invocation or tool dispatch; semantic injection resistance is unmeasured
+- A retrieval evaluator with six reviewed cases, explicit hit/rank/coverage and
+  failure measurements, fixture/live report modes, and a read-only baseline
+  preflight; actual provider relevance remains unmeasured
 - Typed execution timelines stored with graph transitions in checkpoint state,
   with ordered stage streams, stable event IDs, and closed sanitized metadata;
   a combined internal view preserves intake-before-approval order
@@ -85,7 +110,7 @@ direct SQL writes do not currently have an update trigger. Internal status
 transitions have not yet been implemented.
 
 The monorepo does not yet invoke extraction or the graph from an endpoint, or
-provide retrieval or the incident
+provide a retrieval endpoint or the incident
 workspace UI. The [minimal workflow](minimal-workflow.md) records its scope:
 diagnosis preserves reported facts and gaps with cause unknown until evidence
 is available.
@@ -199,3 +224,39 @@ rules belong to the retrieval tickets.
 | Web | React, TypeScript, TanStack Start and TanStack Query |
 | Streaming | Server-Sent Events |
 | Tests and quality | pytest, Ruff, Pyright or mypy, frontend test tooling |
+
+## Planned support report-state lookup
+
+RF-512 adds a read-only, application-authorized support lookup of current report
+state, including archived reports, within permitted customer account scope.
+It is required before the frontend can demonstrate independently verified
+archival. Customer reads continue to exclude archived reports. Authorization
+semantics require Kevin's review; this lookup is not implemented yet and provides
+no archive actor/time history or restore operation.
+
+## LangGraph typing boundary
+
+`workflow/langgraph_types.py` describes the builder and compiled graph methods
+ResolveFlow uses. Each graph builder is cast once to that interface. The same
+LangGraph objects execute at runtime; no wrapper or workflow policy changes.
+A constructor-only stub under `apps/api/typings/langgraph/graph/state.pyi`
+provides the missing StateGraph import typing. Pyright uses its default local
+`typings` directory. No strict-mode diagnostic is disabled.
+
+The boundary checks node state/update types and invocation input contracts.
+Invocation/stream dictionaries retain `Any` values because LangGraph includes
+interrupt payloads alongside state; callers still validate or cast application
+state explicitly. The cast and stub are maintained assumptions, not proof of
+upstream compatibility. Review them when LangGraph changes; workflow tests check
+the runtime integration. Only the currently used API subset is exposed.
+
+PDF ingestion (RF-404) is deferred beyond the MVP. PDF location contracts remain
+available for future work; the initial ingestion and retrieval slice uses Markdown.
+
+The approved [chunking strategy](chunking-strategy.md) uses one substantive
+Markdown section per chunk without overlap for the current corpus. Chunks retain
+document metadata and exact source locations; title-and-metadata-only sections
+do not become searchable passages. The [retrieval integration](retrieval-integration.md)
+implements generation and persistence with a 512-token input budget. Longer
+sections require a reviewed splitting
+fallback and embedding input budget before ingestion for retrieval.

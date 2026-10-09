@@ -1,0 +1,129 @@
+{
+  "version": "retrieval-v1",
+  "top_k": 5,
+  "cases": [
+    {
+      "case_id": "validation",
+      "query": "My submission returned HTTP 422 because my description was only spaces. Was a report created?",
+      "scope": {
+        "allow_internal": true
+      },
+      "service_code": "issue-reports",
+      "acceptable": [
+        {
+          "document_id": "submission-validation",
+          "version": "1",
+          "heading": "Checks"
+        },
+        {
+          "document_id": "submission-validation",
+          "version": "1",
+          "heading": "Interpretation"
+        }
+      ]
+    },
+    {
+      "case_id": "archive-behavior",
+      "query": "A report was created successfully, then archived. Why does it disappear from the customer list?",
+      "scope": {
+        "allow_internal": true
+      },
+      "service_code": "issue-reports",
+      "acceptable": [
+        {
+          "document_id": "archived-report",
+          "version": "1",
+          "heading": "Interpretation"
+        },
+        {
+          "document_id": "archived-report",
+          "version": "1",
+          "heading": "Next steps and limits"
+        }
+      ]
+    },
+    {
+      "case_id": "account-visibility",
+      "query": "Can two users in the same customer account see the same reports? What about another account?",
+      "scope": {
+        "allow_internal": true
+      },
+      "service_code": "issue-reports",
+      "acceptable": [
+        {
+          "document_id": "account-visibility",
+          "version": "1",
+          "heading": "Interpretation"
+        },
+        {
+          "document_id": "account-visibility",
+          "version": "1",
+          "heading": "Next steps and limits"
+        }
+      ]
+    },
+    {
+      "case_id": "service-update",
+      "query": "What does setting affected_service_code to null do? Can it restore a missing report?",
+      "scope": {
+        "allow_internal": true
+      },
+      "service_code": "issue-reports",
+      "acceptable": [
+        {
+          "document_id": "affected-service-update",
+          "version": "1",
+          "heading": "Checks and behavior"
+        },
+        {
+          "document_id": "affected-service-update",
+          "version": "1",
+          "heading": "Limits"
+        }
+      ]
+    },
+    {
+      "case_id": "uncertain-submission",
+      "query": "I clicked submit but have no confirmation, error, or report ID. Now I cannot find the report.",
+      "scope": {
+        "allow_internal": true
+      },
+      "service_code": "issue-reports",
+      "acceptable": [
+        {
+          "document_id": "unresolved-submission",
+          "version": "1",
+          "heading": "Evidence gaps and competing explanations"
+        },
+        {
+          "document_id": "unresolved-submission",
+          "version": "1",
+          "heading": "Current finding"
+        },
+        {
+          "document_id": "missing-report-help",
+          "version": "1",
+          "heading": "When the outcome is unclear"
+        }
+      ]
+    },
+    {
+      "case_id": "customer-help",
+      "query": "I clicked submit but received no confirmation and cannot find my report. What should I tell support?",
+      "scope": {},
+      "service_code": "issue-reports",
+      "acceptable": [
+        {
+          "document_id": "missing-report-help",
+          "version": "1",
+          "heading": "What to provide"
+        },
+        {
+          "document_id": "missing-report-help",
+          "version": "1",
+          "heading": "When the outcome is unclear"
+        }
+      ]
+    }
+  ]
+}

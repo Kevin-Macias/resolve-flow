@@ -2,7 +2,7 @@ name: resolve-flow
 
 services:
   db:
-    image: postgres:17-alpine
+    image: pgvector/pgvector:0.8.7-pg17-bookworm
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-resolve_flow}
       POSTGRES_USER: ${POSTGRES_USER:-resolve_flow}

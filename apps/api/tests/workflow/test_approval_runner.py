@@ -5,7 +5,7 @@ from uuid import UUID, uuid4
 
 import pytest
 from langgraph.checkpoint.memory import (
-    InMemorySaver,  # pyright: ignore[reportMissingTypeStubs]
+    InMemorySaver,
 )
 
 from api.identity.context import RequestContext
@@ -87,14 +87,14 @@ async def test_duplicate_and_conflicting_decisions_return_first_outcome(
     stage = build_approval_stage(context, checkpointer=saver, tool=tool)
     locks = MemoryRunLocks()
     runner = ApprovalRunner(stage, context, locks)
-    await stage.ainvoke(  
+    await stage.ainvoke(
         ApprovalInput(
             workflow_run_id=run_id,
             issue_report_id=proposal.arguments.issue_report_id,
             proposed_action=proposal,
         ),
         approval_config(run_id),
-    )  
+    )
     saved = await runner.submit(run_id, reply(proposal, first))
     assert await runner.submit(run_id, reply(proposal, first)) == saved
     opposite = "reject" if first == "approve" else "approve"
@@ -143,14 +143,14 @@ async def test_concurrent_submissions_cannot_execute_twice(second: str) -> None:
     locks = MemoryRunLocks()
     runner = ApprovalRunner(stage, context, locks)
     other = ApprovalRunner(stage, context, locks)
-    await stage.ainvoke(  
+    await stage.ainvoke(
         ApprovalInput(
             workflow_run_id=run_id,
             issue_report_id=proposal.arguments.issue_report_id,
             proposed_action=proposal,
         ),
         approval_config(run_id),
-    )  
+    )
     first = asyncio.create_task(runner.submit(run_id, reply(proposal)))
     await asyncio.wait_for(entered.wait(), timeout=5)
     concurrent = asyncio.create_task(other.submit(run_id, reply(proposal, second)))
@@ -177,14 +177,14 @@ async def test_tool_failure_is_saved_sanitized_and_never_automatically_retried(
     stage = build_approval_stage(context, checkpointer=saver, tool=tool)
     locks = MemoryRunLocks()
     runner = ApprovalRunner(stage, context, locks)
-    await stage.ainvoke(  
+    await stage.ainvoke(
         ApprovalInput(
             workflow_run_id=run_id,
             issue_report_id=proposal.arguments.issue_report_id,
             proposed_action=proposal,
         ),
         approval_config(run_id),
-    )  
+    )
     saved = await runner.submit(run_id, reply(proposal))
     assert "tool_failure" in saved
     assert "customer_update" in saved
@@ -219,14 +219,14 @@ async def test_stale_submission_never_advances_or_calls_tool(field: str) -> None
     tool = SimulatedCreateTicketTool()
     stage = build_approval_stage(context, tool=tool)
     runner = ApprovalRunner(stage, context, MemoryRunLocks())
-    await stage.ainvoke(  
+    await stage.ainvoke(
         ApprovalInput(
             workflow_run_id=run_id,
             issue_report_id=proposal.arguments.issue_report_id,
             proposed_action=proposal,
         ),
         approval_config(run_id),
-    )  
+    )
     invalid = reply(proposal)
     invalid[field] = {"action_id": str(uuid4()), "version": 2, "fingerprint": "0" * 64}[
         field
@@ -250,7 +250,7 @@ async def test_changed_arguments_with_same_id_and_version_reject_old_reply() -> 
     tool = SimulatedCreateTicketTool()
     stage = build_approval_stage(context, tool=tool)
     runner = ApprovalRunner(stage, context, MemoryRunLocks())
-    await stage.ainvoke(  
+    await stage.ainvoke(
         ApprovalInput(
             workflow_run_id=run_id,
             issue_report_id=proposal.arguments.issue_report_id,
@@ -271,7 +271,7 @@ async def test_changed_arguments_with_same_id_and_version_reject_old_reply() -> 
     # before accepting a decision against the new snapshot.
     with pytest.raises(ValueError, match="not awaiting"):
         await runner.submit(run_id, reply(changed))
-    await stage.ainvoke(None, approval_config(run_id))  
+    await stage.ainvoke(None, approval_config(run_id))
     saved = await runner.submit(run_id, reply(changed))
     assert "tool_execution" in saved
     assert saved["tool_execution"].fingerprint == changed.fingerprint()
@@ -296,7 +296,7 @@ async def test_saved_approval_with_interrupted_execution_does_not_trigger_retry(
     tool = SimulatedCreateTicketTool()
     stage = build_approval_stage(context, tool=tool)
     runner = ApprovalRunner(stage, context, MemoryRunLocks())
-    await stage.ainvoke(  
+    await stage.ainvoke(
         ApprovalInput(
             workflow_run_id=run_id,
             issue_report_id=proposal.arguments.issue_report_id,
@@ -326,7 +326,7 @@ async def test_unknown_run_and_customer_submission_cannot_execute() -> None:
     runner = ApprovalRunner(stage, context, MemoryRunLocks())
     with pytest.raises(ValueError, match="does not exist"):
         await runner.submit(run_id, reply(proposal))
-    await stage.ainvoke(  
+    await stage.ainvoke(
         ApprovalInput(
             workflow_run_id=run_id,
             issue_report_id=proposal.arguments.issue_report_id,
@@ -350,7 +350,7 @@ async def test_changed_proposal_after_decision_cannot_reuse_saved_outcome() -> N
     tool = SimulatedCreateTicketTool()
     stage = build_approval_stage(context, tool=tool)
     runner = ApprovalRunner(stage, context, MemoryRunLocks())
-    await stage.ainvoke(  
+    await stage.ainvoke(
         ApprovalInput(
             workflow_run_id=run_id,
             issue_report_id=proposal.arguments.issue_report_id,

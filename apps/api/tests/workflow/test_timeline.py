@@ -5,7 +5,7 @@ from typing import cast
 from uuid import UUID, uuid4
 
 import pytest
-from langgraph.types import Command  # pyright: ignore[reportMissingTypeStubs]
+from langgraph.types import Command
 from pydantic import ValidationError
 
 from api.extraction.provider import FakeProvider, ProviderResult
@@ -128,7 +128,7 @@ async def test_success_timeline_explains_intake_without_content() -> None:
     provider = FakeProvider(ProviderResult(text=extraction(False).model_dump_json()))
     graph = build_workflow(load, provider)
     run_id = uuid4()
-    await graph.ainvoke(  
+    await graph.ainvoke(
         WorkflowInput(workflow_run_id=run_id, issue_report_id=uuid4()),
         workflow_config(run_id),
     )
@@ -154,7 +154,7 @@ async def test_poll_invalid_reply_answers_and_round_limit_preserve_history() -> 
     graph = build_workflow(load, provider)
     run_id = uuid4()
     config = workflow_config(run_id)
-    await graph.ainvoke(  
+    await graph.ainvoke(
         WorkflowInput(workflow_run_id=run_id, issue_report_id=uuid4()), config
     )
     initial = await graph.aget_state(config)
@@ -162,14 +162,14 @@ async def test_poll_invalid_reply_answers_and_round_limit_preserve_history() -> 
     history = initial_state["timeline"]
     assert history[-1].event_type == EventType.CLARIFICATION_REQUESTED
     for payload in [None, Command(resume={"invalid": "PRIVATE input"})]:
-        await graph.ainvoke(payload, config)  
+        await graph.ainvoke(payload, config)
         polled = await graph.aget_state(config)
         assert polled.values["timeline"] == history
     for round_number in [1, 2]:
         current = await graph.aget_state(config)
         pending = current.values["pending_clarification"]
         assert isinstance(pending, PendingClarification)
-        await graph.ainvoke(  
+        await graph.ainvoke(
             Command(
                 resume={
                     "pending_id": str(pending.pending_id),
@@ -193,7 +193,7 @@ async def test_poll_invalid_reply_answers_and_round_limit_preserve_history() -> 
     assert history[-1].metadata.clarification_cause == "round_limit"
     pending = state.get("pending_clarification")
     assert pending is not None
-    await graph.ainvoke(  
+    await graph.ainvoke(
         Command(
             resume={
                 "pending_id": str(pending.pending_id),
@@ -222,7 +222,7 @@ async def test_extraction_failure_records_only_typed_reason() -> None:
         load, FakeProvider(ProviderResult(refusal="PRIVATE refusal"))
     )
     run_id = uuid4()
-    await graph.ainvoke(  
+    await graph.ainvoke(
         WorkflowInput(workflow_run_id=run_id, issue_report_id=uuid4()),
         workflow_config(run_id),
     )

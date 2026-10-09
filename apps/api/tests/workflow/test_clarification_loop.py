@@ -7,16 +7,14 @@ from uuid import UUID, uuid4
 
 import pytest
 from langchain_core.runnables import RunnableConfig
-from langgraph.graph.state import (  # pyright: ignore[reportMissingTypeStubs]
-    CompiledStateGraph,
-)
-from langgraph.types import Command  # pyright: ignore[reportMissingTypeStubs]
+from langgraph.types import Command
 from pydantic import BaseModel
 
 from api.extraction.provider import ModelSettings, ProviderResult
 from api.extraction.schemas import Confidence, ExtractionResult, Severity
 from api.workflow.clarification import PendingClarification
 from api.workflow.graph import build_workflow
+from api.workflow.langgraph_types import WorkflowGraph
 from api.workflow.state import ReportStatus, WorkflowInput, WorkflowState
 
 
@@ -60,7 +58,7 @@ class ScriptedProvider:
 
 @dataclass
 class Run:
-    graph: CompiledStateGraph[WorkflowState, None, WorkflowInput, WorkflowState]
+    graph: WorkflowGraph[WorkflowInput]
     provider: ScriptedProvider
     inputs: WorkflowInput
     config: RunnableConfig

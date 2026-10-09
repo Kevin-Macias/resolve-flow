@@ -4,7 +4,7 @@ from typing import cast
 from uuid import UUID, uuid4
 
 import pytest
-from langgraph.types import Command  # pyright: ignore[reportMissingTypeStubs]
+from langgraph.types import Command
 
 from api.identity.context import RequestContext
 from api.workflow.actions import (
@@ -70,7 +70,7 @@ async def test_pause_then_record_exact_decision_with_server_identity(
 
     stage = build_approval_stage(context)
     config = approval_config(uuid4())
-    state = await stage.ainvoke(  
+    state = await stage.ainvoke(
         ApprovalInput(
             workflow_run_id=uuid4(),
             issue_report_id=action.arguments.issue_report_id,
@@ -82,7 +82,7 @@ async def test_pause_then_record_exact_decision_with_server_identity(
     interrupt = state["__interrupt__"][0].value
     assert interrupt["proposal"] == action.model_dump(mode="json")
     assert interrupt["fingerprint"] == action.fingerprint()
-    result = await stage.ainvoke(Command(resume=reply(action, choice)), config)  
+    result = await stage.ainvoke(Command(resume=reply(action, choice)), config)
     state = cast(ApprovalState, result)
     decision = state.get("approval")
     assert isinstance(decision, ApprovalDecision)
@@ -124,7 +124,7 @@ async def test_invalid_or_stale_reply_keeps_stage_paused(invalid: str) -> None:
     stage = build_approval_stage(context)
     run_id = uuid4()
     config = approval_config(run_id)
-    await stage.ainvoke(  
+    await stage.ainvoke(
         ApprovalInput(
             workflow_run_id=run_id,
             issue_report_id=action.arguments.issue_report_id,
@@ -146,12 +146,12 @@ async def test_invalid_or_stale_reply_keeps_stage_paused(invalid: str) -> None:
     elif invalid == "arguments":
         payload["arguments"] = {"title": "Changed"}
     raw: object = True if invalid == "bool" else payload
-    state = await stage.ainvoke(Command(resume=raw), config)  
+    state = await stage.ainvoke(Command(resume=raw), config)
     assert "approval" not in state
     assert state["__interrupt__"][0].value["error"] == "invalid_or_stale_approval"
     snapshot = await stage.aget_state(config)
     assert any(task.interrupts for task in snapshot.tasks)
-    state = await stage.ainvoke(Command(resume=reply(action)), config)  
+    state = await stage.ainvoke(Command(resume=reply(action)), config)
     assert state["approval"].permits(action)
 
 
@@ -174,13 +174,13 @@ async def test_customer_cannot_review_and_revoked_access_cannot_resume() -> None
         proposed_action=action,
     )
     with pytest.raises(PermissionError):
-        await stage.ainvoke(inputs, config)  
+        await stage.ainvoke(inputs, config)
     actor = RequestContext(uuid4(), "support", None)
     config = approval_config(uuid4())
-    await stage.ainvoke(inputs, config)  
+    await stage.ainvoke(inputs, config)
     allowed = False
     with pytest.raises(PermissionError):
-        await stage.ainvoke(Command(resume=reply(action)), config)  
+        await stage.ainvoke(Command(resume=reply(action)), config)
     snapshot = await stage.aget_state(config)
     assert "approval" not in snapshot.values
 
@@ -194,7 +194,7 @@ async def test_changed_proposal_requires_approval_of_the_new_snapshot() -> None:
 
     stage = build_approval_stage(context)
     config = approval_config(uuid4())
-    await stage.ainvoke(  
+    await stage.ainvoke(
         ApprovalInput(
             workflow_run_id=uuid4(),
             issue_report_id=action.arguments.issue_report_id,
@@ -211,9 +211,9 @@ async def test_changed_proposal_requires_approval_of_the_new_snapshot() -> None:
     )
     # Trusted application revision; this API is never exposed to client commands.
     await stage.aupdate_state(config, {"proposed_action": revised}, as_node="__start__")
-    state = await stage.ainvoke(Command(resume=reply(action)), config)  
+    state = await stage.ainvoke(Command(resume=reply(action)), config)
     assert "approval" not in state
-    state = await stage.ainvoke(Command(resume=reply(revised)), config)  
+    state = await stage.ainvoke(Command(resume=reply(revised)), config)
     decision = state["approval"]
     assert decision.permits(revised)
     assert not decision.permits(action)
@@ -226,7 +226,7 @@ async def test_proposal_must_belong_to_the_run_report() -> None:
 
     stage = build_approval_stage(context)
     with pytest.raises(ValueError, match="belong"):
-        await stage.ainvoke(  
+        await stage.ainvoke(
             ApprovalInput(
                 workflow_run_id=uuid4(),
                 issue_report_id=uuid4(),

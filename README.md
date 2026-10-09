@@ -95,3 +95,12 @@ On Railway or a similar platform, provision managed PostgreSQL and pass its
 `DATABASE_URL` to the API. Set `CORS_ORIGINS` to the public web URL. Build the
 web image with `VITE_API_URL` set to the public API URL. Do not deploy the local
 PostgreSQL service or reuse the development password in production.
+
+Knowledge ingestion and pgvector setup are documented in
+[vector storage](docs/vector-storage.md). Compose now selects a pgvector-enabled
+PostgreSQL 17 image; existing Alpine database volumes need the documented
+transition review before recreating their container.
+
+Heading-aware indexing and the opt-in embedding command are documented in
+[retrieval integration](docs/retrieval-integration.md). Search adapters are
+implemented but are not connected to an endpoint or the workflow yet.

@@ -3,7 +3,7 @@
 from uuid import UUID, uuid4
 
 import pytest
-from langgraph.types import Command  # pyright: ignore[reportMissingTypeStubs]
+from langgraph.types import Command
 from pydantic import ValidationError
 
 from api.identity.context import RequestContext
@@ -155,7 +155,7 @@ async def test_stage_runs_tool_only_after_approval(choice: str) -> None:
     stage = build_approval_stage(context, tool=tool)
     run_id = uuid4()
     config = approval_config(run_id)
-    await stage.ainvoke(  
+    await stage.ainvoke(
         ApprovalInput(
             workflow_run_id=run_id,
             issue_report_id=action.arguments.issue_report_id,
@@ -164,7 +164,7 @@ async def test_stage_runs_tool_only_after_approval(choice: str) -> None:
         config,
     )
     assert tool.calls == []
-    state = await stage.ainvoke(Command(resume=reply(action, choice)), config)  
+    state = await stage.ainvoke(Command(resume=reply(action, choice)), config)
     if choice == "reject":
         assert tool.calls == []
         assert "tool_execution" not in state
@@ -202,7 +202,7 @@ async def test_access_is_rechecked_between_approval_and_execution() -> None:
     stage = build_approval_stage(context, tool=tool)
     run_id = uuid4()
     config = approval_config(run_id)
-    await stage.ainvoke(  
+    await stage.ainvoke(
         ApprovalInput(
             workflow_run_id=run_id,
             issue_report_id=action.arguments.issue_report_id,
@@ -211,7 +211,7 @@ async def test_access_is_rechecked_between_approval_and_execution() -> None:
         config,
     )
     with pytest.raises(PermissionError):
-        await stage.ainvoke(Command(resume=reply(action)), config)  
+        await stage.ainvoke(Command(resume=reply(action)), config)
     snapshot = await stage.aget_state(config)
     assert snapshot.values["approval"].permits(action)
     assert "tool_execution" not in snapshot.values

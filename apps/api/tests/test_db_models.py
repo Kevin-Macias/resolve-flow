@@ -1,14 +1,19 @@
 from sqlalchemy import CheckConstraint
 
 from api.db.models import Base
+from api.knowledge.models import KnowledgeDocument
 
 
-def test_initial_model_metadata_matches_reviewed_tables() -> None:
+def test_model_metadata_matches_reviewed_tables() -> None:
+    assert KnowledgeDocument.metadata is Base.metadata
     assert set(Base.metadata.tables) == {
         "customer_accounts",
         "users",
         "services",
         "issue_reports",
+        "knowledge_documents",
+        "knowledge_chunks",
+        "knowledge_embeddings",
     }
 
     reports = Base.metadata.tables["issue_reports"]
@@ -17,7 +22,8 @@ def test_initial_model_metadata_matches_reviewed_tables() -> None:
     assert reports.c.affected_service_id.nullable
     assert reports.c.status.server_default is None
 
-    for table in Base.metadata.tables.values():
+    for name in ("customer_accounts", "users", "services", "issue_reports"):
+        table = Base.metadata.tables[name]
         assert table.c.id.server_default is not None
         assert table.c.created_at.server_default is not None
         assert table.c.updated_at.server_default is not None

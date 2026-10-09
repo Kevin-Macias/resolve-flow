@@ -138,3 +138,10 @@ RF-401 focuses on ResolveFlow issue-report submission and visibility, grounded
 in the existing API. The [feature summary](issue-report-troubleshooting.md)
 explains the behavior and troubleshooting distinctions. Historical investigations
 will be fictional fixtures. The end-to-end assistant and workspace remain planned.
+
+An authorized support report-state lookup is planned in RF-512 before the demo
+can confirm archival independently. Until then, missing-report diagnoses must
+preserve uncertainty. Archive history and restoration are separate future work.
+
+PDF ingestion is deferred beyond the MVP. The initial retrieval corpus is
+Markdown-only; document ingestion, retrieval, and citations remain in MVP scope.
