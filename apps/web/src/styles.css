@@ -1,67 +1,122 @@
-:root {
-  color: #17212b;
-  background: #f5f2eb;
-  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
-  font-synthesis: none;
+@import 'tailwindcss';
+
+@theme {
+  --color-ink: #172d2b;
+  --color-page: #f6f5f0;
+  --color-brand: #166855;
+  --color-brand-dark: #115442;
+  --color-muted: #5b6c64;
+  --color-line: #dce2da;
+  --font-sans: Inter, ui-sans-serif, system-ui, sans-serif;
+  --font-display: Georgia, serif;
 }
 
-* { box-sizing: border-box; }
+@layer base {
+  :root {
+    @apply bg-page font-sans text-ink;
+    font-synthesis: none;
+  }
 
-body { margin: 0; }
+  a {
+    @apply text-brand underline underline-offset-[0.2em];
+  }
 
-main {
-  display: grid;
-  min-height: 100vh;
-  place-content: center;
-  padding: 2rem;
-  background: radial-gradient(circle at 70% 20%, #d6eadf 0, transparent 35%);
+  h1 {
+    @apply mt-[0.3rem] mb-4 font-display text-[clamp(2.2rem,5vw,3.4rem)] font-medium tracking-[-0.035em];
+  }
+
+  h2 {
+    @apply mb-3 text-lg font-bold;
+  }
+
+  p {
+    @apply my-4 leading-[1.6];
+  }
+
+  dt {
+    @apply mb-2 text-[0.8rem] text-muted;
+  }
+
+  dd {
+    @apply text-[0.9rem] wrap-anywhere;
+  }
+
+  button,
+  a,
+  input,
+  textarea {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  :focus-visible {
+    @apply outline-3 outline-offset-4 outline-[#bf6b20];
+  }
 }
 
-.eyebrow {
-  margin: 0 0 1rem;
-  color: #39705b;
-  font-size: 0.8rem;
-  font-weight: 700;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-}
+@layer components {
+  .button-primary,
+  .button-secondary,
+  .button-danger {
+    @apply inline-flex cursor-pointer items-center justify-center rounded-lg border px-4 py-3 font-semibold leading-snug no-underline disabled:cursor-wait disabled:opacity-55;
+  }
 
-h1 {
-  max-width: 12ch;
-  margin: 0;
-  font-family: Georgia, serif;
-  font-size: clamp(3rem, 9vw, 7rem);
-  font-weight: 500;
-  letter-spacing: -0.06em;
-  line-height: 0.9;
-}
+  .button-primary {
+    @apply border-transparent bg-brand text-white hover:bg-brand-dark;
+  }
 
-.lede {
-  max-width: 38rem;
-  margin: 2rem 0;
-  color: #4b5863;
-  font-size: 1.15rem;
-  line-height: 1.6;
-}
+  .button-secondary {
+    @apply border-[#bacac2] bg-white text-[#254a40] hover:bg-[#f0f5f1];
+  }
 
-.status {
-  display: flex;
-  align-items: center;
-  gap: 0.65rem;
-  width: fit-content;
-  padding: 0.65rem 0.9rem;
-  border: 1px solid #ccd2ce;
-  border-radius: 999px;
-  background: rgb(255 255 255 / 65%);
-  font-size: 0.9rem;
-}
+  .button-danger {
+    @apply border-transparent bg-[#9b342f] text-white hover:bg-[#7d2924];
+  }
 
-.status span {
-  width: 0.65rem;
-  height: 0.65rem;
-  border-radius: 50%;
-  background: #c89b3c;
-}
+  .card {
+    @apply rounded-xl border bg-white p-6 max-[600px]:p-5;
+  }
 
-.status--connected span { background: #2d8a62; }
-.status--unavailable span { background: #bd4a4a; }
+  .eyebrow {
+    @apply mt-6 mb-2 text-xs font-bold tracking-[0.13em] text-[#4d705f] uppercase;
+  }
+
+  .hint {
+    @apply text-[0.85rem] text-muted;
+  }
+
+  .section-title {
+    @apply mt-6 mb-3 font-semibold;
+  }
+
+  .detail-list {
+    @apply mt-4 grid gap-x-6 gap-y-2 sm:grid-cols-[minmax(8rem,1fr)_minmax(0,3fr)];
+  }
+
+  .detail-list dt {
+    @apply mb-0 font-semibold;
+  }
+
+  .detail-list dd {
+    @apply mb-4 whitespace-pre-wrap sm:mb-0;
+  }
+
+  .form-field {
+    @apply block w-full rounded-md border border-[#98afa2] bg-white p-3 text-inherit disabled:bg-[#f4f5f3];
+  }
+
+  .form-label {
+    @apply mt-5 mb-2 block font-semibold;
+  }
+
+  .form-actions {
+    @apply mt-6 flex flex-wrap items-center gap-5;
+  }
+
+  .notice {
+    @apply rounded-md border border-[#b3cec0] bg-[#edf6f0] p-4;
+  }
+
+  .notice-error {
+    @apply rounded-md border border-[#e8bcb4] bg-[#fff4ef] p-4 text-[#7d2924];
+  }
+}

@@ -65,6 +65,43 @@ The web app uses
 `VITE_API_URL=http://localhost:8000` by default; copy `apps/web/.env.example`
 to `apps/web/.env` to override it.
 
+Customer report screens are available at `/reports`. They use a demo customer
+token entered in the browser, with account access enforced by the API. See
+[customer report screens](docs/customer-report-screens.md) for identity setup,
+supported edits, and the review walkthrough. `pnpm test:web` runs their offline
+interaction tests and is included in `pnpm check`.
+
+Customer intake start/read/clarification/recovery endpoints and a read-only SSE
+route are also implemented. Apply migrations and checkpoint setup as documented
+in [customer intake runs](docs/customer-intake-runs.md). They default to labeled
+offline simulation. Report details now expose start, clarification, incomplete
+continuation, and explicit recovery controls; see
+[customer clarification UI](docs/customer-clarification-ui.md).
+
+The support timeline is available at `/support`. Enter a configured support
+token and a report ID to read its saved intake events. Support account grants
+are enforced by the API, and switching between customer and support routes
+requires a separate demo session. See [execution timeline UI](docs/execution-timeline-ui.md)
+for setup, behavior, verification limits, and the database-backed walkthrough.
+
+The support report page also offers **Analyze evidence** and **Refresh saved
+evidence**. Apply migration `0004` first. Analysis defaults to labeled fixture
+ranking and scripted output; opening or refreshing a page only reads saved
+results. See the [evidence panel](docs/evidence-panel.md) for source verification,
+access, optional live configuration, and interrupted-operation limits.
+
+After intake finishes, support can draft a simulated ticket proposal, revise it
+before a decision, and approve or reject its exact saved version. Apply migration
+`0005` and checkpoint setup first. Approval receipts and execution outcomes remain
+separate, and refreshing never retries execution. See
+[support approval controls](docs/support-approval-controls.md) for the flow,
+access rules, verification, and pending final PAIR review.
+
+Support can also read a report's current state, including archival, through
+`GET /support/issue-reports/{report_id}/state` within configured account grants.
+It works without an intake run. See [support report state](docs/support-report-state.md)
+for the response and access rules; this lookup is not yet connected to the UI.
+
 ## Docker
 
 The Docker Compose project is named `resolve-flow` and runs PostgreSQL, the API,

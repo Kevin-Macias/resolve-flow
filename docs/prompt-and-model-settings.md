@@ -4,8 +4,7 @@ The issue-report extraction prompt lives in `apps/api/src/api/extraction/prompts
 as `EXTRACTION_PROMPT`. Its stable ID is `issue_report_extraction`; its current
 version is `3`. Version 3 adds instructions for the original report plus ordered
 clarification answers, distinguishing questions as context from reported facts.
-Change the version when changing the instructions so later
-evaluations can identify which instructions produced a result.
+Bump the version when instructions change so evaluations can trace each result.
 
 `OpenAIProvider` is configured with a model name and optional `temperature` and
 `max_output_tokens`, and reasoning effort. An omitted optional setting uses the provider default.
@@ -15,8 +14,9 @@ provider uses model name `fake` unless a test supplies other settings.
 `extract_issue_report` returns `ExtractionOutcome(result, call)` on success.
 `call` records the prompt ID/version, output schema name, configured model
 settings, number of attempts, and token usage when returned by the provider.
-An `ExtractionError` carries the same record
-for refusal, empty output, malformed JSON, invalid data, and provider failure.
-This record is in memory only; persistent call history, latency, and cost
-are planned for RF-705. No customer report text or model output is included in
-the call record.
+`ExtractionError` carries the same record for refusal, empty output, malformed
+JSON, invalid data, and provider failure. The in-memory record excludes report
+text and model output. Intake checkpoints save the latest record, replacing it
+after another extraction. RF-509 exposes that record in the internal
+[metrics panel](execution-metrics-ui.md). RF-705 adds full per-call history,
+latency, and cost accounting.

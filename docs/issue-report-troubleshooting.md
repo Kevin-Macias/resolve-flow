@@ -1,9 +1,8 @@
 # Issue-report submission and visibility
 
-RF-401 uses the complaint: “I submitted an issue report, but I can't find it
-in my list.” The missing report is investigated through a new intake report.
-Creating a support ticket records the investigation; it does not restore the
-missing report.
+RF-401 investigates “I submitted an issue report, but I can't find it in my
+list” through a new intake report. A support ticket tracks the investigation;
+restoring the missing report is separate work.
 
 ## Existing API behavior
 
@@ -35,9 +34,8 @@ Sources: [routes](../apps/api/src/api/issue_reports/router.py),
 | Different account context | Trusted current account and an authorized creation record | Do not probe or disclose another account's records |
 | Unknown submission outcome | No saved response or report ID | Do not assume success or failure |
 
-A runbook explains general behavior. It does not prove what happened to a
-particular report. Checks requiring unavailable operational evidence must be
-identified as unavailable rather than invented.
+Runbooks explain general behavior; verifying a particular report requires
+operational evidence. Mark unavailable checks explicitly.
 
 ## Planned frontend connection
 

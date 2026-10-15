@@ -33,9 +33,8 @@ flowchart LR
   `extraction_failed` with a fixed safe message and the selected questions.
   A gap with no proposed question stays visible with an empty question list.
 
-The report contains no internal diagnosis or raw provider error. Proposed
-questions are customer-directed model output; they are not independently
-verified. No second model call is used for diagnosis or reporting.
+The customer report excludes internal diagnosis and raw errors. Questions are
+unverified model output. Diagnosis and reporting are deterministic.
 
 ## Calling the graph
 
@@ -51,10 +50,9 @@ customer_update = state["customer_update"]
 
 `load_report` is an async callable receiving the report UUID. The caller must
 provide a loader that enforces the current actor's access scope before returning
-text. Lookup or access errors propagate and prevent a model call. This ticket
-does not introduce a database loader, HTTP endpoint, or a new authorization
-policy. Original report text, provider objects, and access context are kept out
-of graph state. Only the two IDs are accepted by the graph input schema.
+text. Lookup or access errors stop execution before a model call. The graph
+accepts only the two IDs; report text, providers, and access context stay outside
+state. Database loading and HTTP authorization are integration responsibilities.
 
 The returned state and raw graph streams are internal; an HTTP/UI integration
 must explicitly expose the customer update instead of returning all state.

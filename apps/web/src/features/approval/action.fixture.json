@@ -1,0 +1,504 @@
+{
+  "awaiting": {
+    "version": 1,
+    "report_id": "22222222-2222-4222-8222-222222222222",
+    "run_id": "11111111-1111-4111-8111-111111111111",
+    "status": "awaiting_decision",
+    "archived": false,
+    "input_stale": false,
+    "can_prepare": true,
+    "proposal": {
+      "action_id": "52cc9f55-d8d7-40ee-b757-df936bf7f126",
+      "version": 1,
+      "idempotency_key": "8facb8e2-352c-46d6-b6db-7ce157e57c95",
+      "tool": "create_ticket",
+      "arguments": {
+        "issue_report_id": "22222222-2222-4222-8222-222222222222",
+        "title": "Investigate missing issue report",
+        "description": "Customer cannot find a previously submitted report. The cause remains unverified.",
+        "service_code": null,
+        "severity": null
+      },
+      "explanation": "Support should investigate the reported visibility problem.",
+      "expected_effect": "Simulate creating one internal ticket linked to this report.",
+      "risk": {
+        "level": "low",
+        "reason": "This adapter only simulates ticket creation."
+      }
+    },
+    "fingerprint": "06056e1301e8a346facf48ffe6128f6ce4c070cbdab42d0e6ddd6ad868fa2174",
+    "preparation_id": "453248c4-01da-44e4-89fa-d276dfb53198",
+    "pending_preparation": null,
+    "decision": null,
+    "execution": null,
+    "failure": null,
+    "timeline": [
+      {
+        "event_id": "7b45e61b-0c94-59df-8cea-dffbcc619f7c",
+        "workflow_run_id": "11111111-1111-4111-8111-111111111111",
+        "stage": "approval",
+        "sequence": 1,
+        "occurred_at": "2026-10-13T21:42:32.473430Z",
+        "event_type": "approval_requested",
+        "metadata": {
+          "round_number": null,
+          "attempts": null,
+          "reasons": [],
+          "question_count": null,
+          "clarification_cause": null,
+          "extraction_failure": null,
+          "provider_failure": null,
+          "action_id": "52cc9f55-d8d7-40ee-b757-df936bf7f126",
+          "action_version": 1,
+          "fingerprint": "06056e1301e8a346facf48ffe6128f6ce4c070cbdab42d0e6ddd6ad868fa2174",
+          "actor_id": null,
+          "support_ticket_id": null,
+          "outcome": null,
+          "incomplete": null
+        }
+      }
+    ]
+  },
+  "absent": {
+    "version": 1,
+    "report_id": "22222222-2222-4222-8222-222222222222",
+    "run_id": "11111111-1111-4111-8111-111111111111",
+    "status": "absent",
+    "archived": false,
+    "input_stale": false,
+    "can_prepare": true,
+    "proposal": null,
+    "fingerprint": null,
+    "preparation_id": null,
+    "pending_preparation": null,
+    "decision": null,
+    "execution": null,
+    "failure": null,
+    "timeline": []
+  },
+  "preparing": {
+    "version": 1,
+    "report_id": "22222222-2222-4222-8222-222222222222",
+    "run_id": "11111111-1111-4111-8111-111111111111",
+    "status": "preparing",
+    "archived": false,
+    "input_stale": false,
+    "can_prepare": false,
+    "proposal": {
+      "action_id": "52cc9f55-d8d7-40ee-b757-df936bf7f126",
+      "version": 1,
+      "idempotency_key": "8facb8e2-352c-46d6-b6db-7ce157e57c95",
+      "tool": "create_ticket",
+      "arguments": {
+        "issue_report_id": "22222222-2222-4222-8222-222222222222",
+        "title": "Investigate missing issue report",
+        "description": "Customer cannot find a previously submitted report. The cause remains unverified.",
+        "service_code": null,
+        "severity": null
+      },
+      "explanation": "Support should investigate the reported visibility problem.",
+      "expected_effect": "Simulate creating one internal ticket linked to this report.",
+      "risk": {
+        "level": "low",
+        "reason": "This adapter only simulates ticket creation."
+      }
+    },
+    "fingerprint": "06056e1301e8a346facf48ffe6128f6ce4c070cbdab42d0e6ddd6ad868fa2174",
+    "preparation_id": "453248c4-01da-44e4-89fa-d276dfb53198",
+    "pending_preparation": {
+      "operation_id": "453248c4-01da-44e4-89fa-d276dfb53198",
+      "expected_fingerprint": null,
+      "title": "Investigate missing issue report",
+      "description": "Customer cannot find a previously submitted report. The cause remains unverified.",
+      "service_code": null,
+      "severity": null,
+      "explanation": "Support should investigate the reported visibility problem."
+    },
+    "decision": null,
+    "execution": null,
+    "failure": null,
+    "timeline": []
+  },
+  "unconfirmed": {
+    "version": 1,
+    "report_id": "22222222-2222-4222-8222-222222222222",
+    "run_id": "11111111-1111-4111-8111-111111111111",
+    "status": "approved_unconfirmed",
+    "archived": false,
+    "input_stale": false,
+    "can_prepare": false,
+    "proposal": {
+      "action_id": "52cc9f55-d8d7-40ee-b757-df936bf7f126",
+      "version": 1,
+      "idempotency_key": "8facb8e2-352c-46d6-b6db-7ce157e57c95",
+      "tool": "create_ticket",
+      "arguments": {
+        "issue_report_id": "22222222-2222-4222-8222-222222222222",
+        "title": "Investigate missing issue report",
+        "description": "Customer cannot find a previously submitted report. The cause remains unverified.",
+        "service_code": null,
+        "severity": null
+      },
+      "explanation": "Support should investigate the reported visibility problem.",
+      "expected_effect": "Simulate creating one internal ticket linked to this report.",
+      "risk": {
+        "level": "low",
+        "reason": "This adapter only simulates ticket creation."
+      }
+    },
+    "fingerprint": "06056e1301e8a346facf48ffe6128f6ce4c070cbdab42d0e6ddd6ad868fa2174",
+    "preparation_id": "453248c4-01da-44e4-89fa-d276dfb53198",
+    "pending_preparation": null,
+    "decision": {
+      "action_id": "52cc9f55-d8d7-40ee-b757-df936bf7f126",
+      "version": 1,
+      "fingerprint": "06056e1301e8a346facf48ffe6128f6ce4c070cbdab42d0e6ddd6ad868fa2174",
+      "decision": "approve",
+      "actor_id": "464fcc56-b7da-4ca1-98b0-837d143e8a8a",
+      "decided_at": "2026-10-13T21:42:32.473556Z"
+    },
+    "execution": null,
+    "failure": null,
+    "timeline": [
+      {
+        "event_id": "7b45e61b-0c94-59df-8cea-dffbcc619f7c",
+        "workflow_run_id": "11111111-1111-4111-8111-111111111111",
+        "stage": "approval",
+        "sequence": 1,
+        "occurred_at": "2026-10-13T21:42:32.473430Z",
+        "event_type": "approval_requested",
+        "metadata": {
+          "round_number": null,
+          "attempts": null,
+          "reasons": [],
+          "question_count": null,
+          "clarification_cause": null,
+          "extraction_failure": null,
+          "provider_failure": null,
+          "action_id": "52cc9f55-d8d7-40ee-b757-df936bf7f126",
+          "action_version": 1,
+          "fingerprint": "06056e1301e8a346facf48ffe6128f6ce4c070cbdab42d0e6ddd6ad868fa2174",
+          "actor_id": null,
+          "support_ticket_id": null,
+          "outcome": null,
+          "incomplete": null
+        }
+      },
+      {
+        "event_id": "06ee341c-d621-57eb-aa06-9a4e08da6c28",
+        "workflow_run_id": "11111111-1111-4111-8111-111111111111",
+        "stage": "approval",
+        "sequence": 2,
+        "occurred_at": "2026-10-13T21:42:32.473673Z",
+        "event_type": "action_approved",
+        "metadata": {
+          "round_number": null,
+          "attempts": null,
+          "reasons": [],
+          "question_count": null,
+          "clarification_cause": null,
+          "extraction_failure": null,
+          "provider_failure": null,
+          "action_id": "52cc9f55-d8d7-40ee-b757-df936bf7f126",
+          "action_version": 1,
+          "fingerprint": "06056e1301e8a346facf48ffe6128f6ce4c070cbdab42d0e6ddd6ad868fa2174",
+          "actor_id": "464fcc56-b7da-4ca1-98b0-837d143e8a8a",
+          "support_ticket_id": null,
+          "outcome": null,
+          "incomplete": null
+        }
+      }
+    ]
+  },
+  "success": {
+    "version": 1,
+    "report_id": "22222222-2222-4222-8222-222222222222",
+    "run_id": "11111111-1111-4111-8111-111111111111",
+    "status": "simulated_success",
+    "archived": false,
+    "input_stale": false,
+    "can_prepare": false,
+    "proposal": {
+      "action_id": "52cc9f55-d8d7-40ee-b757-df936bf7f126",
+      "version": 1,
+      "idempotency_key": "8facb8e2-352c-46d6-b6db-7ce157e57c95",
+      "tool": "create_ticket",
+      "arguments": {
+        "issue_report_id": "22222222-2222-4222-8222-222222222222",
+        "title": "Investigate missing issue report",
+        "description": "Customer cannot find a previously submitted report. The cause remains unverified.",
+        "service_code": null,
+        "severity": null
+      },
+      "explanation": "Support should investigate the reported visibility problem.",
+      "expected_effect": "Simulate creating one internal ticket linked to this report.",
+      "risk": {
+        "level": "low",
+        "reason": "This adapter only simulates ticket creation."
+      }
+    },
+    "fingerprint": "06056e1301e8a346facf48ffe6128f6ce4c070cbdab42d0e6ddd6ad868fa2174",
+    "preparation_id": "453248c4-01da-44e4-89fa-d276dfb53198",
+    "pending_preparation": null,
+    "decision": {
+      "action_id": "52cc9f55-d8d7-40ee-b757-df936bf7f126",
+      "version": 1,
+      "fingerprint": "06056e1301e8a346facf48ffe6128f6ce4c070cbdab42d0e6ddd6ad868fa2174",
+      "decision": "approve",
+      "actor_id": "464fcc56-b7da-4ca1-98b0-837d143e8a8a",
+      "decided_at": "2026-10-13T21:42:32.473556Z"
+    },
+    "execution": {
+      "action_id": "52cc9f55-d8d7-40ee-b757-df936bf7f126",
+      "version": 1,
+      "fingerprint": "06056e1301e8a346facf48ffe6128f6ce4c070cbdab42d0e6ddd6ad868fa2174",
+      "idempotency_key": "8facb8e2-352c-46d6-b6db-7ce157e57c95",
+      "executed_by_user_id": "464fcc56-b7da-4ca1-98b0-837d143e8a8a",
+      "result": {
+        "support_ticket_id": "357183fe-306d-41cf-874f-30d2d39a5b6a",
+        "status": "open",
+        "simulated": true
+      }
+    },
+    "failure": null,
+    "timeline": [
+      {
+        "event_id": "7b45e61b-0c94-59df-8cea-dffbcc619f7c",
+        "workflow_run_id": "11111111-1111-4111-8111-111111111111",
+        "stage": "approval",
+        "sequence": 1,
+        "occurred_at": "2026-10-13T21:42:32.473430Z",
+        "event_type": "approval_requested",
+        "metadata": {
+          "round_number": null,
+          "attempts": null,
+          "reasons": [],
+          "question_count": null,
+          "clarification_cause": null,
+          "extraction_failure": null,
+          "provider_failure": null,
+          "action_id": "52cc9f55-d8d7-40ee-b757-df936bf7f126",
+          "action_version": 1,
+          "fingerprint": "06056e1301e8a346facf48ffe6128f6ce4c070cbdab42d0e6ddd6ad868fa2174",
+          "actor_id": null,
+          "support_ticket_id": null,
+          "outcome": null,
+          "incomplete": null
+        }
+      },
+      {
+        "event_id": "06ee341c-d621-57eb-aa06-9a4e08da6c28",
+        "workflow_run_id": "11111111-1111-4111-8111-111111111111",
+        "stage": "approval",
+        "sequence": 2,
+        "occurred_at": "2026-10-13T21:42:32.473673Z",
+        "event_type": "action_approved",
+        "metadata": {
+          "round_number": null,
+          "attempts": null,
+          "reasons": [],
+          "question_count": null,
+          "clarification_cause": null,
+          "extraction_failure": null,
+          "provider_failure": null,
+          "action_id": "52cc9f55-d8d7-40ee-b757-df936bf7f126",
+          "action_version": 1,
+          "fingerprint": "06056e1301e8a346facf48ffe6128f6ce4c070cbdab42d0e6ddd6ad868fa2174",
+          "actor_id": "464fcc56-b7da-4ca1-98b0-837d143e8a8a",
+          "support_ticket_id": null,
+          "outcome": null,
+          "incomplete": null
+        }
+      }
+    ]
+  },
+  "unknown": {
+    "version": 1,
+    "report_id": "22222222-2222-4222-8222-222222222222",
+    "run_id": "11111111-1111-4111-8111-111111111111",
+    "status": "execution_unknown",
+    "archived": false,
+    "input_stale": false,
+    "can_prepare": false,
+    "proposal": {
+      "action_id": "52cc9f55-d8d7-40ee-b757-df936bf7f126",
+      "version": 1,
+      "idempotency_key": "8facb8e2-352c-46d6-b6db-7ce157e57c95",
+      "tool": "create_ticket",
+      "arguments": {
+        "issue_report_id": "22222222-2222-4222-8222-222222222222",
+        "title": "Investigate missing issue report",
+        "description": "Customer cannot find a previously submitted report. The cause remains unverified.",
+        "service_code": null,
+        "severity": null
+      },
+      "explanation": "Support should investigate the reported visibility problem.",
+      "expected_effect": "Simulate creating one internal ticket linked to this report.",
+      "risk": {
+        "level": "low",
+        "reason": "This adapter only simulates ticket creation."
+      }
+    },
+    "fingerprint": "06056e1301e8a346facf48ffe6128f6ce4c070cbdab42d0e6ddd6ad868fa2174",
+    "preparation_id": "453248c4-01da-44e4-89fa-d276dfb53198",
+    "pending_preparation": null,
+    "decision": {
+      "action_id": "52cc9f55-d8d7-40ee-b757-df936bf7f126",
+      "version": 1,
+      "fingerprint": "06056e1301e8a346facf48ffe6128f6ce4c070cbdab42d0e6ddd6ad868fa2174",
+      "decision": "approve",
+      "actor_id": "464fcc56-b7da-4ca1-98b0-837d143e8a8a",
+      "decided_at": "2026-10-13T21:42:32.473556Z"
+    },
+    "execution": null,
+    "failure": {
+      "action_id": "52cc9f55-d8d7-40ee-b757-df936bf7f126",
+      "version": 1,
+      "fingerprint": "06056e1301e8a346facf48ffe6128f6ce4c070cbdab42d0e6ddd6ad868fa2174",
+      "idempotency_key": "8facb8e2-352c-46d6-b6db-7ce157e57c95",
+      "reason": "tool_failed",
+      "outcome": "unknown"
+    },
+    "timeline": [
+      {
+        "event_id": "7b45e61b-0c94-59df-8cea-dffbcc619f7c",
+        "workflow_run_id": "11111111-1111-4111-8111-111111111111",
+        "stage": "approval",
+        "sequence": 1,
+        "occurred_at": "2026-10-13T21:42:32.473430Z",
+        "event_type": "approval_requested",
+        "metadata": {
+          "round_number": null,
+          "attempts": null,
+          "reasons": [],
+          "question_count": null,
+          "clarification_cause": null,
+          "extraction_failure": null,
+          "provider_failure": null,
+          "action_id": "52cc9f55-d8d7-40ee-b757-df936bf7f126",
+          "action_version": 1,
+          "fingerprint": "06056e1301e8a346facf48ffe6128f6ce4c070cbdab42d0e6ddd6ad868fa2174",
+          "actor_id": null,
+          "support_ticket_id": null,
+          "outcome": null,
+          "incomplete": null
+        }
+      },
+      {
+        "event_id": "06ee341c-d621-57eb-aa06-9a4e08da6c28",
+        "workflow_run_id": "11111111-1111-4111-8111-111111111111",
+        "stage": "approval",
+        "sequence": 2,
+        "occurred_at": "2026-10-13T21:42:32.473673Z",
+        "event_type": "action_approved",
+        "metadata": {
+          "round_number": null,
+          "attempts": null,
+          "reasons": [],
+          "question_count": null,
+          "clarification_cause": null,
+          "extraction_failure": null,
+          "provider_failure": null,
+          "action_id": "52cc9f55-d8d7-40ee-b757-df936bf7f126",
+          "action_version": 1,
+          "fingerprint": "06056e1301e8a346facf48ffe6128f6ce4c070cbdab42d0e6ddd6ad868fa2174",
+          "actor_id": "464fcc56-b7da-4ca1-98b0-837d143e8a8a",
+          "support_ticket_id": null,
+          "outcome": null,
+          "incomplete": null
+        }
+      }
+    ]
+  },
+  "rejected": {
+    "version": 1,
+    "report_id": "22222222-2222-4222-8222-222222222222",
+    "run_id": "11111111-1111-4111-8111-111111111111",
+    "status": "rejected",
+    "archived": false,
+    "input_stale": false,
+    "can_prepare": false,
+    "proposal": {
+      "action_id": "52cc9f55-d8d7-40ee-b757-df936bf7f126",
+      "version": 1,
+      "idempotency_key": "8facb8e2-352c-46d6-b6db-7ce157e57c95",
+      "tool": "create_ticket",
+      "arguments": {
+        "issue_report_id": "22222222-2222-4222-8222-222222222222",
+        "title": "Investigate missing issue report",
+        "description": "Customer cannot find a previously submitted report. The cause remains unverified.",
+        "service_code": null,
+        "severity": null
+      },
+      "explanation": "Support should investigate the reported visibility problem.",
+      "expected_effect": "Simulate creating one internal ticket linked to this report.",
+      "risk": {
+        "level": "low",
+        "reason": "This adapter only simulates ticket creation."
+      }
+    },
+    "fingerprint": "06056e1301e8a346facf48ffe6128f6ce4c070cbdab42d0e6ddd6ad868fa2174",
+    "preparation_id": "453248c4-01da-44e4-89fa-d276dfb53198",
+    "pending_preparation": null,
+    "decision": {
+      "action_id": "52cc9f55-d8d7-40ee-b757-df936bf7f126",
+      "version": 1,
+      "fingerprint": "06056e1301e8a346facf48ffe6128f6ce4c070cbdab42d0e6ddd6ad868fa2174",
+      "decision": "reject",
+      "actor_id": "464fcc56-b7da-4ca1-98b0-837d143e8a8a",
+      "decided_at": "2026-10-13T21:42:32.474203Z"
+    },
+    "execution": null,
+    "failure": null,
+    "timeline": [
+      {
+        "event_id": "7b45e61b-0c94-59df-8cea-dffbcc619f7c",
+        "workflow_run_id": "11111111-1111-4111-8111-111111111111",
+        "stage": "approval",
+        "sequence": 1,
+        "occurred_at": "2026-10-13T21:42:32.473430Z",
+        "event_type": "approval_requested",
+        "metadata": {
+          "round_number": null,
+          "attempts": null,
+          "reasons": [],
+          "question_count": null,
+          "clarification_cause": null,
+          "extraction_failure": null,
+          "provider_failure": null,
+          "action_id": "52cc9f55-d8d7-40ee-b757-df936bf7f126",
+          "action_version": 1,
+          "fingerprint": "06056e1301e8a346facf48ffe6128f6ce4c070cbdab42d0e6ddd6ad868fa2174",
+          "actor_id": null,
+          "support_ticket_id": null,
+          "outcome": null,
+          "incomplete": null
+        }
+      },
+      {
+        "event_id": "4cc043a1-58c0-5294-8427-5e56c3c652a3",
+        "workflow_run_id": "11111111-1111-4111-8111-111111111111",
+        "stage": "approval",
+        "sequence": 2,
+        "occurred_at": "2026-10-13T21:42:32.474362Z",
+        "event_type": "action_rejected",
+        "metadata": {
+          "round_number": null,
+          "attempts": null,
+          "reasons": [],
+          "question_count": null,
+          "clarification_cause": null,
+          "extraction_failure": null,
+          "provider_failure": null,
+          "action_id": "52cc9f55-d8d7-40ee-b757-df936bf7f126",
+          "action_version": 1,
+          "fingerprint": "06056e1301e8a346facf48ffe6128f6ce4c070cbdab42d0e6ddd6ad868fa2174",
+          "actor_id": "464fcc56-b7da-4ca1-98b0-837d143e8a8a",
+          "support_ticket_id": null,
+          "outcome": null,
+          "incomplete": null
+        }
+      }
+    ]
+  }
+}

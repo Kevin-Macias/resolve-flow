@@ -2,13 +2,11 @@
 
 ## Problem
 
-Customers often cannot tell whether a technical problem is already known,
-whether somebody is working on it, or what information support needs from them.
-Support engineers then receive incomplete reports and must manually classify
-their impact, search runbooks and past incidents, ask for missing information,
-and translate the findings into actionable internal work. This is repetitive,
-but unsafe to automate without access controls, evidence, auditability, and
-human control.
+Customers need to know whether a problem is known, who is working on it, and
+what information support needs. Support engineers receive incomplete reports,
+assess impact, search runbooks and past incidents, ask questions, and plan work.
+Automating this requires access controls, evidence, an audit trail, and human
+approval.
 
 ## Product
 
@@ -99,18 +97,17 @@ The first complete demonstration must take less than five minutes:
 
 ### 1. Existing issue status
 
-A customer asks whether support is investigating their missing-report problem. ResolveFlow
-verifies the simulated customer context, finds that customer's ticket, and
-returns its public status and latest customer-visible update. It does not expose
-internal comments, assignees, or similar tickets owned by other customers.
+A customer asks whether support is investigating their missing report.
+ResolveFlow checks the simulated identity and returns only that customer's
+ticket status and latest customer-visible update. Internal comments, assignees, and other
+customers' tickets stay private.
 
 ### 2. Known incident match
 
 A customer reports trouble submitting issue reports. In this planned journey,
-ResolveFlow finds a published incident affecting report submission, asks for
-the minimum information needed to determine whether it applies, and links the
-report rather than creating a duplicate ticket. The internal workspace records the match and
-supporting evidence.
+ResolveFlow finds a published incident, asks enough questions to check whether
+it applies, and links the report to avoid a duplicate ticket. The internal
+workspace records the match and evidence.
 
 ### 3. New issue requiring internal review
 
@@ -139,9 +136,53 @@ in the existing API. The [feature summary](issue-report-troubleshooting.md)
 explains the behavior and troubleshooting distinctions. Historical investigations
 will be fictional fixtures. The end-to-end assistant and workspace remain planned.
 
-An authorized support report-state lookup is planned in RF-512 before the demo
-can confirm archival independently. Until then, missing-report diagnoses must
-preserve uncertainty. Archive history and restoration are separate future work.
+RF-512 now provides an authorized [support report-state lookup](support-report-state.md)
+that can confirm current archival within granted accounts. Connecting it to the
+support UI and diagnosis remains separate work; customer 404 responses alone
+still cannot confirm archival. Archive history and restoration remain future work.
 
 PDF ingestion is deferred beyond the MVP. The initial retrieval corpus is
 Markdown-only; document ingestion, retrieval, and citations remain in MVP scope.
+
+The approved [workspace information architecture](workspace-information-architecture.md)
+places summary, questions, diagnosis, evidence, action approval, timeline, and
+metrics around an issue report. Kevin approved RF-501 on 2026-10-09; the design
+keeps customer-safe views separate from the internal support workspace.
+
+Customer intake now has account-scoped start/read/clarification/recovery HTTP
+operations and read-only SSE over durable projections. The default is explicitly
+labeled offline simulation. Intake ends at needs-confirmation or failure; summary
+confirmation, evidence-backed diagnosis, and support workflow operations remain planned.
+An internal support read endpoint now exposes saved intake timelines within
+explicit account grants, including archived reports. A separate
+[support timeline page](execution-timeline-ui.md) now opens a known report ID
+and shows saved intake history with refresh and access-loss states. Its
+database-backed browser verification passed on 2026-10-12. The support queue and
+workflow mutations remain planned; see [support run reads](support-run-reads.md).
+Customer report details now offer [clarification controls](customer-clarification-ui.md),
+accepted answer history, incomplete continuation, and explicit recovery. Their
+database-backed browser verification passed on 2026-10-12. Setup and backend
+limitations are in [customer intake runs](customer-intake-runs.md).
+
+Support can explicitly request and inspect saved [preliminary evidence analysis](evidence-panel.md)
+on the report page. Kevin approved this separate integration on 2026-10-13.
+It labels observations as unconfirmed, preserves source provenance, and rechecks
+current access. The default uses fixture ranking and scripted analysis; live
+relevance and model injection resistance remain unmeasured. Customer summary
+confirmation and automatic workflow diagnosis remain separate work.
+
+Support can also author a simulated ticket proposal after intake finishes, then
+approve or reject its exact saved version through
+[support approval controls](support-approval-controls.md). Kevin approved this
+scope and mutation access on 2026-10-13. The UI labels observations as unconfirmed
+and preserves separate proposal, decision, and execution outcomes. It creates no
+persisted support ticket. Customer confirmation and automatic proposal generation
+remain separate. Kevin accepted RF-508's final PAIR implementation review on
+2026-10-13.
+
+
+Support also sees [metrics for the latest saved intake extraction](execution-metrics-ui.md):
+configured model, prompt version, attempts, and token usage when returned. Kevin
+approved this limited display on 2026-10-13. Offline execution is labeled, missing
+latency/cost appear as not recorded, and the view makes no run-total or billing
+claim. Full accounting remains RF-705.

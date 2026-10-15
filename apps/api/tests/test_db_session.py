@@ -31,6 +31,10 @@ async def test_lifespan_keeps_health_available_without_database(
         ) as client:
             assert (await client.get("/health")).status_code == 200
             assert app.state.session_factory is None
+            assert app.state.support_report_states is None
+            assert app.state.support_evidence is None
+            assert app.state.support_metrics is None
+            assert app.state.support_actions is None
 
 
 @pytest.mark.anyio
@@ -56,6 +60,10 @@ async def test_lifespan_reuses_factory_and_disposes_engine(
     async with app.router.lifespan_context(app):
         factory = app.state.session_factory
         assert factory is not None
+        assert app.state.support_report_states.sessions is factory
+        assert app.state.support_evidence.sessions is factory
+        assert app.state.support_metrics.sessions is factory
+        assert app.state.support_actions.sessions is factory
         assert factory.kw["expire_on_commit"] is False
         assert factory.kw["bind"].url.drivername == "postgresql+psycopg"
         dispose = AsyncMock(wraps=factory.kw["bind"].dispose)
@@ -75,6 +83,10 @@ async def test_lifespan_reuses_factory_and_disposes_engine(
         assert not first_session.in_transaction()
 
     assert app.state.session_factory is None
+    assert app.state.support_report_states is None
+    assert app.state.support_evidence is None
+    assert app.state.support_metrics is None
+    assert app.state.support_actions is None
     dispose.assert_awaited_once()
 
 

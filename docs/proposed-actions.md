@@ -23,9 +23,8 @@ text. Nullable service/severity fields remain required, with `null` explicitly
 representing unknown classification. Unknown fields are rejected. Account scope,
 permissions, approver, and assignment are not accepted as ticket arguments.
 
-Risk describes the proposed action; it is separate from incident severity. These
-labels have no automatic authorization or execution policy in RF-306. Later
-approval and tool code must still review the proposal and enforce access.
+Risk describes the action, separately from incident severity. Risk labels grant
+no execution rights; approval and tool code enforce review and access.
 
 ## Creating and revising
 
@@ -70,12 +69,16 @@ serializer permits these exact action types and restores the arguments, risk,
 version, idempotency key, and fingerprint. Existing checkpoints can omit the new
 optional field.
 
-RF-306 defines contracts and factories. The current intake graph does not generate or
-execute a proposed action, and does not infer approval from a stored proposal.
-RF-307 now provides a separate [approval stage](action-approval.md);
-RF-308 now connects an optional [simulated tool](simulated-ticket-tool.md); RF-309/703
-verify execution and idempotency behavior. A UUID key alone does not prevent
+RF-306 supplies contracts and factories; intake proposal generation remains
+separate. A stored proposal requires the RF-307 [approval stage](action-approval.md)
+before RF-308's optional [simulated tool](simulated-ticket-tool.md) can execute.
+RF-309/703 cover execution and idempotency: a UUID key alone cannot prevent
 duplicate effects.
+
+RF-508 now connects the factories to an authorized
+[manual support proposal operation](support-approval-controls.md). It persists the
+proposal before displaying it and establishes a fresh review interrupt on each
+undecided revision. A decided path cannot be revised through that API.
 
 ## Review cases
 

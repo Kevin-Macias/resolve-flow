@@ -5,11 +5,10 @@ The implementation passed all 311 tests and root quality checks.
 
 ## Goal and boundaries
 
-Persist the reviewed Markdown revisions and provide storage for later passage
-embeddings. RF-405 creates the migration, ORM records, and a PostgreSQL ingestion
-adapter preserving RF-403's atomic revision behavior. It does not choose the
-chunking algorithm, generate live embeddings, or integrate retrieval into the
-workflow. Database tests use deterministic vectors without model calls.
+RF-405 persists Markdown revisions and provides passage/vector storage through
+a migration, ORM models, and an async ingestion adapter. It preserves RF-403's
+atomic batches. Chunking, live embeddings, and workflow retrieval are later work;
+database tests use deterministic vectors.
 
 ## Implemented tables
 
@@ -32,11 +31,9 @@ The database customer account reference should use the existing account table.
 The corpus service label `issue-reports` remains a source classification and
 does not require an operational Service row.
 
-Embedding dimensions and profile are part of the contract. Approved first
-dimension: 1536. This is a storage choice, not approval to invoke or purchase an
-embedding model. A profile identifies one compatible model/configuration; later
-queries must select a matching profile rather than compare incompatible vectors.
-Additional dimensions require a reviewed schema change.
+Vectors have 1536 dimensions and a profile identifying the model/configuration.
+Queries must use a matching profile. Other dimensions require a reviewed schema
+change. Selecting storage dimensions does not authorize paid provider calls.
 
 ## Index proposal
 
@@ -53,10 +50,9 @@ Reference: [pgvector querying and indexes](https://github.com/pgvector/pgvector#
 
 ## Durable ingestion
 
-The memory store interface is synchronous. A separate async PostgreSQL
-adapter for the existing async SQLAlchemy stack, sharing the prepared document
-contracts and result types. Avoid running an async event loop inside synchronous
-`commit_batch` or blocking the API loop with synchronous database I/O.
+Use a separate async PostgreSQL adapter for SQLAlchemy, sharing the memory
+store's prepared document contracts and result types. Use async database I/O;
+avoid running an event loop inside synchronous `commit_batch`.
 
 Within one transaction, insert new revisions and compare hashes for existing
 revisions. Identical inputs are unchanged; changed inputs under an existing
@@ -101,11 +97,9 @@ This is a practical starting profile for the small English corpus, not a claim
 that retrieval quality has already been evaluated. Keep model/profile identity
 with each vector and use the same profile for document and query embeddings.
 
-The current documented standard input price is $0.02 per million tokens for
-`text-embedding-3-small`, compared with $0.13 for `text-embedding-3-large`.
-Actual quality must be measured in later retrieval/evaluation work. A larger
-model can be considered if the baseline demonstrates a need; it is not required
-for the storage ticket.
+Prices checked on 2026-10-06 were $0.02 per million input tokens for
+`text-embedding-3-small` and $0.13 for `text-embedding-3-large`. Measure baseline
+quality before considering a larger model; RF-405 requires storage only.
 
 Sources checked 2026-10-06: [embedding guide](https://developers.openai.com/api/docs/guides/embeddings),
 [small model](https://developers.openai.com/api/docs/models/text-embedding-3-small),

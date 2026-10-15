@@ -10,19 +10,17 @@ repository root:
 pnpm test:live
 ```
 
-This command loads the root `.env` file. It is separate from `pnpm check` and
-ordinary pytest. It runs one
-extraction with a fixed synthetic invoice report, using the configured
-model and reasoning effort with a cap of 800 output tokens. The usual timeout and retry policy still
-applies. Missing credentials or model selection stop before any model call.
+The command loads the root `.env` and runs one synthetic invoice extraction
+with the configured model, reasoning effort, and an 800-output-token cap.
+The usual timeout and retry limits apply. Missing credentials or model selection
+stop the check before a call. Run it separately from `pnpm check` and pytest.
 
 The command prints one JSON record with schema validity, field names, counts,
 elapsed milliseconds, attempt count, prompt ID/version, model name, and input,
 output, and total tokens. It exits nonzero on an extraction failure or missing
-usage. It does not print the customer report or generated prose, and it makes no
-exact-wording assertion. A successful check confirms the integration path and
-schema shape; it does not measure classification quality. That belongs to the
-evaluation phase.
+usage. Report text and generated prose stay private. The check verifies
+integration and schema shape, without exact-wording assertions. Classification
+quality requires later evaluation.
 
 The report is printed to the terminal and is not persisted by ResolveFlow.
 `apps/api/tests/extraction/test_live_check_report.py` verifies the reporting

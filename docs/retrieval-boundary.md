@@ -10,12 +10,11 @@ Provide an application-owned asynchronous interface that accepts a search
 request and returns ranked, typed evidence. Domain contracts must not import
 LangChain, SQLAlchemy, pgvector, or an embedding SDK.
 
-RF-407 implements the contracts and a deterministic fake adapter for offline
-tests. It does not connect retrieval to the workflow or expose an HTTP endpoint.
-Production embedding/search adapters and chunk persistence require subsequent
-integration work; choosing a fake does not implement semantic search. RF-408 now
-provides those adapters in the [retrieval integration](retrieval-integration.md),
-tested with deterministic vectors; no live provider search has been verified.
+RF-407 supplies contracts and an offline fake. RF-408's
+[retrieval integration](retrieval-integration.md) adds embeddings, search, and
+chunk persistence, tested with deterministic vectors. Live search quality is
+unverified. RF-506 adds separate [support evidence operations](evidence-panel.md);
+automatic customer workflow retrieval remains unimplemented.
 
 ## Approved request
 
@@ -30,10 +29,9 @@ tested with deterministic vectors; no live provider search has been verified.
   application configuration from the manifest. Stored historical revisions
   are not automatically searchable.
 
-Scope and active revisions are supplied by trusted application code, never
-inferred from query text or model output. These structures describe already
-established permissions; they do not authenticate a caller or grant permissions.
-Endpoint identity resolution remains separate work.
+Trusted application code supplies scope and active revisions after establishing
+permissions. Query text and model output cannot choose access. Endpoint identity
+resolution remains separate work.
 
 ## Approved eligibility and ranking
 
@@ -69,21 +67,16 @@ adapter response fails closed rather than passing malformed evidence onward.
 Do not include query text, document contents, credentials, or raw provider errors
 in failure messages.
 
-Routine tests verify request/result validation, metadata and
-location binding, deterministic ranks and ties, duplicate rejection, result
-limits, empty results, and typed failures. Fake-adapter eligibility tests
-cover active revisions, current status, service, and permitted account/internal
-scope against the approved rules. RF-410 owns semantic relevance expectations
-and evaluation of the eventual search adapter.
+Tests cover request/results, metadata/location matching, ranks/ties, duplicates,
+limits, empty results, and typed failures. Fake-adapter tests check active
+revisions, status, service, and account/internal access. RF-410 evaluates semantic
+relevance.
 
 ## Approved choices
 
-1. Implement the boundary and offline fake first; integrate actual semantic
-   search in the following integration work.
-2. Use the eligibility rules above, including exclusion of superseded advice
-   and explicit account permissions established by application code.
-3. Start with five results, permit 1–20, and defer a relevance threshold until
-   it can be evaluated.
+Kevin approved the contracts and offline fake before semantic search integration,
+the eligibility rules above, and `top_k=5` with a range of 1–20. A relevance
+threshold requires evaluation first.
 
 ## Implementation and review
 
@@ -95,11 +88,10 @@ ranked results fail closed. Adapter filtering must still happen before ranking
 and limiting: response validation cannot establish that omitted candidates
 were ranked correctly.
 
-`api/knowledge/fake_retriever.py` filters supplied candidates and ranks their
-explicit `fixture` scores. It does not interpret query text, compute embeddings,
-or measure semantic relevance. Measured adapters use `cosine_similarity`;
-results cannot mix score metrics. Ties use the string form of the chunk UUID.
-Passage text retains its original whitespace.
+`api/knowledge/fake_retriever.py` filters candidates and ranks fixed `fixture`
+scores, independently of query meaning. Measured adapters use `cosine_similarity`;
+each result uses one metric. Ties use chunk UUID strings; passage whitespace
+is preserved.
 
 An empty active revision selection returns no sources. A selection cannot
 activate multiple versions of the same document. Permissions are explicit,

@@ -30,11 +30,10 @@ There are eight introductory sections containing only the document title and
 editorial metadata. Excluding those leaves 31 substantive sections. The longest
 section is 96 words, including its heading.
 
-Fixed splitting provides predictable passage sizes and works without headings.
-Here it sometimes cuts sentences and combines parts of checks, interpretation,
-and limitations. Heading splitting preserves those authored boundaries but
-produces smaller passages with different lengths. A section can still depend
-on context elsewhere in its document.
+Fixed splitting gives predictable sizes without headings, but can cut sentences
+and mix checks, interpretation, and limitations. Heading splitting preserves
+sections with varying lengths. Either approach may need context from elsewhere
+in the document.
 
 These are structural measurements, not retrieval relevance scores. The
 100-word baseline is a comparison parameter, not an approved production limit.
@@ -60,10 +59,9 @@ Chunk boundaries alone cannot establish applicability or authorization.
 Retrieval filtering and the treatment of stale sources remain decisions for
 the retrieval tickets.
 
-This selection covers the current short Markdown corpus. Before accepting
-longer sections, choose and verify a bounded splitting fallback and embedding
-input budget. No fixed production size, tokenizer, overlap for long sections,
-or retrieval ranking policy is selected by this decision.
+This decision covers the current short corpus. Longer sections need a reviewed
+size/tokenizer/overlap policy, bounded splitting fallback, and embedding budget.
+Retrieval ranking is a separate decision.
 
 ## Implementation boundary
 

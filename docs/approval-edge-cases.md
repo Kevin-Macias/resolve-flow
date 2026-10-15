@@ -15,11 +15,9 @@ the saved proposal. An invalid or stale reply raises `ValueError` without
 advancing the graph. Unlike a direct graph resume, it does not create another
 interrupt for transport validation errors.
 
-When a decision is already saved, the runner returns the saved state. This
-includes a later opposite choice: it cannot overwrite the first decision.
-Access and proposal binding are checked even for duplicate requests. A rejected
-action stays rejected and never calls the tool. Changed arguments invalidate an
-old reply even when the action ID and version were reused.
+The first saved decision wins. Later submissions, including the opposite choice,
+return saved state after access and proposal-binding checks. Rejection prevents
+execution. Changed arguments invalidate an old reply even if ID/version are reused.
 
 `MemoryRunLocks` is for offline tests: share one instance between runners using
 one checkpoint store. It coordinates tasks in one process only and retains locks
@@ -50,9 +48,8 @@ It saves no success result or support-ticket ID. The safe message says ticket
 creation could not be confirmed and support review is required; exception text
 is not saved.
 
-A tool could have acted before raising. An unknown outcome must not be described
-as proof that no ticket exists. No tool retry is automatic. Duplicate submission
-returns the saved failure, including after restart.
+A tool may act before raising, so a failure leaves the outcome unknown.
+Duplicates return that saved failure, even after restart; retry requires review.
 
 A saved approval with no execution result also returns as-is. This can happen
 when execution access is revoked, a process dies, or a checkpoint write fails.

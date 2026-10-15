@@ -14,9 +14,11 @@ COPY apps/api/pyproject.toml apps/api/uv.lock apps/api/README.md ./
 RUN uv sync --locked --no-dev --no-install-project
 
 COPY apps/api/src ./src
+COPY knowledge ./knowledge
 RUN uv sync --locked --no-dev
 
 ENV PATH="/app/.venv/bin:$PATH"
+ENV KNOWLEDGE_ROOT="/app"
 
 EXPOSE 8000
 

@@ -1,0 +1,216 @@
+{
+  "waiting": {
+    "version": 1,
+    "run_id": "11111111-1111-4111-8111-111111111111",
+    "report_id": "22222222-2222-4222-8222-222222222222",
+    "revision": 2,
+    "status": "needs_clarification",
+    "provider_mode": "offline",
+    "simulated": true,
+    "message": "Please review the saved intake.",
+    "operation_pending": false,
+    "pending": {
+      "pending_id": "33333333-3333-4333-8333-333333333333",
+      "round_number": 1,
+      "mode": "answer_or_continue",
+      "cause": "questions_available",
+      "questions": ["What happened?", "What did you expect?"]
+    },
+    "turns": [],
+    "incomplete": false,
+    "snapshot": {
+      "version": 1,
+      "run_id": "11111111-1111-4111-8111-111111111111",
+      "revision": 2,
+      "progress": "waiting_input",
+      "customer_update": "Please review the saved intake."
+    }
+  },
+  "second": {
+    "version": 1,
+    "run_id": "11111111-1111-4111-8111-111111111111",
+    "report_id": "22222222-2222-4222-8222-222222222222",
+    "revision": 4,
+    "status": "needs_clarification",
+    "provider_mode": "offline",
+    "simulated": true,
+    "message": "Please review the saved intake.",
+    "operation_pending": false,
+    "pending": {
+      "pending_id": "44444444-4444-4444-8444-444444444444",
+      "round_number": 2,
+      "mode": "answer_or_continue",
+      "cause": "questions_available",
+      "questions": ["When did this start?"]
+    },
+    "turns": [
+      {
+        "round_number": 1,
+        "questions": ["What happened?", "What did you expect?"],
+        "answers": ["Saving failed.", "The profile should save."]
+      }
+    ],
+    "incomplete": false,
+    "snapshot": {
+      "version": 1,
+      "run_id": "11111111-1111-4111-8111-111111111111",
+      "revision": 4,
+      "progress": "waiting_input",
+      "customer_update": "Please review the saved intake."
+    }
+  },
+  "complete": {
+    "version": 1,
+    "run_id": "11111111-1111-4111-8111-111111111111",
+    "report_id": "22222222-2222-4222-8222-222222222222",
+    "revision": 6,
+    "status": "needs_confirmation",
+    "provider_mode": "offline",
+    "simulated": true,
+    "message": "Please review the saved intake.",
+    "operation_pending": false,
+    "pending": null,
+    "turns": [
+      {
+        "round_number": 1,
+        "questions": ["What happened?", "What did you expect?"],
+        "answers": ["Saving failed.", "The profile should save."]
+      },
+      {
+        "round_number": 2,
+        "questions": ["When did this start?"],
+        "answers": ["Today."]
+      }
+    ],
+    "incomplete": false,
+    "snapshot": {
+      "version": 1,
+      "run_id": "11111111-1111-4111-8111-111111111111",
+      "revision": 6,
+      "progress": "stage_finished",
+      "customer_update": "Please review the saved intake."
+    }
+  },
+  "limit": {
+    "version": 1,
+    "run_id": "11111111-1111-4111-8111-111111111111",
+    "report_id": "22222222-2222-4222-8222-222222222222",
+    "revision": 6,
+    "status": "needs_clarification",
+    "provider_mode": "offline",
+    "simulated": true,
+    "message": "Please review the saved intake.",
+    "operation_pending": false,
+    "pending": {
+      "pending_id": "55555555-5555-4555-8555-555555555555",
+      "round_number": null,
+      "mode": "continue_only",
+      "cause": "round_limit",
+      "questions": []
+    },
+    "turns": [
+      {
+        "round_number": 1,
+        "questions": ["What happened?", "What did you expect?"],
+        "answers": ["Saving failed.", "The profile should save."]
+      },
+      {
+        "round_number": 2,
+        "questions": ["When did this start?"],
+        "answers": ["Today."]
+      }
+    ],
+    "incomplete": false,
+    "snapshot": {
+      "version": 1,
+      "run_id": "11111111-1111-4111-8111-111111111111",
+      "revision": 6,
+      "progress": "waiting_input",
+      "customer_update": "Please review the saved intake."
+    }
+  },
+  "processing": {
+    "version": 1,
+    "run_id": "11111111-1111-4111-8111-111111111111",
+    "report_id": "22222222-2222-4222-8222-222222222222",
+    "revision": 1,
+    "status": "processing",
+    "provider_mode": "offline",
+    "simulated": true,
+    "message": "Intake is processing. If interrupted, explicitly recover the saved operation.",
+    "operation_pending": true,
+    "pending": null,
+    "turns": [],
+    "incomplete": false,
+    "snapshot": {
+      "version": 1,
+      "run_id": "11111111-1111-4111-8111-111111111111",
+      "revision": 1,
+      "progress": "processing",
+      "customer_update": "Intake is processing. If interrupted, explicitly recover the saved operation."
+    }
+  },
+  "recoverable": {
+    "version": 1,
+    "run_id": "11111111-1111-4111-8111-111111111111",
+    "report_id": "22222222-2222-4222-8222-222222222222",
+    "revision": 2,
+    "status": "failed",
+    "provider_mode": "offline",
+    "simulated": true,
+    "message": "Intake was interrupted. Recover the saved operation explicitly.",
+    "operation_pending": true,
+    "pending": null,
+    "turns": [],
+    "incomplete": false,
+    "snapshot": {
+      "version": 1,
+      "run_id": "11111111-1111-4111-8111-111111111111",
+      "revision": 2,
+      "progress": "stage_failed",
+      "customer_update": "Intake was interrupted. Recover the saved operation explicitly."
+    }
+  },
+  "failed": {
+    "version": 1,
+    "run_id": "11111111-1111-4111-8111-111111111111",
+    "report_id": "22222222-2222-4222-8222-222222222222",
+    "revision": 2,
+    "status": "failed",
+    "provider_mode": "offline",
+    "simulated": true,
+    "message": "Intake could not publish a valid customer result. It needs review.",
+    "operation_pending": false,
+    "pending": null,
+    "turns": [],
+    "incomplete": false,
+    "snapshot": {
+      "version": 1,
+      "run_id": "11111111-1111-4111-8111-111111111111",
+      "revision": 2,
+      "progress": "stage_failed",
+      "customer_update": "Intake could not publish a valid customer result. It needs review."
+    }
+  },
+  "incomplete": {
+    "version": 1,
+    "run_id": "11111111-1111-4111-8111-111111111111",
+    "report_id": "22222222-2222-4222-8222-222222222222",
+    "revision": 4,
+    "status": "needs_confirmation",
+    "provider_mode": "offline",
+    "simulated": true,
+    "message": "Please review the saved intake.",
+    "operation_pending": false,
+    "pending": null,
+    "turns": [],
+    "incomplete": true,
+    "snapshot": {
+      "version": 1,
+      "run_id": "11111111-1111-4111-8111-111111111111",
+      "revision": 4,
+      "progress": "stage_finished",
+      "customer_update": "Please review the saved intake."
+    }
+  }
+}

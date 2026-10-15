@@ -1,9 +1,8 @@
 # Durable workflow checkpoints (RF-305)
 
-PostgreSQL can now restore the same workflow after its Python process exits.
-Kevin approved LangGraph's async PostgreSQL saver, a separate `workflow` schema,
-explicit setup, and a real process-restart test.
-Kevin approved the implementation and restart behavior in the RF-305 PAIR review.
+PostgreSQL restores the same workflow after its Python process exits.
+In RF-305, Kevin approved the async saver, separate `workflow` schema, explicit
+setup, implementation, and real process-restart test.
 
 ## Setup
 
@@ -89,11 +88,9 @@ restored without replacing their Python contracts with untyped dictionaries.
 MessagePack arrays decode as lists; immutable tuple fields in dataclasses are
 normalized on construction, while clarification history is an ordered list.
 
-Existing checkpoint compatibility depends on stable type names and fields. A
-future incompatible state change requires an explicit migration or versioned
-reader before old runs are resumed; this ticket does not implement arbitrary
-schema upgrades. Raw model output, report text, and live keys are not used in
-the restart test.
+Keep type names and fields compatible with saved checkpoints. Before resuming
+old runs after an incompatible change, add a migration or versioned reader.
+The restart test excludes raw model output, report text, and live keys.
 
 ## Boundaries
 

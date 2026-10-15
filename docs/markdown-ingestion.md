@@ -4,9 +4,8 @@ Status: DONE. Kevin approved the contract and completed the final PAIR review.
 
 ## Intended outcome
 
-Read the eight approved Markdown sources and produce validated, versioned
-document records with heading paths and line locations. This makes the corpus
-available to later chunking and retrieval without invoking a model.
+Read the eight approved sources into validated, versioned records with heading
+paths and line locations, ready for chunking and retrieval. Ingestion is offline.
 
 ## Implemented boundaries
 
@@ -19,9 +18,8 @@ available to later chunking and retrieval without invoking a model.
   implementation for this ticket. PostgreSQL persistence comes with RF-405.
 - `tests/knowledge/`: offline parser, repeat-ingestion, conflict, and failure tests.
 
-The memory store demonstrates repeat-ingestion behavior within its lifetime; it
-does not claim durable idempotency after a process restart. No endpoint, workflow
-integration, embedding call, or database migration is part of RF-403.
+RF-403's memory store preserves repeat-ingestion behavior within one process.
+Durable storage, endpoints, workflow wiring, and embeddings are later integrations.
 
 ## Parsing and source locations
 
@@ -38,10 +36,8 @@ Check duplicate identities and replacement references/cycles before storing.
 
 ## Hashing and revisions
 
-Use SHA-256 of the exact file bytes as `content_hash`. This makes line-ending
-changes visible rather than silently normalizing source locations. Compute a
-separate hash of canonical validated metadata so access or applicability changes
-cannot be mistaken for an unchanged source.
+`content_hash` is SHA-256 of exact file bytes, including line endings. Hash
+canonical validated metadata separately to detect access and applicability changes.
 
 Use `(document_id, version)` as the record identity:
 
@@ -52,10 +48,9 @@ Use `(document_id, version)` as the record identity:
 | Same identity/version but changed content or metadata | Reject with a version conflict; require a new version |
 | Same identity with a new version | Retain the old version and add the new one |
 
-Versions are opaque strings; do not infer newest by sorting them. The manifest
-chooses the versions for the current ingestion batch. Old stored revisions are
-history, not automatically eligible retrieval candidates. Later retrieval must
-respect the active configuration and access policy.
+The manifest selects versions for ingestion; opaque version strings have no
+sortable "newest" meaning. Retrieval uses active configuration and access rules,
+not every saved historical revision.
 
 Validate and prepare the entire manifest before committing a batch. If any
 source or version conflicts, the batch leaves the store unchanged. The later
@@ -90,12 +85,11 @@ Only manifest-listed files are ingested. Editorial metadata lines inside the
 Markdown remain source content; they cannot override manifest access declarations.
 The legacy and investigation entries are marked fictional in the manifest.
 
-Document-level headings define boundaries; quoted/list headings remain within
-existing sections. Empty headings remain raw content. Source text is preserved,
-not rendered or executed. Source files are assumed not to be concurrently modified
-by untrusted processes during ingestion; path checks are not a hostile-filesystem
-security boundary. The store is synchronous and local to one process, with no
-concurrent writer or durable persistence guarantee.
+Document-level headings define sections; quoted/list headings and empty headings
+stay in source content. Ingestion preserves text without rendering or execution.
+It assumes trusted files remain stable while read. Path checks do not defend
+against hostile filesystem changes. The synchronous memory store supports one
+process without concurrent writers or restart durability.
 
 Parser implementation reference:
 [markdown-it-py token stream and line mappings](https://markdown-it-py.readthedocs.io/en/latest/using.html#the-token-stream).

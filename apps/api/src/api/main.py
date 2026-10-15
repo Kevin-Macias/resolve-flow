@@ -5,7 +5,10 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from api.db.session import database_lifespan
 from api.errors import install_error_handlers
+from api.intake.router import router as intake_router
 from api.issue_reports.router import router as issues_router
+from api.support.action_router import router as support_action_router
+from api.support.router import router as support_router
 from api.system.router import router as system_router
 
 
@@ -24,6 +27,9 @@ def create_app() -> FastAPI:
     )
     app.include_router(system_router)
     app.include_router(issues_router)
+    app.include_router(intake_router)
+    app.include_router(support_router)
+    app.include_router(support_action_router)
     return app
 
 

@@ -1,15 +1,20 @@
 # ResolveFlow architecture
 
-This document separates the repository's current implementation from its target
-architecture. A component listed in the target design is not necessarily built.
-The [roadmap](roadmap.md) is the progress source of truth.
+Current implementation and target design are listed separately below.
+Use the [roadmap](roadmap.md) for ticket status.
 
 ## Current implementation
+
+Support [execution metrics](execution-metrics-ui.md) expose a read-only projection
+of the latest saved intake extraction record through existing account grants.
+The support page displays configured model, prompt version, attempts, and returned
+tokens. Latency and cost remain unrecorded; full call accounting remains RF-705.
+
 
 ```text
 Browser
   |
-  | HTTP health request
+  | Customer CRUD/intake / support workspace / health requests
   v
 TanStack Start + React + TypeScript        apps/web
   |
@@ -17,14 +22,18 @@ TanStack Start + React + TypeScript        apps/web
 FastAPI                                   apps/api
   |-- GET /health
   |-- GET /ready -- psycopg --> PostgreSQL
-  `-- POST/GET/PATCH/DELETE /issue-reports -- SQLAlchemy --> PostgreSQL
+  |-- POST/GET/PATCH/DELETE /issue-reports -- SQLAlchemy --> PostgreSQL
+  `-- Customer intake start/read/answer/recover + read-only SSE
+        |-- Durable run registry/public projections -- SQLAlchemy --> PostgreSQL
+        `-- Intake graph -- PostgreSQL checkpoints
 ```
 
 The monorepo currently provides:
 
 - A pnpm workspace containing `apps/web`
 - A Python project managed by uv in `apps/api`
-- A TanStack Start placeholder interface that checks API health
+- TanStack Start customer report CRUD and separate support timeline screens using
+  a typed API client, Zod response validation, and TanStack Query
 - A FastAPI service with liveness and database-readiness endpoints
 - Async PostgreSQL connectivity through psycopg
 - An app-scoped async SQLAlchemy engine and session factory, with a fresh
@@ -41,11 +50,9 @@ The monorepo currently provides:
   reported facts, missing data, and questions
 - An application-owned async LLM provider interface with OpenAI and deterministic
   fake adapters; the OpenAI adapter can request strict Structured Outputs
-- An extraction service that requests the schema, validates returned JSON, and
-  distinguishes refusal, empty output, malformed or invalid data, and provider
-  failures; transient provider failures are retried within a fixed attempt and
-  timeout budget, each outcome or error carries in-memory prompt and model
-  settings metadata, and no endpoint invokes it yet
+- Schema-validated extraction with typed refusal, empty/invalid output, and
+  provider failures; bounded transient retries and in-memory prompt/model records.
+  Endpoint wiring is described in the intake integration below
 - A clarification policy that exposes missing or conflicting context and keeps
   at most two distinct model-proposed questions per extraction
 - An opt-in live extraction check that reports schema shape, latency, and token
@@ -78,18 +85,17 @@ The monorepo currently provides:
 - An application-owned async retrieval boundary with typed requests, ranked
   evidence, explicit access and active-revision scope, checked responses, and a
   deterministic offline fake
-- Exact heading-aware chunk preparation, transactional/idempotent vector
-  indexing, a LangChain OpenAI embedding adapter, and PostgreSQL cosine search
-  with access/revision/status/profile filters before ranking; tested with
-  deterministic vectors, with live provider quality unverified
-- Typed supported/inference/gap/conflict claim contracts and source-backed
-  citation assembly that rechecks eligibility, hashes, exact sections, and
-  versioned locations; immutable citation snapshots and plain text source labels
-  remain separate from the preliminary workflow diagnosis
-- Evidence analysis: fixed versioned instructions separate from JSON query/source
-  data; all input passages verified before serialization, generated output limited
-  to claim drafts with application-resolved citations. This internal boundary has
-  no model invocation or tool dispatch; semantic injection resistance is unmeasured
+- Exact heading chunks, atomic repeatable indexing, a LangChain OpenAI embedding
+  adapter, and PostgreSQL cosine search. Access/revision/status/profile filters
+  run before ranking. Tests use deterministic vectors; live quality is unverified
+- Supported/inference/gap/conflict claims with citations checked against source
+  eligibility, hashes, exact sections, and versioned locations. Saved citations
+  and text source labels are separate from the preliminary workflow diagnosis
+- Evidence analysis with fixed versioned instructions and separate verified JSON
+  source data. Output accepts only claim drafts with application-resolved citations.
+  A separate support analysis service connects offline/live adapters and saved
+  internal evidence responses; automatic workflow diagnosis, tool integration,
+  and model-level injection testing remain separate work
 - A retrieval evaluator with six reviewed cases, explicit hit/rank/coverage and
   failure measurements, fixture/live report modes, and a read-only baseline
   preflight; actual provider relevance remains unmeasured
@@ -109,19 +115,77 @@ SQLAlchemy uses the database clock to refresh `updated_at` on ORM updates;
 direct SQL writes do not currently have an update trigger. Internal status
 transitions have not yet been implemented.
 
-The monorepo does not yet invoke extraction or the graph from an endpoint, or
-provide a retrieval endpoint or the incident
-workspace UI. The [minimal workflow](minimal-workflow.md) records its scope:
-diagnosis preserves reported facts and gaps with cause unknown until evidence
-is available.
-The [checkpoint integration](workflow-checkpoints.md) supports durable storage
-when explicitly injected; the graph's default remains in-memory for offline tests.
+Customer report CRUD uses the generated client and TanStack Query with
+session-scoped caches. Customer intake endpoints now invoke the existing graph
+through authorized start, clarification, and explicit recovery operations.
+The [customer intake lifecycle](customer-intake-runs.md) stores a report-bound run
+and customer projection, serializes mutations with PostgreSQL advisory locks,
+and uses durable checkpoints. Its default offline script is labeled simulation;
+live provider mode is opt-in and unverified. Reads and the integrated RF-503 SSE
+source return saved projections without graph execution or reconciliation.
+Registry publication and checkpoint commits are separate; explicit recovery
+reconciles interrupted accepted operations without duplicating committed answers.
 
-The SQLAlchemy session dependency owns session lifetime, not transaction success:
-application operations will explicitly commit writes. Closing an uncommitted
-session rolls back its pending transaction. The dependency can be replaced with
-FastAPI's `dependency_overrides` in tests. Missing database configuration leaves
-`/health` available; database-backed operations require a configured factory.
+The [minimal workflow](minimal-workflow.md) preserves reported facts and gaps;
+cause stays unknown until evidence is available. Customer confirmation, automatic
+retrieval/diagnosis orchestration, automatic proposals, and remaining support
+workspace sections are unimplemented. RF-508 supplies a separately approved
+manual support simulation over unconfirmed observations.
+Customer report access rules are unchanged. Production requires durable
+checkpoints; only the graph builder's test default uses memory.
+
+The approved [workspace design](workspace-information-architecture.md) separates
+customer and internal views. The [CRUD screens](customer-report-screens.md) are
+available, with [customer clarification controls](customer-clarification-ui.md)
+on report details. Full saved views provide questions and accepted answers;
+SSE revisions prevent submitting an obsolete form, and commands use explicit
+operation/revision/pause bindings. The
+[internal timeline UI](execution-timeline-ui.md) at `/support` reads authorized
+saved intake events. Customer and support routes use separate in-memory sessions;
+access loss removes cached history, while temporary read failures show a stale
+notice. Database-backed browser verification passed on 2026-10-12; the broader
+platform walkthrough remains pending.
+RF-511 customer endpoints do not expose RF-310's internal events or authorize
+support checkpoint reads. RF-513 provides a separate
+[support run read](support-run-reads.md):
+`GET /support/issue-reports/{report_id}/intake-run` authorizes current support
+users against explicit per-user account grants, including archived reports,
+and returns validated saved intake events directly from PostgreSQL checkpoints.
+This read-only endpoint works independently of model configuration and rechecks
+access before return. Registry and checkpoint reads are separate snapshots.
+Kevin accepted RF-513's final PAIR review on 2026-10-12. Approval-stage binding
+remains separate work. RF-512 now provides an independent
+[report-state lookup](support-report-state.md).
+Inject the [PostgreSQL checkpointer](workflow-checkpoints.md) for durable storage;
+the graph defaults to memory for offline tests.
+
+The SQLAlchemy dependency opens/closes sessions; operations commit writes.
+Closing an uncommitted session rolls back. Tests replace the dependency through
+FastAPI's `dependency_overrides`. `/health` works without database configuration;
+database operations require a configured factory.
+
+RF-506 adds [preliminary support evidence analysis](evidence-panel.md) separately
+from customer intake. Explicit POST operations reserve durable report-bound
+records before retrieval/analysis and publish validated citation snapshots. GET
+reads saved results with current report and source access checks. Operations use
+the intake advisory lock to serialize accepted-answer changes and retain pending
+state after interruption. Migration `0004` adds the analysis table; the app-scoped
+service holds shared configuration, while PostgreSQL stores per-report state.
+The support page uses generated types, Zod, and TanStack Query to display the
+verified projection. The default is labeled fixture ranking and scripted analysis;
+optional live adapters are configured separately and remain unverified against
+live providers. Customer confirmation and automatic workflow diagnosis are unchanged.
+
+RF-508's [support action integration](support-approval-controls.md) binds one
+approval stage to an eligible intake run. Migration `0005` adds a report/run
+registry and replayable proposal preparation records. Preparation and decision
+operations take the report lock before the approval run lock; the guarded runner
+checks the registered proposal against the checkpoint under that same run lock.
+Current context is rechecked before a new decision and immediately before
+simulated execution. Saved decisions allow read-only replay even if observations
+later change. GET never advances or repairs a stage. An interrupted preparation
+can be replayed explicitly; an approved action with unconfirmed execution cannot
+be retried by this API. Core approval/runner/tool policy is reused unchanged.
 
 ## Target monorepo
 
@@ -221,34 +285,33 @@ rules belong to the retrieval tickets.
 | LLM | OpenAI Responses API behind a provider interface |
 | Orchestration | LangGraph |
 | Retrieval integrations | Selected LangChain components where useful |
-| Web | React, TypeScript, TanStack Start and TanStack Query |
+| Web | React, TypeScript, TanStack Start, TanStack Query, and Tailwind CSS |
 | Streaming | Server-Sent Events |
 | Tests and quality | pytest, Ruff, Pyright or mypy, frontend test tooling |
 
-## Planned support report-state lookup
+## Support report-state lookup
 
-RF-512 adds a read-only, application-authorized support lookup of current report
-state, including archived reports, within permitted customer account scope.
-It is required before the frontend can demonstrate independently verified
-archival. Customer reads continue to exclude archived reports. Authorization
-semantics require Kevin's review; this lookup is not implemented yet and provides
-no archive actor/time history or restore operation.
+RF-512 exposes `GET /support/issue-reports/{report_id}/state` for current report
+state, including archived reports. Kevin approved using the explicit support
+account grants for this separate read. It requires no intake run or checkpoints
+and rechecks access before returning a closed response. Customer reads continue
+to exclude archived reports. Frontend integration remains separate; the endpoint
+provides no archive actor/time history or restore operation. See the
+[contract and verification](support-report-state.md).
 
 ## LangGraph typing boundary
 
-`workflow/langgraph_types.py` describes the builder and compiled graph methods
-ResolveFlow uses. Each graph builder is cast once to that interface. The same
-LangGraph objects execute at runtime; no wrapper or workflow policy changes.
-A constructor-only stub under `apps/api/typings/langgraph/graph/state.pyi`
-provides the missing StateGraph import typing. Pyright uses its default local
-`typings` directory. No strict-mode diagnostic is disabled.
+`workflow/langgraph_types.py` types the builder and compiled graph methods in
+use. Each builder is cast once; runtime objects and workflow policy stay unchanged.
+`apps/api/typings/langgraph/graph/state.pyi` supplies the missing StateGraph
+constructor typing through Pyright's default local `typings` directory.
+Strict-mode diagnostics remain enabled.
 
-The boundary checks node state/update types and invocation input contracts.
-Invocation/stream dictionaries retain `Any` values because LangGraph includes
-interrupt payloads alongside state; callers still validate or cast application
-state explicitly. The cast and stub are maintained assumptions, not proof of
-upstream compatibility. Review them when LangGraph changes; workflow tests check
-the runtime integration. Only the currently used API subset is exposed.
+The boundary checks node state, updates, and invocation inputs. Invocation/stream
+values remain `Any` because they mix state and interrupt payloads; callers
+validate or cast application state. Review the cast and stub when LangGraph
+changes and verify compatibility through workflow tests. The interface covers
+only the API subset in use.
 
 PDF ingestion (RF-404) is deferred beyond the MVP. PDF location contracts remain
 available for future work; the initial ingestion and retrieval slice uses Markdown.

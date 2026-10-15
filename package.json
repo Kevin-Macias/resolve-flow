@@ -23,10 +23,11 @@
     "typecheck:api": "uv run --directory apps/api pyright",
     "typecheck:api-client": "pnpm --filter @resolve-flow/api-client typecheck",
     "typecheck:web": "pnpm --filter @resolve-flow/web typecheck",
-    "check": "pnpm format:check && pnpm lint && pnpm check:api-client && pnpm typecheck && pnpm test",
+    "check": "pnpm format:check && pnpm lint && pnpm check:api-client && pnpm typecheck && pnpm test && pnpm test:web",
     "docker:up": "docker compose up --build",
     "docker:down": "docker compose down",
-    "docker:logs": "docker compose logs --follow"
+    "docker:logs": "docker compose logs --follow",
+    "test:web": "pnpm --filter @resolve-flow/web test"
   },
   "devDependencies": {
     "concurrently": "^9.2.1"

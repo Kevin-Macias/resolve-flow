@@ -11,11 +11,9 @@ permanent. The application also treats a provider call that exceeds its own
 30-second limit as a timeout. A completed but incomplete provider response is
 permanent with the same request settings.
 
-Refusals, empty output, malformed JSON, and invalid extraction data stop after
-one attempt. The extraction service does not silently ask the model to repair
-invalid content. Its `ExtractionError` retains a safe reason, final attempt
-count, and provider failure kind (`timeout`, `transient`, or `permanent`) when
-the failure came from the provider.
+Refusals, empty output, malformed JSON, and invalid data stop after one attempt,
+without a repair call. `ExtractionError` retains a safe reason, attempt count,
+and provider failure kind (`timeout`, `transient`, or `permanent`) when applicable.
 
 The OpenAI adapter disables the SDK's internal retries for each call. That
 keeps the application's attempt limit observable and prevents retries from

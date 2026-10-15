@@ -4,21 +4,17 @@
 
 ## Naming principle
 
-Use different terms for what a customer reports, what support tracks, and what
-is actually happening in the service. Treating all three as an "incident"
-would make status, ownership, deduplication, and visibility ambiguous.
+Use distinct terms for customer observations, support work, and verified
+service events so status, ownership, matching, and visibility stay clear.
 
 ## People and access
 
 ### User
 
-A person with an identity in ResolveFlow. A user can act in a customer or
-internal role. A customer is a user acting on behalf of a customer account; in
-the MVP, each customer user is associated with one customer account. The initial
-relational design stores a `customer` or `support` user type: customer users
-have one account, while support users have none. A report still belongs to a
-customer account even when an authorized support user submits it on that
-account's behalf.
+A person with an identity in ResolveFlow and a `customer` or `support` role.
+Each customer user belongs to one customer account; support users have no
+customer account. Reports belong to a customer account, including reports an
+authorized support user submits on its behalf.
 
 ### Support engineer
 
@@ -51,21 +47,19 @@ the link records whether each match is suspected, confirmed, or rejected.
 
 ### Support ticket
 
-The durable internal unit of investigation or work. A support ticket is owned
-by a support team, may be assigned to an engineer, and can aggregate reports
-from many customers or accounts. It contains the normalized summary, workflow
-status, customer-visible updates, and internal work. The MVP creates this record
-inside ResolveFlow rather than in an external issue tracker.
+An internal work record owned by a support team and optionally assigned to an
+engineer. It can collect reports from many customers/accounts and contains the
+normalized summary, workflow status, customer-visible updates, and internal work. The MVP
+plans to create tickets inside ResolveFlow.
 
 `SupportTicket` is preferred in code over the generic `Ticket`.
 
 ### Report-ticket link
 
-The relationship between an issue report and a possible support ticket. It
-records match status (`SUSPECTED`, `CONFIRMED`, or `REJECTED`), who or what made
-the link, confidence when model-assisted, reason, and timestamps. Keeping this
-as a first-class record supports review and impact reporting without treating a
-model suggestion as fact.
+A record linking an issue report to a possible support ticket. It stores match
+status (`SUSPECTED`, `CONFIRMED`, or `REJECTED`), who or what made the link,
+model confidence when applicable, reason, and timestamps. This supports review
+and impact reporting while keeping suggested matches distinct from confirmed ones.
 
 ### Known incident
 
@@ -84,10 +78,9 @@ separate facts: approving ticket creation does not make the approver its owner.
 
 ### Clarification
 
-A targeted question and its answer used to fill a specific information gap. It
-records who asked, who answered, ordering, and timestamps. A clarification is
-part of a workflow run and may update the normalized ticket data without
-overwriting the original issue report.
+A question and answer filling a specific gap within a workflow run. It records
+participants, order, and timestamps. Answers may update normalized ticket data;
+the original report stays unchanged.
 
 ## Knowledge and reasoning
 
@@ -113,10 +106,9 @@ an inference. A diagnosis is internal-only in the MVP.
 
 ### Workflow run
 
-One durable execution of the ResolveFlow process, starting from an issue report.
-It owns workflow state, clarification progress, model calls, pauses, and its
-terminal outcome. A support ticket may be linked later after approval. Retrying
-or resuming the same execution does not create a new run.
+A durable execution starting from an issue report, with state, clarification,
+model calls, pauses, and a final outcome. Approval may lead to a linked ticket.
+Retry and resume preserve the run's identity.
 
 ### Proposed action
 

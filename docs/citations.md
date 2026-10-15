@@ -8,15 +8,12 @@ database tests were skipped because `TEST_DATABASE_URL` was not configured.
 
 ## Goal and boundary
 
-Connect each diagnosis claim to identifiable source passages while preserving
-the difference between evidence, interpretation, missing information, and
-conflict. A citation verifies where evidence came from; it does not automatically
-prove that the claim follows from that evidence.
-
-RF-409 adds typed claim/citation contracts, source-backed citation assembly,
-and a deterministic structured presentation. It does not generate diagnoses
-with a live model, wire retrieval into the workflow, or create a customer-facing
-endpoint. The current preliminary workflow diagnosis remains unchanged.
+RF-409 links typed claims to verified source passages and returns a structured
+report. Citations establish provenance; human review checks whether evidence
+supports the claim. RF-506 reuses this boundary in separate
+[support evidence operations](evidence-panel.md). Automatic workflow retrieval
+and customer diagnosis endpoints remain separate integrations. The preliminary
+workflow diagnosis stays unchanged.
 
 ## Approved claim categories
 
@@ -27,10 +24,8 @@ endpoint. The current preliminary workflow diagnosis remains unchanged.
 | Missing evidence | Information needed to establish a conclusion is unavailable | An explanation of what is missing; references to documented limitations are optional |
 | Conflict | Available evidence points in opposing directions | Supporting and contradicting references, plus an explanation of the disagreement |
 
-These categories are assigned by the caller and reviewed by a human. Structural
-validation checks the requirements above; it cannot determine whether prose is
-semantically supported. In particular, a high retrieval score never changes a
-claim into a supported fact.
+The caller assigns categories for human review. Validation checks structure;
+semantic support requires review regardless of retrieval score.
 
 A missing-evidence claim reports an unresolved gap. An empty search result is not
 proof that a fact or document does not exist. A documented system limitation
@@ -119,8 +114,6 @@ metadata; no generated web URL, Markdown rendering, or customer projection is
 introduced. The assembler requires matching parsed sections, so arbitrary
 subranges and PDF evidence cannot be assembled in this Markdown-only slice.
 
-Source hashes are checked for referenced evidence. They detect inconsistency
-with the supplied revision, not malicious replacement of the entire trusted
-storage/configuration. Passing validated models or choosing a supported label
-does not prove semantic entailment. Callers must use the assembler with trusted
-source inputs and review the resulting claims.
+Hashes detect mismatches with supplied revisions; trusted storage/configuration
+must remain secure. Use trusted source inputs and review whether each claim
+follows from its evidence.

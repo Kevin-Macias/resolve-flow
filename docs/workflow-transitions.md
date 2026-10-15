@@ -1,9 +1,9 @@
 # Workflow transitions (RF-302)
 
 This is the target design for a run starting from an existing issue report.
-Kevin approved pausing on provider/retrieval failure for explicit retry, ending
-on action rejection, and returning customer corrections to extraction.
-Kevin approved the completed diagrams and resume rules in the RF-302 PAIR review.
+Kevin approved these diagrams and resume rules in RF-302: pause for explicit
+retry after provider/retrieval failure, finish on rejection, and extract again
+after customer corrections.
 The full graph is not implemented yet; RF-303 adds the four-node subset described
 in [minimal workflow](minimal-workflow.md). [Workflow state](workflow-state.md) defines
 the saved values; RF-305 adds persistence across process restarts.
@@ -88,12 +88,9 @@ internal evidence text.
 | Approval | Support decision tied to exact current action and arguments | Reject and report, or revalidate authorization/approval and execute. |
 | Failed stage | Authorized explicit retry after cause review | Repeat only the failed stage; preserve completed upstream drafts. |
 
-Resume checks the current actor and pending step against the saved run. It does
-not restart from the beginning, rerun completed model calls, or interpret a
-checkpoint as permission to execute. Evidence access must still be valid when
-saved evidence is used; approval and tool idempotency must still be checked.
-Restart restoration requires RF-305; duplicate-effect prevention requires the
-tool boundary as well.
+Resume checks the current actor and pending step, then continues from saved
+progress. Recheck evidence access, approval, and tool idempotency. RF-305 restores
+state after restart; the tool boundary prevents duplicate effects.
 
 ## Review examples
 

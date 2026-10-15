@@ -42,11 +42,9 @@ idempotency key, executing actor, and that typed result. The adapter makes no
 model call, database ticket write, or external request. Its `calls` list is
 in-memory test instrumentation.
 
-The simulated UUID is not a persisted `SupportTicket` record and cannot be used
-to retrieve a real ticket from the database. A real local ticket schema/write
-is separate work. Repeated adapter calls produce equal fake results; this does
-not claim durable execution idempotency for real effects. RF-309 tests execution
-edge cases and RF-703 implements that durable boundary.
+The UUID identifies a simulation, with no persisted `SupportTicket` to retrieve.
+Real ticket storage is separate work. Repeated calls return equal fake results;
+RF-309 tests edge cases and RF-703 adds durable idempotency for real effects.
 
 ## Connecting execution
 
@@ -62,9 +60,8 @@ With the tool injected, approval proceeds to execution and saves
 `simulated_ticket_created` and explicitly describes a simulated ticket.
 Rejection never calls the adapter or sets a ticket ID.
 
-Without a tool, approval still returns `awaiting_execution`, preserving the
-standalone approval stage. The intake graph does not automatically create
-proposals or skip customer confirmation/support review.
+Without a tool, approval returns `awaiting_execution`. Intake proposal generation,
+customer confirmation, and support review remain separate integrations.
 
 Invalid contracts and authorization failures propagate safely before dispatch;
 they do not produce a success result. If access is revoked between approval and

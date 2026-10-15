@@ -1,0 +1,158 @@
+{
+  "run": {
+    "version": 1,
+    "run_id": "11111111-1111-4111-8111-111111111111",
+    "report_id": "22222222-2222-4222-8222-222222222222",
+    "provider_mode": "offline",
+    "simulated": true,
+    "operation_pending": false,
+    "timeline": [
+      {
+        "event_id": "00000000-0000-0000-0000-000000000001",
+        "workflow_run_id": "11111111-1111-4111-8111-111111111111",
+        "stage": "intake",
+        "sequence": 1,
+        "occurred_at": "2026-10-12T12:00:00Z",
+        "event_type": "workflow_started",
+        "metadata": {
+          "round_number": null,
+          "attempts": null,
+          "reasons": [],
+          "question_count": null,
+          "clarification_cause": null,
+          "extraction_failure": null,
+          "provider_failure": null,
+          "action_id": null,
+          "action_version": null,
+          "fingerprint": null,
+          "actor_id": null,
+          "support_ticket_id": null,
+          "outcome": null,
+          "incomplete": null
+        }
+      },
+      {
+        "event_id": "00000000-0000-0000-0000-000000000002",
+        "workflow_run_id": "11111111-1111-4111-8111-111111111111",
+        "stage": "intake",
+        "sequence": 2,
+        "occurred_at": "2026-10-12T11:59:00Z",
+        "event_type": "continued_incomplete",
+        "metadata": {
+          "round_number": 2,
+          "attempts": null,
+          "reasons": ["missing_data"],
+          "question_count": null,
+          "clarification_cause": null,
+          "extraction_failure": null,
+          "provider_failure": null,
+          "action_id": null,
+          "action_version": null,
+          "fingerprint": null,
+          "actor_id": null,
+          "support_ticket_id": null,
+          "outcome": null,
+          "incomplete": true
+        }
+      },
+      {
+        "event_id": "00000000-0000-0000-0000-000000000003",
+        "workflow_run_id": "11111111-1111-4111-8111-111111111111",
+        "stage": "intake",
+        "sequence": 3,
+        "occurred_at": "2026-10-12T11:59:00Z",
+        "event_type": "report_ready",
+        "metadata": {
+          "round_number": null,
+          "attempts": null,
+          "reasons": [],
+          "question_count": null,
+          "clarification_cause": null,
+          "extraction_failure": null,
+          "provider_failure": null,
+          "action_id": null,
+          "action_version": null,
+          "fingerprint": null,
+          "actor_id": null,
+          "support_ticket_id": null,
+          "outcome": null,
+          "incomplete": true
+        }
+      }
+    ]
+  },
+  "approval": [
+    {
+      "event_id": "00000000-0000-0000-0000-00000000000b",
+      "workflow_run_id": "11111111-1111-4111-8111-111111111111",
+      "stage": "approval",
+      "sequence": 1,
+      "occurred_at": "2026-10-12T11:59:00Z",
+      "event_type": "action_approved",
+      "metadata": {
+        "round_number": null,
+        "attempts": null,
+        "reasons": [],
+        "question_count": null,
+        "clarification_cause": null,
+        "extraction_failure": null,
+        "provider_failure": null,
+        "action_id": "00000000-0000-0000-0000-000000000032",
+        "action_version": 1,
+        "fingerprint": null,
+        "actor_id": null,
+        "support_ticket_id": null,
+        "outcome": null,
+        "incomplete": null
+      }
+    },
+    {
+      "event_id": "00000000-0000-0000-0000-00000000000c",
+      "workflow_run_id": "11111111-1111-4111-8111-111111111111",
+      "stage": "approval",
+      "sequence": 2,
+      "occurred_at": "2026-10-12T11:59:00Z",
+      "event_type": "tool_succeeded",
+      "metadata": {
+        "round_number": null,
+        "attempts": null,
+        "reasons": [],
+        "question_count": null,
+        "clarification_cause": null,
+        "extraction_failure": null,
+        "provider_failure": null,
+        "action_id": null,
+        "action_version": null,
+        "fingerprint": null,
+        "actor_id": null,
+        "support_ticket_id": "00000000-0000-0000-0000-000000000033",
+        "outcome": "simulated",
+        "incomplete": null
+      }
+    },
+    {
+      "event_id": "00000000-0000-0000-0000-00000000000d",
+      "workflow_run_id": "11111111-1111-4111-8111-111111111111",
+      "stage": "approval",
+      "sequence": 3,
+      "occurred_at": "2026-10-12T11:59:00Z",
+      "event_type": "tool_failed",
+      "metadata": {
+        "round_number": null,
+        "attempts": null,
+        "reasons": [],
+        "question_count": null,
+        "clarification_cause": null,
+        "extraction_failure": null,
+        "provider_failure": null,
+        "action_id": null,
+        "action_version": null,
+        "fingerprint": null,
+        "actor_id": null,
+        "support_ticket_id": null,
+        "outcome": "unknown",
+        "incomplete": null
+      }
+    }
+  ]
+}

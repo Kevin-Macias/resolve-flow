@@ -5,12 +5,10 @@ and completed the PAIR review of the eight-document [corpus](../knowledge/README
 
 ## Goal
 
-Provide reference material for “I submitted an issue report, but I can't find
-it in my list.” The [feature summary](issue-report-troubleshooting.md) records
-existing behavior and separates it from planned frontend behavior.
-
-Current guides describe actual API behavior. Sample investigations are fictional.
-Superseded advice is explicitly an invented legacy fixture, not repository history.
+The eight sources help investigate “I submitted an issue report, but I can't
+find it in my list.” See the [feature summary](issue-report-troubleshooting.md)
+for API behavior and planned UI. Guides describe the API; investigations and
+superseded legacy advice are fictional fixtures.
 
 ## Draft source set
 
@@ -42,11 +40,11 @@ Kevin reviews the useful distinctions and important failure cases. Completion
 requires similar symptoms with different causes, scoped stale advice, plausible
 irrelevant material, ambiguity, consistent terminology, and valid source links.
 
-RF-401 authors reference material. Retrieval, evaluation expectations, and
-report recovery remain separate work. Kevin reviewed the completed corpus. No runtime code changes are proposed.
+Kevin reviewed the completed reference corpus. Retrieval, evaluation expectations,
+and report recovery belong to separate tickets; RF-401 changes documentation only.
 
 ## Verification
 
-Checked relative Markdown links and whitespace integrity. Current behavior was
-compared with the API routes, schemas, service validation, and existing integration
-test cases. No runtime code changed; runtime tests were not rerun. RF-401 is DONE following Kevin's review of the completed sources.
+Relative links and whitespace checks passed. Guides match API routes, schemas,
+service validation, and integration tests. Runtime tests were not rerun for this
+documentation-only change. Kevin's review completed RF-401.

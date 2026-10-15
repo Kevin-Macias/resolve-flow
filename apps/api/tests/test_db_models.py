@@ -1,11 +1,17 @@
 from sqlalchemy import CheckConstraint
 
 from api.db.models import Base
+from api.intake.models import IntakeRun
 from api.knowledge.models import KnowledgeDocument
+from api.support.action_models import SupportActionRun
+from api.support.evidence_models import EvidenceAnalysis
 
 
 def test_model_metadata_matches_reviewed_tables() -> None:
     assert KnowledgeDocument.metadata is Base.metadata
+    assert IntakeRun.metadata is Base.metadata
+    assert EvidenceAnalysis.metadata is Base.metadata
+    assert SupportActionRun.metadata is Base.metadata
     assert set(Base.metadata.tables) == {
         "customer_accounts",
         "users",
@@ -14,6 +20,11 @@ def test_model_metadata_matches_reviewed_tables() -> None:
         "knowledge_documents",
         "knowledge_chunks",
         "knowledge_embeddings",
+        "intake_runs",
+        "intake_operations",
+        "evidence_analyses",
+        "support_action_runs",
+        "proposal_preparations",
     }
 
     reports = Base.metadata.tables["issue_reports"]

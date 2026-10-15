@@ -21,8 +21,12 @@ async def get_request_context(
     if credentials is None:
         raise HTTPException(status_code=401, detail="Identity Required")
 
+    return await resolve_request_context(credentials.credentials, session)
+
+
+async def resolve_request_context(token: str, session: AsyncSession) -> RequestContext:
     token_map: dict[str, str] = json.loads(os.getenv("DEMO_TOKEN_USER_IDS", "{}"))
-    raw_user_id = token_map.get(credentials.credentials)
+    raw_user_id = token_map.get(token)
     if raw_user_id is None:
         raise HTTPException(status_code=401, detail="Invalid identity")
 

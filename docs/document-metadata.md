@@ -5,13 +5,10 @@ All 46 metadata tests pass.
 
 ## Purpose and scope
 
-Metadata describes a source independently of its prose. It lets later ingestion
-identify revisions, retrieval filter applicable sources, and citations name the
-exact version and location used. The model does not assign access policy.
-
-RF-402 adds framework-independent Pydantic contracts and validation tests. It
-does not parse Markdown/PDF, ingest documents, enforce retrieval authorization,
-or introduce a database migration.
+Metadata identifies source revisions, enables retrieval filters, and pins
+citations to a version and location. Application code controls access policy.
+RF-402 supplies framework-independent Pydantic contracts and validation tests;
+parsing, ingestion, authorization enforcement, and migrations are separate work.
 
 ## Proposed document contract
 
@@ -31,10 +28,9 @@ or introduce a database migration.
 | `superseded_by` | Stable document ID or null | Required for superseded sources; forbidden for current sources; cannot point to self |
 | `fictional` | Boolean | Marks invented investigations and legacy behavior; current behavior guides use false |
 
-The account/visibility consistency rule validates metadata shape. It does not
-grant permission to retrieve a source. Access declarations must come from
-application-controlled source configuration, not model output or arbitrary
-document prose. Kevin reviews these rules before implementation.
+Account/visibility validation checks structure; retrieval still requires
+permission. Access declarations come from trusted source configuration.
+Kevin reviews these rules before implementation.
 
 No access class defaults: callers must make the classification explicit.
 Reject unknown fields. Strip surrounding whitespace from text fields and reject
@@ -53,10 +49,9 @@ Use a discriminated union with two location types:
   permitted for text before the first heading.
 - PDF: `kind="pdf"` and positive one-based `page_number`.
 
-Locations refer to a specific source version. Line numbers alone are not stable
-across edits. Hashing and re-ingestion will be defined in RF-403; chunk identity
-and citation rendering come later. A PDF page reference identifies the page,
-not an invented exact text position.
+Locations pin a source version because edits shift lines. PDF locations identify
+a page only. RF-403 defines hashing/re-ingestion; chunk identity and citation
+formatting come later.
 
 ## Example for the current corpus
 
@@ -82,10 +77,9 @@ Kevin approved the fields, `issue-reports` service label, access consistency
 rules, and location granularity. Models live under `api/knowledge/metadata.py`,
 with offline validation tests under `tests/knowledge/test_metadata.py`.
 
-Passage locations require identity and version but do not check them against a
-source registry. Replacement existence, cross-document cycles, file existence,
-and path containment after resolving symlinks require ingestion validation in
-RF-403. These contracts validate shape, not authorization or filesystem access.
+Location validation requires identity/version. RF-403 checks registry bindings,
+replacement existence/cycles, files, and resolved path containment. These
+contracts check structure; access enforcement belongs to application code.
 
 ## Verification
 

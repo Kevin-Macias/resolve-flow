@@ -8,13 +8,18 @@ from sqlalchemy.engine import Connection, make_url
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from api.db.models import Base
+from api.intake import models as intake_models
 from api.knowledge import models as knowledge_models
+from api.support import action_models, evidence_models
 
 config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
 assert knowledge_models.KnowledgeDocument.metadata is Base.metadata
+assert intake_models.IntakeRun.metadata is Base.metadata
+assert evidence_models.EvidenceAnalysis.metadata is Base.metadata
+assert action_models.SupportActionRun.metadata is Base.metadata
 target_metadata = Base.metadata
 
 

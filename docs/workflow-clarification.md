@@ -38,11 +38,10 @@ flowchart TD
 
 ## Pause and resume
 
-`build_workflow` compiles with an `InMemorySaver`. Keep the same graph object and
-use the workflow run ID as the thread ID. State survives a pause within that
-process; RF-305 adds durable storage and tests process restart.
-RF-305 now provides [PostgreSQL checkpoints](workflow-checkpoints.md) when a saver
-is explicitly injected. This section's default in-memory example still applies.
+By default, `build_workflow` uses `InMemorySaver`: keep the same graph object
+and use the run ID as the thread ID for pauses within one process. Inject
+RF-305's [PostgreSQL checkpoints](workflow-checkpoints.md) to survive restart.
+The example below uses the default saver.
 
 ```python
 config = {"configurable": {"thread_id": str(workflow_run_id)}}
@@ -67,10 +66,9 @@ are also returned in the JSON interrupt payload. The customer-safe update is
 `needs_clarification` while waiting; no diagnosis is produced until gaps resolve
 or incomplete continuation is accepted.
 
-LangGraph resumes by re-entering the interrupted node. Saving the pending
-questions in a separate node keeps their ID stable. Model calls and answer
-appends occur outside the code that replays before `interrupt()`, so ordinary
-pause/resume does not repeat them. See the official
+LangGraph re-enters the interrupted node on resume. A separate node saves
+pending questions with a stable ID. Model calls and answer appends sit outside
+the replayed code, so ordinary resume preserves them without repetition. See the official
 [interrupt documentation](https://docs.langchain.com/oss/python/langgraph/interrupts).
 
 The trusted loader checks current access again before a resumed answer can be
@@ -78,6 +76,11 @@ accepted, including incomplete continuation. Future HTTP integration must bind
 the authenticated actor, run, report, and thread ID; raw graph commands are an
 internal API and must not be accepted directly from customers. Approval of an
 action, customer confirmation, and provider-failure retry remain separate work.
+
+RF-511 now supplies the [customer HTTP lifecycle](customer-intake-runs.md) with
+durable account/run binding, current-pause validation, and guarded explicit
+recovery. The examples above remain graph-level examples; clients use the typed
+HTTP requests rather than raw commands.
 
 ## Offline verification
 

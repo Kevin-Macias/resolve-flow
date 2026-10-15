@@ -1,9 +1,8 @@
 # Initial relational schema
 
-This diagram covers the first issue-report persistence milestone. The tables and
-constraints below are the reviewed design implemented by RF-105. SQL table names
-are plural (`customer_accounts`, `users`, `services`, `issue_reports`); foreign-key
-columns are indexed for account-scoped and relationship queries.
+RF-105 implements this reviewed issue-report schema. Table names are plural
+(`customer_accounts`, `users`, `services`, `issue_reports`). Foreign-key indexes
+support account-scoped and relationship queries.
 
 ```mermaid
 erDiagram
@@ -78,10 +77,9 @@ erDiagram
 - Reports are archived by setting their status to `deleted`. Other records that
   need to disappear from normal views will use soft deletion when implemented;
   the field and query behavior for each record will be designed with that work.
-- Initial foreign keys use `ON DELETE RESTRICT`: a referenced customer account,
-  user, or service cannot be physically deleted while dependent users or issue
-  reports exist. This preserves report history. Soft deletion does not activate
-  foreign-key delete rules.
+- `ON DELETE RESTRICT` preserves history by blocking physical deletion of an
+  account, user, or service with dependent users or reports. Soft deletion
+  leaves foreign keys intact.
 
 ## Report creation access rule
 

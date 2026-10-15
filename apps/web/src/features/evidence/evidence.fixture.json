@@ -1,0 +1,233 @@
+{
+  "version": 1,
+  "report_id": "22222222-2222-4222-8222-222222222222",
+  "analysis_id": "b9268484-203e-4cbd-aa14-b2df1c2d8ac5",
+  "operation_id": "35703e13-9515-4b69-a1a6-22a3a4065c38",
+  "status": "ready",
+  "created_at": "2026-10-13T20:39:13.783345Z",
+  "provider_mode": "offline",
+  "simulated": true,
+  "input_revision": null,
+  "older_input": false,
+  "passages": [
+    {
+      "citation": {
+        "citation_id": "8d5a2a36-a94a-53ff-a0ae-2e131741e273",
+        "chunk_id": "155872ad-f8c2-5d4c-8957-f36b1fa4e006",
+        "metadata": {
+          "document_id": "account-visibility",
+          "source": "curated_repository",
+          "source_path": "knowledge/runbooks/account-visibility.md",
+          "title": "Issue-report visibility within a customer account",
+          "document_type": "runbook",
+          "service_code": "issue-reports",
+          "version": "1",
+          "document_date": "2026-10-06",
+          "access_class": "INTERNAL",
+          "customer_account_id": null,
+          "status": "current",
+          "superseded_by": null,
+          "fictional": false
+        },
+        "passage": {
+          "document_id": "account-visibility",
+          "version": "1",
+          "location": {
+            "kind": "markdown",
+            "heading_path": [
+              "Issue-report visibility within a customer account",
+              "Applicability"
+            ],
+            "line_start": 5,
+            "line_end": 9
+          }
+        },
+        "excerpt": "## Applicability\n\nUse when a customer reports a missing report and the account context may differ\nfrom the context used at creation. Current API behavior.\n\n",
+        "content_hash": "7db2be40d90e6403f0261b5a14ba861c71adfc134bf8268b131c023b0332f433",
+        "metadata_hash": "3f256ddcdb2ca01c04c70fb759d7530de771b33ef0a216798ce52f0f65a60c23"
+      },
+      "rank": 1,
+      "score": 0.5,
+      "score_metric": "fixture",
+      "historical": false
+    },
+    {
+      "citation": {
+        "citation_id": "62bc2cd1-b75f-5603-a3d1-b4458ff1748b",
+        "chunk_id": "1be2d1fb-c2a0-5fe2-be5d-79faff30a228",
+        "metadata": {
+          "document_id": "submission-validation",
+          "source": "curated_repository",
+          "source_path": "knowledge/runbooks/submission-validation.md",
+          "title": "Issue-report submission rejected by validation",
+          "document_type": "runbook",
+          "service_code": "issue-reports",
+          "version": "1",
+          "document_date": "2026-10-06",
+          "access_class": "INTERNAL",
+          "customer_account_id": null,
+          "status": "current",
+          "superseded_by": null,
+          "fictional": false
+        },
+        "passage": {
+          "document_id": "submission-validation",
+          "version": "1",
+          "location": {
+            "kind": "markdown",
+            "heading_path": [
+              "Issue-report submission rejected by validation",
+              "Interpretation"
+            ],
+            "line_start": 20,
+            "line_end": 25
+          }
+        },
+        "excerpt": "## Interpretation\n\nA validation rejection means that creation attempt did not create a report.\nA successful creation returns HTTP 201 with a report ID and `submitted` status.\nA customer remembering a click does not establish which response was returned.\n\n",
+        "content_hash": "3bade303e6718721411e16010f86f012fa54ee36d1b8b85e383d70fd3c84a53d",
+        "metadata_hash": "5fc59e4c88e4a1a43cf3023e00b495133483dab9bc5d75bce61bb41fece73b54"
+      },
+      "rank": 2,
+      "score": 0.5,
+      "score_metric": "fixture",
+      "historical": false
+    },
+    {
+      "citation": {
+        "citation_id": "1a461922-3c8d-51c7-9336-33d000b48ff1",
+        "chunk_id": "42267eb0-e660-5c3f-8264-0a0dc0462e05",
+        "metadata": {
+          "document_id": "resolved-archived-report",
+          "source": "curated_repository",
+          "source_path": "knowledge/sample-incidents/resolved-archived-report.md",
+          "title": "Resolved investigation: report disappeared after archival",
+          "document_type": "historical_investigation",
+          "service_code": "issue-reports",
+          "version": "1",
+          "document_date": "2026-10-06",
+          "access_class": "INTERNAL",
+          "customer_account_id": null,
+          "status": "current",
+          "superseded_by": null,
+          "fictional": true
+        },
+        "passage": {
+          "document_id": "resolved-archived-report",
+          "version": "1",
+          "location": {
+            "kind": "markdown",
+            "heading_path": [
+              "Resolved investigation: report disappeared after archival",
+              "Resolution and limits"
+            ],
+            "line_start": 30,
+            "line_end": 35
+          }
+        },
+        "excerpt": "## Resolution and limits\n\nSupport explained archive behavior; the investigation was closed with no restore\nperformed. There is no customer restore operation. This example does not prove\nthat another missing report was archived, who archived it, when archival\noccurred, or whether it was accidental.\n",
+        "content_hash": "d3501ad17c134afbbb766dcb356ceb406e60437b195d3959253b0dc46db4c566",
+        "metadata_hash": "e9f5061188e0749ff8d1ad8f928b9bcbf3da5604328bf354c604eda48262f13b"
+      },
+      "rank": 3,
+      "score": 0.5,
+      "score_metric": "fixture",
+      "historical": false
+    },
+    {
+      "citation": {
+        "citation_id": "91adda35-73b3-5c94-a4c9-3961135b8a3a",
+        "chunk_id": "50ca87bc-ec76-5304-a5b9-e7ec535fa8ef",
+        "metadata": {
+          "document_id": "affected-service-update",
+          "source": "curated_repository",
+          "source_path": "knowledge/runbooks/affected-service-update.md",
+          "title": "Updating the affected service on an issue report",
+          "document_type": "runbook",
+          "service_code": "issue-reports",
+          "version": "1",
+          "document_date": "2026-10-06",
+          "access_class": "INTERNAL",
+          "customer_account_id": null,
+          "status": "current",
+          "superseded_by": null,
+          "fictional": false
+        },
+        "passage": {
+          "document_id": "affected-service-update",
+          "version": "1",
+          "location": {
+            "kind": "markdown",
+            "heading_path": [
+              "Updating the affected service on an issue report",
+              "Checks and behavior"
+            ],
+            "line_start": 10,
+            "line_end": 16
+          }
+        },
+        "excerpt": "## Checks and behavior\n\nOmitting `affected_service_code` from a PATCH leaves it unchanged. Supplying a\nknown service code changes the association; supplying null clears it. An unknown\nservice code returns HTTP 422. The customer update contract does not permit\nediting the description or status.\n\n",
+        "content_hash": "468e6e76eff5403a789ef93933746a4bd30aa37e88a0d3bb5ca3c2c8c750182f",
+        "metadata_hash": "c82d246750ae102ddf0f282a949df02681f3f9d4391852f268a158ed57eb30d4"
+      },
+      "rank": 4,
+      "score": 0.5,
+      "score_metric": "fixture",
+      "historical": false
+    },
+    {
+      "citation": {
+        "citation_id": "5e425277-3166-5cce-84f2-db3c52ddadb6",
+        "chunk_id": "54c12158-8fac-5025-9858-835f24a32359",
+        "metadata": {
+          "document_id": "resolved-archived-report",
+          "source": "curated_repository",
+          "source_path": "knowledge/sample-incidents/resolved-archived-report.md",
+          "title": "Resolved investigation: report disappeared after archival",
+          "document_type": "historical_investigation",
+          "service_code": "issue-reports",
+          "version": "1",
+          "document_date": "2026-10-06",
+          "access_class": "INTERNAL",
+          "customer_account_id": null,
+          "status": "current",
+          "superseded_by": null,
+          "fictional": true
+        },
+        "passage": {
+          "document_id": "resolved-archived-report",
+          "version": "1",
+          "location": {
+            "kind": "markdown",
+            "heading_path": [
+              "Resolved investigation: report disappeared after archival",
+              "Confirmed finding"
+            ],
+            "line_start": 24,
+            "line_end": 29
+          }
+        },
+        "excerpt": "## Confirmed finding\n\nThe same-report `deleted` state explains the disappearance under the current\n[archive rules](../runbooks/archived-report.md). The 404 was consistent with that\nfinding but was not sufficient evidence on its own.\n\n",
+        "content_hash": "d3501ad17c134afbbb766dcb356ceb406e60437b195d3959253b0dc46db4c566",
+        "metadata_hash": "e9f5061188e0749ff8d1ad8f928b9bcbf3da5604328bf354c604eda48262f13b"
+      },
+      "rank": 5,
+      "score": 0.5,
+      "score_metric": "fixture",
+      "historical": false
+    }
+  ],
+  "report": {
+    "claims": [
+      {
+        "draft": {
+          "claim_id": "simulation-gap",
+          "statement": "The cause of this report's problem has not been established.",
+          "kind": "missing_evidence",
+          "explanation": "Offline simulation shows source passages, not a semantic diagnosis. Review the observations and sources.",
+          "references": []
+        },
+        "citations": []
+      }
+    ]
+  }
+}

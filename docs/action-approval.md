@@ -1,11 +1,11 @@
 # Action approval (RF-307)
 
-Kevin approved a reusable approval stage for an already saved proposal. It
-requires authorized support identity and an exact action ID/version/fingerprint
-match; actor and timestamp come from application code.
-Kevin approved the implementation and important cases in the RF-307 PAIR review.
-RF-308 now optionally connects [simulated execution](simulated-ticket-tool.md).
-The default without an injected tool remains approval-only.
+RF-307's reusable stage approves or rejects a saved proposal. It requires
+current support access and an exact action ID/version/fingerprint match.
+Application code supplies the actor and timestamp. Kevin approved the
+implementation and important cases in the PAIR review.
+Inject RF-308's tool for [simulated execution](simulated-ticket-tool.md);
+otherwise the stage ends after the decision.
 
 ```mermaid
 flowchart LR
@@ -46,6 +46,12 @@ The graph lives in `workflow/approval_graph.py`; guarded submissions use
 `workflow/approval.py`. Trusted orchestration supplies the proposal after the
 appropriate customer confirmation and support review. This stage is separate
 from intake and does not automatically propose actions after extraction.
+
+RF-508's [support simulation integration](support-approval-controls.md) is a
+separately approved entry point over explicitly unconfirmed observations. Support
+authors the draft, the server assigns its authoritative identity, and the same
+guarded stage records the decision. This does not implement customer confirmation
+or automatic proposal generation for the full product workflow.
 
 ```python
 stage = build_approval_stage(load_current_support_context, checkpointer=saver)
@@ -89,11 +95,10 @@ and authorization are never inferred from the resume payload or checkpoint.
   this action path without execution or a support-ticket ID.
 - **Unauthorized:** raise `PermissionError` without accepting a decision.
 
-RF-307's approval-only stage executes no tool and makes no model call. RF-308
-adds optional simulated execution, checking `permits` against the current saved
-proposal and rechecking execution authorization. RF-309 adds the [guarded submission boundary](approval-edge-cases.md) for
-duplicate, concurrent, failed, and resumed execution cases; RF-703 adds durable effect idempotency. A saved
-approval alone cannot guarantee those behaviors.
+RF-308's optional simulation checks `permits` against the saved proposal and
+rechecks execution access. RF-309's [guarded submission boundary](approval-edge-cases.md)
+handles duplicates, concurrency, failures, and restart. RF-703 adds durable effect
+idempotency; approval alone cannot prevent duplicate effects.
 
 The implementation uses LangGraph's dynamic interrupt and `Command(resume=...)`
 pattern. The interrupted node starts again on resume, allowing current access

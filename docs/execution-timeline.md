@@ -1,8 +1,8 @@
 # Execution timeline (RF-310)
 
-Kevin chose a typed event list in graph state, persisted by the existing
-PostgreSQL checkpointer. Events use a closed metadata contract rather than free
-text. Kevin completed the PAIR review, confirmed on 2026-10-06.
+The PostgreSQL checkpointer saves typed events with graph state. Event metadata
+accepts only defined fields. Kevin approved this design and completed the PAIR
+review, confirmed on 2026-10-06.
 
 ## Event contract
 
@@ -32,9 +32,8 @@ rejects attempts to change an existing event. Replaying an identical event
 preserves its saved timestamp. `transition_event` does not emit an already
 committed transition again.
 
-The checkpoint stores events and the associated state update together. There
-is no separate event-table write to reconcile. Use `durability="sync"` with
-PostgreSQL to save each completed graph step before proceeding.
+Events and state updates share a checkpoint. Use `durability="sync"` with
+PostgreSQL to save each completed step before proceeding.
 
 The intake graph records:
 
@@ -106,9 +105,8 @@ that saved approval automatically. Real effect reconciliation remains RF-703.
 Start a new execution with a fresh run ID; resume an existing run with its saved
 pause. Do not restart a completed run by submitting its original input again.
 Existing checkpoints are not retroactively given events for past transitions.
-The append rule is an application invariant, not a database audit ledger that
-resists direct privileged checkpoint edits. Retention and archival are separate
-work.
+Application code enforces append-only history; privileged database edits can
+still change it. Retention and archival are separate work.
 
 Tests cover ordered clear/failure/clarification paths, the two-round limit,
 invalid input and polling, forbidden metadata, immutable contracts, changed

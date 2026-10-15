@@ -26,6 +26,13 @@ services:
       PORT: 8000
       DATABASE_URL: postgresql://${POSTGRES_USER:-resolve_flow}:${POSTGRES_PASSWORD:-resolve_flow_local}@db:5432/${POSTGRES_DB:-resolve_flow}
       CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000}
+      DEMO_TOKEN_USER_IDS: ${DEMO_TOKEN_USER_IDS:-{}}
+      DEMO_SUPPORT_ACCOUNT_IDS: ${DEMO_SUPPORT_ACCOUNT_IDS:-{}}
+      INTAKE_PROVIDER_MODE: ${INTAKE_PROVIDER_MODE:-offline}
+      EVIDENCE_PROVIDER_MODE: ${EVIDENCE_PROVIDER_MODE:-offline}
+      EVIDENCE_OPENAI_MODEL: ${EVIDENCE_OPENAI_MODEL:-}
+      OPENAI_MODEL: ${OPENAI_MODEL:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
     ports:
       - "${API_PORT:-8000}:8000"
     depends_on:

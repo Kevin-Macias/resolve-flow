@@ -1,7 +1,7 @@
 # PDF ingestion (RF-404)
 
-Status: deferred beyond the MVP by Kevin. RF-404 is PLANNED, not NEXT.
-This proposal is retained for future review; no PDF ingestion was implemented.
+Status: PLANNED. Kevin deferred RF-404 beyond the MVP. The proposal below
+awaits review and implementation.
 
 ## Goal
 
@@ -21,10 +21,8 @@ page number bound to a document ID and version.
 | Page with a simple table | Preserve layout-oriented text as an approximation; do not claim structured cells or guaranteed reading order |
 | Identical revision ingested again | Unchanged, using the same content/metadata hash rules as Markdown |
 
-No-text means only that the extractor returned no usable text. It cannot
-distinguish a truly blank page from a scanned image. Garbled but nonempty text
-can also escape automatic detection; fixtures and manual source review must
-make that limitation visible.
+No-text pages may be blank or scanned images. Garbled nonempty text can pass
+automatic checks, so fixtures and manual review must cover extraction quality.
 
 ## Implementation proposal
 
@@ -49,5 +47,5 @@ typed extraction failures, table text preservation on a known fixture, repeat
 ingestion, revision conflicts, and rollback of mixed Markdown/PDF batches.
 Run existing Markdown tests to preserve their behavior.
 
-Before implementation, agree on explicit rejection of all-no-text documents,
-no OCR, and approximate table text rather than structured table extraction.
+Before implementation, approve rejection of all-no-text documents, exclusion
+of OCR, and approximate table text.

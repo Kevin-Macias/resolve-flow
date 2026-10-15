@@ -1,8 +1,7 @@
 # Severity policy (RF-204)
 
-This policy describes a **tentative** severity for a customer issue report. It
-does not confirm an incident, its cause, or the full number of affected users.
-Support reviews the report before treating the severity as confirmed.
+Severity is tentative until support reviews the report. It describes reported
+impact; the incident, cause, and total affected users remain unverified.
 
 ## Rules
 
@@ -11,9 +10,8 @@ Support reviews the report before treating the severity as confirmed.
    service name, urgency words, or the possible business importance of a feature.
 2. If the report does not say enough about impact, use `null`. Do not use `low`
    as a fallback for missing information.
-3. Choose the highest level whose impact is actually described. If two claims
-   conflict, keep the classification tentative and surface the conflict for
-   review rather than silently choosing the more severe interpretation.
+3. Choose the highest level supported by the reported impact. Flag conflicting
+   claims for review and keep the classification tentative.
 4. Severity measures impact. `confidence` separately measures how clearly the
    report can be interpreted. A clear customer claim can have high extraction
    confidence while remaining unverified.

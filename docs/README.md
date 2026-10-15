@@ -1,12 +1,8 @@
 # ResolveFlow project documentation
 
-These files are the shared source of truth for planning and implementation.
-They are intentionally stored beside the code so that decisions and progress
-change in the same commits as the application.
-
-Repository-level behavior for new Codex sessions is defined in
-[`AGENTS.md`](../AGENTS.md). It tells a fresh session how to answer "What's
-next?" and how to respect each ticket's ownership mode.
+Keep planning, decisions, and progress here, alongside the code.
+[`AGENTS.md`](../AGENTS.md) defines how Codex handles tickets, ownership, and
+"What's next?" requests.
 
 ## Documents
 
@@ -30,6 +26,8 @@ next?" and how to respect each ticket's ownership mode.
 | [Workflow checkpoints](workflow-checkpoints.md) | Explains PostgreSQL setup, typed snapshots, and restart restoration | Checkpoint storage or lifecycle changes |
 | [Proposed actions](proposed-actions.md) | Defines immutable ticket proposals, revisions, risk, and idempotency keys | Action contracts change |
 | [Action approval](action-approval.md) | Explains exact proposal binding, support decisions, and the approval pause | Approval behavior changes |
+| [Approval experience](approval-experience.md) | Defines the approved support review card, decision confirmation, and saved outcomes | RF-507 design or approval UI behavior changes |
+| [Support approval controls](support-approval-controls.md) | Defines RF-508's approved proposal/decision HTTP integration, mutation access, and verification | Support approval behavior or its integration changes |
 | [Simulated ticket tool](simulated-ticket-tool.md) | Defines validated execution and deterministic fake ticket results | Tool execution behavior changes |
 | [Approval edge cases](approval-edge-cases.md) | Explains serialized submissions, duplicates, and safe failures | Approval submission behavior changes |
 | [Execution timeline](execution-timeline.md) | Defines ordered, sanitized checkpoint events and restart behavior | Timeline contracts or transitions change |
@@ -38,8 +36,19 @@ next?" and how to respect each ticket's ownership mode.
 | [Retrieval boundary](retrieval-boundary.md) | Defines typed search requests, ranked evidence, and the offline adapter | Retrieval contracts or eligibility rules change |
 | [Retrieval integration](retrieval-integration.md) | Documents the selected LangChain embedding integration and PostgreSQL search | Retrieval integration scope or provider configuration changes |
 | [Citations](citations.md) | Defines claim categories and source-backed citation validation | Claim attribution or citation contracts change |
+| [Evidence panel](evidence-panel.md) | Defines saved preliminary support analysis, citation display, access, and verification | Evidence behavior or its integration changes |
 | [Retrieval tests](retrieval-tests.md) | Defines reviewed relevance cases, measurements, and baseline verification | Retrieval evaluation expectations or metrics change |
 | [Document injection](document-injection.md) | Documents evidence-input defenses and structural attack tests | Untrusted evidence handling or defense expectations change |
+| [Workspace information architecture](workspace-information-architecture.md) | Defines approved report navigation, workspace layout, display states, and integration dependencies | Workspace placement or navigation decisions change |
+| [Customer report screens](customer-report-screens.md) | Explains customer CRUD screens, demo identity setup, and verification | Report UI or demo session behavior changes |
+| [Customer clarification UI](customer-clarification-ui.md) | Explains saved questions, answer submission, incomplete continuation, recovery, and verification | Customer intake UI behavior changes |
+| [Customer intake runs](customer-intake-runs.md) | Explains account-scoped intake endpoints, persisted snapshots, setup, and explicit recovery | Customer lifecycle contract or integration changes |
+| [Support report state](support-report-state.md) | Defines authorized current-state reads including archived reports | RF-512 access or response contract changes |
+| [Support run reads](support-run-reads.md) | Defines support account grants and read-only persisted intake timeline responses | Internal read access or response contracts change |
+| [Execution metrics UI](execution-metrics-ui.md) | Defines latest saved extraction metrics, missing accounting, access, and verification | Metrics scope or display changes |
+| [Execution timeline UI](execution-timeline-ui.md) | Explains the support timeline, session isolation, setup, and verification limits | Timeline UI scope or integration changes |
+| [Workflow streaming](workflow-streaming.md) | Explains implemented SSE transport, safe snapshots, reconnect rules, and pending lifecycle integration | Streaming or run integration contracts change |
+| [Frontend behavior coverage](frontend-tests.md) | Maps frontend behavior tests, regression gaps, and verification limits | Frontend coverage or test boundaries change |
 | [Roadmap](roadmap.md) | Tracks tickets, phases, ownership, and status | Work starts, finishes, or is reprioritized |
 | [Working agreement](working-agreement.md) | Defines which work is for learning and which may be delegated | Collaboration rules change |
 

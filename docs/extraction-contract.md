@@ -1,7 +1,7 @@
 # Issue-report extraction contract (RF-201)
 
-The extractor's output is a proposed reading of a customer's issue report. It
-does not verify that the reported events happened or diagnose their cause.
+The extractor proposes an interpretation of the customer's report. Its claims
+remain unverified and its output is not a diagnosis.
 
 `ExtractionResult` has these required fields:
 
@@ -16,12 +16,10 @@ does not verify that the reported events happened or diagnose their cause.
 | `contradictions` | Conflicting customer statements that need clarification; may be empty |
 | `questions` | Questions proposed for the customer |
 
-The four list fields may be empty. Every list item and the summary must contain
-non-whitespace text. Unknown service and severity must be expressed as `null`,
-not guessed. The service code is tentative until application code checks it.
-The labels here define valid values; the rules for assigning severity are in
-the [severity policy](severity-policy.md), and the rules for asking questions
-are in the [clarification policy](clarification-policy.md).
+Lists may be empty; each item and the summary must contain non-whitespace text.
+Use `null` for unknown service or severity. Application code checks the tentative
+service code. See the [severity policy](severity-policy.md) for classification
+rules and the [clarification policy](clarification-policy.md) for questions.
 
 Example for “Payments sometimes remain pending after a successful Stripe
 checkout”:

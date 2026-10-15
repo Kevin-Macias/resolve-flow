@@ -15,13 +15,12 @@ only when a real call is needed and requires normal OpenAI SDK credentials then.
 Completed responses also expose input, output, and total token counts when the
 API supplies usage.
 
-`FakeProvider` returns a configured result and records calls. Ordinary tests use
-it or an injected SDK stub and never call a live model. No route or extraction
-workflow invokes either provider yet.
+`FakeProvider` returns a configured result and records calls. Ordinary tests
+use it or an SDK stub to stay offline. RF-202 adds the adapters; route and
+workflow wiring are later integrations.
 
-This boundary deliberately returns raw output. `extract_issue_report` validates
-that output again against the application model. It returns a validated result
-and per-call prompt/model record, or a typed error carrying that record. It
-retries classified transient provider failures under a [bounded policy](retry-policy.md).
-It does not enforce severity or clarification policy in application code or
-record usage. Those behaviors have later roadmap tickets.
+`extract_issue_report` validates raw provider output against the application
+model. It returns a validated result or typed error, both with a prompt/model
+record. Transient failures follow the [retry policy](retry-policy.md).
+RF-202 leaves application severity/clarification enforcement and usage recording
+to later tickets.

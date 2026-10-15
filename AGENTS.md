@@ -16,6 +16,16 @@ Treat those files as the shared source of truth. Inspect the current code and
 Git status before assuming that a documented ticket is implemented. Preserve
 unrelated user changes.
 
+## Explanations and documentation
+
+- Keep explanations concise and concrete. Lead with what something does.
+- Describe exclusions only when they clarify a likely misunderstanding or an
+  important security boundary. Avoid listing everything a component does not do.
+- Use plain words and small examples to explain unfamiliar concepts.
+- Document each rule once, close to where the reader needs it.
+- Preserve behavior, access rules, and important limitations when simplifying.
+- Use the humanizer skill when reviewing or rewriting prose if it is available.
+
 ## When Kevin asks "What's next?"
 
 1. Find the single ticket marked `NEXT` in `docs/roadmap.md`.

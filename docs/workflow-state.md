@@ -8,27 +8,21 @@ approved this design in the RF-301 PAIR review.
 
 ## State rule
 
-Keep values that must survive a pause or restart, including human answers and
-model proposals that must not silently change on resume. Keep a reference to a
-durable application record when that record already owns the data. Reload the
-original report by `issue_report_id`; its description is not copied into the
-checkpoint. Derive presentation text, routing flags, and prompt formatting when
-needed. A checkpoint is workflow memory, not proof of authorization: every
-database read and tool action must check the current actor or trusted execution
-context's access policy.
+Save answers and model proposals that must survive pause or restart unchanged.
+Reference existing durable records: reload the original report by
+`issue_report_id` instead of copying its description into the checkpoint.
+Derive display text, routing flags, and prompts when needed. Every database read
+and tool action checks current access; a checkpoint grants no permission.
 
 The full shape below is an approved design sketch. RF-303 implements its minimal
 subset in `apps/api/src/api/workflow/state.py`, with a derived clarification
 decision and preliminary diagnosis; later-stage contracts remain planned.
 RF-304 adds ordered `clarification_turns`, a saved `pending_clarification` with
-questions and a stable pause ID, and `continued_incomplete`. Its in-memory
-checkpointer permits pauses within one process, without restart durability.
-Keep typed results in checkpoint state until separate application records own
-them. When those records are introduced, their IDs can replace the corresponding
-snapshots through an explicit state migration. Restoring across process restarts
-requires the persistent checkpointer added and tested in RF-305; RF-301 does not
-implement storage. RF-305 now provides explicitly injected
-[PostgreSQL checkpoints](workflow-checkpoints.md) with tested typed restoration.
+questions and a stable pause ID, and `continued_incomplete`. The default in-memory
+checkpointer supports pauses within one process. Inject RF-305's
+[PostgreSQL checkpoints](workflow-checkpoints.md) for tested restart restoration.
+Keep typed results in checkpoint state until durable application records own
+them, then replace snapshots with record IDs through an explicit migration.
 
 ```python
 class WorkflowState(TypedDict):
@@ -56,22 +50,20 @@ state field, plus a separate stage requiring a saved proposal.
 RF-308 adds `ToolExecutionResult` and the simulated ticket-ID fields. Confirmation
 and evidence result types still name future contracts to define when their stages
 are implemented.
-A clarification turn must identify its round, question, and answer (if any).
-A safe failure must
-identify the stage and stable reason without SDK messages or report text.
-Customer confirmation must identify the actor, time, and exact extraction
-version confirmed. Evidence must pin the source version and location used.
-Action and approval snapshots must bind the decision to immutable arguments;
-checkpoint restoration alone does not guarantee idempotent tool execution.
+Clarification turns identify round, questions, and any answers. Failures record
+stage and safe reason, excluding SDK messages and report text. Confirmation
+records actor, time, and exact extraction version. Evidence pins source version
+and location. Approval binds to immutable action arguments; tool code must
+separately prevent duplicate effects.
 
 ## Stage ownership
 
 | Stage | Durable value or record reference | Recompute or reload | Why |
 | --- | --- | --- | --- |
 | Start from report | `workflow_run_id`, `issue_report_id` | Original report and current access scope from the database | A run can resume without storing report text or trusting old permissions. |
-| Classify and extract | Validated `extraction`, `extraction_call` metadata | Prompt formatting and severity/clarification displays | Resume uses the same model proposal and prompt version; service and severity already live inside `extraction`. |
-| Evaluate context | Any model-produced evaluation that later nodes rely on must be saved as a typed result when introduced | Deterministic checks such as `decide_clarification(extraction)` | Routing may be recalculated from saved facts; nondeterministic judgments cannot safely be rerun as if unchanged. |
-| Ask and answer clarification | Ordered `clarification_turns`, including unanswered questions and accepted answers | Number of rounds and current pending questions from the turns | Questions and customer answers survive interruption; the round limit can be checked from history. |
+| Classify and extract | Validated `extraction`, `extraction_call` | Prompts and severity/clarification display | Resume preserves the proposal and prompt version; extraction includes service/severity. |
+| Evaluate context | Typed model evaluations used downstream, when introduced | Deterministic checks such as `decide_clarification(extraction)` | Derive routing from saved facts; save model judgments so resume preserves them. |
+| Ask and answer clarification | Ordered `clarification_turns` with questions and accepted answers | Round count and pending questions | Preserve questions/answers through interruption and enforce the round limit. |
 | Customer confirmation | Typed `customer_confirmation` | Confirmation display from the decision and saved extraction | The customer's decision must be attributable and cannot be inferred from a node name. |
 | Retrieve evidence | Typed `evidence` snapshots after authorized retrieval | Search query and presentation formatting | Resume and diagnosis cite the same selected source versions and locations. |
 | Diagnose | Typed `diagnosis` draft | Presentation formatting | A generated assessment should not change silently on resume. |

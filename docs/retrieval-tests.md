@@ -15,11 +15,9 @@ Measure whether search returns useful evidence in its top results, preserves
 eligibility rules, and behaves correctly with duplicates and empty results.
 Keep mechanical correctness distinct from actual embedding relevance.
 
-RF-407/408 already test many structural and SQL behaviors using deterministic
-vectors. RF-410 will reuse that coverage and add the evaluation contract,
-reviewed cases, metric/report mechanics, and an explicit live evaluation command.
-It does not connect the workflow, generate a diagnosis, or build the Phase 6
-evaluation suite.
+RF-410 reuses RF-407/408's structural and SQL tests and adds reviewed relevance
+cases, metrics, reports, and an opt-in live command. Workflow integration,
+diagnosis generation, and Phase 6 evaluations are separate work.
 
 ## Approved relevance cases
 
@@ -42,9 +40,8 @@ cause of an individual customer's missing report. Fictional investigations remai
 explicit fixtures. The uncertain case must not be interpreted as successful
 diagnosis of archival, validation failure, or an account mismatch.
 
-The acceptable list is deliberately narrow and incomplete. An unlisted passage
-may still be useful. Do not call unlisted results irrelevant or compute a
-precision score from incomplete labels.
+Labels list some useful passages, not all. Unlisted results may be relevant,
+so these labels cannot support a precision score.
 
 ## Approved measurements
 
@@ -98,20 +95,16 @@ missing indexing is a setup error, not a successful zero-relevance baseline.
 The evaluation command must not silently create embeddings for documents or
 change existing source data.
 
-Running that command makes embedding-provider calls for queries and may incur
-charges. No live calls will run as part of implementation or ordinary tests.
-We must decide whether to run the baseline after reviewing the implementation.
-Until an actual baseline exists, the report must state that provider relevance
-is unmeasured; fixture scores cannot stand in for a live baseline.
+The command embeds queries and may incur charges. Implementation and ordinary
+tests stay offline. A live baseline needs a separate decision after review;
+until then, report provider relevance as unmeasured.
 
 ## Completion and ownership
 
-Kevin owns these relevance labels and metric interpretation and approved the
-cases before implementation. The ticket can demonstrate the evaluator and
-mechanical coverage offline, but a claim of measured provider relevance requires
-the live baseline. Kevin requested completion after implementation review on
-2026-10-09, so that live measurement is deferred outside the completed scope.
-Synthetic ranks must never be presented as measured provider relevance.
+Kevin approved the relevance labels and metrics before implementation and
+requested completion after review on 2026-10-09. Completion covers the offline
+evaluator and mechanical tests. Provider relevance requires the deferred live
+baseline; synthetic ranks measure only evaluator behavior.
 
 ## Implementation and review
 
@@ -149,7 +142,5 @@ filtered search are verified against a disposable database; existing tests
 continue to cover scope/status/revision/profile/strategy filtering, duplicates,
 ties, and transaction/concurrency behavior.
 
-Actual provider relevance measurement remains deferred work. Kevin reviewed the
-implementation and requested RF-410 be marked DONE on 2026-10-09. Run and review
-the baseline before making any claim about measured provider retrieval quality.
-The live run still requires separate authorization.
+The deferred live baseline requires separate authorization and review before
+claiming measured provider retrieval quality.

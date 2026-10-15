@@ -18,22 +18,17 @@ The approved profile remains `openai:text-embedding-3-small:1536:v1`. Explicitly
 configure the model and dimensions; never compare vectors from different
 profiles. Deterministic test embeddings remain separate from this profile.
 
-This adds a dependency and another layer over the OpenAI SDK. The documented
-value is the embedding integration and its reusable document/query interface;
-it does not improve retrieval quality by itself. Existing direct extraction
-integration remains separate.
+LangChain adds a dependency over the OpenAI SDK in exchange for a reusable
+document/query embedding interface. Retrieval quality still requires measurement.
+Extraction keeps its direct provider integration.
 
-The LangChain PGVectorStore documentation describes configuring a table with
-content, embedding, and metadata columns. Our storage separates revisions,
-chunks, and profile-specific embeddings across three tables. Application-owned
-SQLAlchemy queries fit those joins and the reviewed filters directly. Keep
-that implementation rather than adding a second vector-store schema or a view
-with a separate write lifecycle.
+PGVectorStore uses a content/embedding/metadata table. ResolveFlow separates
+revisions, chunks, and profile-specific vectors across three tables, so its
+SQLAlchemy queries handle joins and access filters directly. Keep one storage
+schema and write lifecycle.
 
-Domain request/evidence contracts remain independent of LangChain. The existing
-CommonMark parser supplies exact heading sections and source locations; no
-LangChain document loader or splitter is needed for this corpus. No agent,
-model-generated filter, or retrieval chain is introduced.
+Domain contracts stay independent of LangChain. The CommonMark parser supplies
+exact sections and locations; LangChain is used only for the embedding adapter.
 
 ## Implemented scope
 
@@ -58,13 +53,11 @@ model-generated filter, or retrieval chain is introduced.
 
 ## Approved input size decision
 
-Use a conservative 512-token application budget per embedding input,
-including the document title, measured with the selected model's tokenizer.
-Do not silently split, truncate, or average an oversized section. Reject it with
-a typed preparation error until a longer-section fallback is reviewed.
-Apply the same explicit budget to query inputs. The current short corpus should
-fit: the 31 prepared passages have a largest embedding input of 127 tokens.
-This is an application limit, not a claim about the provider's maximum capacity.
+Limit document and query inputs to 512 tokens using the model's tokenizer,
+including the document title. Reject oversized inputs with a typed error;
+splitting, truncation, or averaging needs a reviewed fallback. The 31 current
+passages fit, with a largest input of 127 tokens. This is an application limit,
+independent of provider capacity.
 
 ## Verification and completion
 
@@ -132,6 +125,8 @@ Tests use a disposable database and a separate `test:1536:v1` profile.
 
 For review, follow a prepared section from `prepare_chunks` through indexing,
 then inspect `PostgresRetriever.search`: the query's permissions select eligible
-rows before the nearest passages are returned. The workflow and endpoints do
-not invoke these components yet. Actual provider quality and live compatibility
-remain unverified; RF-410 covers semantic relevance evaluation.
+rows before the nearest passages are returned. RF-506's optional live
+[support analysis](evidence-panel.md) now invokes this adapter after index preflight;
+automatic customer workflow retrieval remains unimplemented. Actual provider
+quality and live compatibility remain unverified; RF-410 covers semantic relevance
+evaluation.

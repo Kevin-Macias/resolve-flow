@@ -1,0 +1,7 @@
+id: 11111111-1111-1111-1111-111111111111:7
+event: snapshot
+data: {"version":1,"run_id":"11111111-1111-1111-1111-111111111111","revision":7,"progress":"waiting_input","customer_update":"café 🐈\nquestion"}
+
+event: stream_end
+data: {"version":1,"reason":"waiting_input"}
+

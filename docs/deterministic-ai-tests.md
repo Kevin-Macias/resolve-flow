@@ -13,7 +13,6 @@ credentials or a live model.
 | Model refusal | Return `refusal` after one attempt. |
 | Hanging provider | End at the configured timeout and report a timeout failure. |
 
-The fake responses are chosen test inputs. These tests verify schema handling,
-error mapping, and retry boundaries; they do not measure whether a live model
-would choose the right severity or ask the right question. RF-209 covers opt-in
-live model checks, and later evaluation tickets measure classification quality.
+Fake responses test schema handling, errors, and retry limits. Live severity
+and question quality remain unmeasured. RF-209 checks live integration; later
+evaluations measure classification quality.

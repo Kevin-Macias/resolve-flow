@@ -1,6 +1,47 @@
 {
   "components": {
     "schemas": {
+      "AccessClass": {
+        "enum": [
+          "PUBLIC",
+          "INTERNAL",
+          "CUSTOMER_ACCOUNT"
+        ],
+        "title": "AccessClass",
+        "type": "string"
+      },
+      "ActionRisk": {
+        "additionalProperties": false,
+        "properties": {
+          "level": {
+            "$ref": "#/components/schemas/RiskLevel"
+          },
+          "reason": {
+            "$ref": "#/components/schemas/NonEmptyText"
+          }
+        },
+        "required": [
+          "level",
+          "reason"
+        ],
+        "title": "ActionRisk",
+        "type": "object"
+      },
+      "AnalysisRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "operation_id": {
+            "format": "uuid",
+            "title": "Operation Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "operation_id"
+        ],
+        "title": "AnalysisRequest",
+        "type": "object"
+      },
       "ApiError": {
         "properties": {
           "code": {
@@ -27,10 +68,699 @@
         "title": "ApiError",
         "type": "object"
       },
+      "ApprovalChoice": {
+        "enum": [
+          "approve",
+          "reject"
+        ],
+        "title": "ApprovalChoice",
+        "type": "string"
+      },
+      "ApprovalDecision": {
+        "additionalProperties": false,
+        "properties": {
+          "action_id": {
+            "format": "uuid",
+            "title": "Action Id",
+            "type": "string"
+          },
+          "actor_id": {
+            "format": "uuid",
+            "title": "Actor Id",
+            "type": "string"
+          },
+          "decided_at": {
+            "format": "date-time",
+            "title": "Decided At",
+            "type": "string"
+          },
+          "decision": {
+            "$ref": "#/components/schemas/ApprovalChoice"
+          },
+          "fingerprint": {
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Fingerprint",
+            "type": "string"
+          },
+          "version": {
+            "minimum": 1.0,
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "action_id",
+          "version",
+          "fingerprint",
+          "decision",
+          "actor_id",
+          "decided_at"
+        ],
+        "title": "ApprovalDecision",
+        "type": "object"
+      },
+      "ApprovalReply": {
+        "additionalProperties": false,
+        "properties": {
+          "action_id": {
+            "format": "uuid",
+            "title": "Action Id",
+            "type": "string"
+          },
+          "decision": {
+            "$ref": "#/components/schemas/ApprovalChoice"
+          },
+          "fingerprint": {
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Fingerprint",
+            "type": "string"
+          },
+          "version": {
+            "minimum": 1.0,
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "action_id",
+          "version",
+          "fingerprint",
+          "decision"
+        ],
+        "title": "ApprovalReply",
+        "type": "object"
+      },
+      "AttributedCitation": {
+        "additionalProperties": false,
+        "properties": {
+          "citation": {
+            "$ref": "#/components/schemas/Citation"
+          },
+          "role": {
+            "$ref": "#/components/schemas/EvidenceRole"
+          }
+        },
+        "required": [
+          "role",
+          "citation"
+        ],
+        "title": "AttributedCitation",
+        "type": "object"
+      },
+      "Citation": {
+        "additionalProperties": false,
+        "properties": {
+          "chunk_id": {
+            "format": "uuid",
+            "title": "Chunk Id",
+            "type": "string"
+          },
+          "citation_id": {
+            "format": "uuid",
+            "title": "Citation Id",
+            "type": "string"
+          },
+          "content_hash": {
+            "$ref": "#/components/schemas/SourceHash"
+          },
+          "excerpt": {
+            "minLength": 1,
+            "title": "Excerpt",
+            "type": "string"
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/DocumentMetadata"
+          },
+          "metadata_hash": {
+            "$ref": "#/components/schemas/SourceHash"
+          },
+          "passage": {
+            "$ref": "#/components/schemas/PassageLocation"
+          }
+        },
+        "required": [
+          "citation_id",
+          "chunk_id",
+          "metadata",
+          "passage",
+          "excerpt",
+          "content_hash",
+          "metadata_hash"
+        ],
+        "title": "Citation",
+        "type": "object"
+      },
+      "CitationReport": {
+        "additionalProperties": false,
+        "properties": {
+          "claims": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/CitedClaim"
+            },
+            "title": "Claims",
+            "type": "array"
+          }
+        },
+        "title": "CitationReport",
+        "type": "object"
+      },
+      "CitedClaim": {
+        "additionalProperties": false,
+        "properties": {
+          "citations": {
+            "items": {
+              "$ref": "#/components/schemas/AttributedCitation"
+            },
+            "title": "Citations",
+            "type": "array"
+          },
+          "draft": {
+            "$ref": "#/components/schemas/ClaimDraft"
+          }
+        },
+        "required": [
+          "draft",
+          "citations"
+        ],
+        "title": "CitedClaim",
+        "type": "object"
+      },
+      "ClaimDraft": {
+        "additionalProperties": false,
+        "properties": {
+          "claim_id": {
+            "$ref": "#/components/schemas/Text"
+          },
+          "explanation": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Text"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "kind": {
+            "$ref": "#/components/schemas/ClaimKind"
+          },
+          "references": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/EvidenceReference"
+            },
+            "title": "References",
+            "type": "array"
+          },
+          "statement": {
+            "$ref": "#/components/schemas/Text"
+          }
+        },
+        "required": [
+          "claim_id",
+          "statement",
+          "kind"
+        ],
+        "title": "ClaimDraft",
+        "type": "object"
+      },
+      "ClaimKind": {
+        "enum": [
+          "supported",
+          "inference",
+          "missing_evidence",
+          "conflict"
+        ],
+        "title": "ClaimKind",
+        "type": "string"
+      },
+      "ClarificationReason": {
+        "enum": [
+          "missing_data",
+          "contradiction",
+          "low_confidence",
+          "unknown_service",
+          "unknown_severity"
+        ],
+        "title": "ClarificationReason",
+        "type": "string"
+      },
+      "ClarificationRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "enum": [
+              "answer",
+              "continue_incomplete"
+            ],
+            "title": "Action",
+            "type": "string"
+          },
+          "answers": {
+            "default": [],
+            "items": {
+              "maxLength": 2000,
+              "minLength": 1,
+              "type": "string"
+            },
+            "maxItems": 2,
+            "title": "Answers",
+            "type": "array"
+          },
+          "expected_revision": {
+            "maximum": 9007199254740991.0,
+            "minimum": 1.0,
+            "title": "Expected Revision",
+            "type": "integer"
+          },
+          "operation_id": {
+            "format": "uuid",
+            "title": "Operation Id",
+            "type": "string"
+          },
+          "pending_id": {
+            "format": "uuid",
+            "title": "Pending Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "operation_id",
+          "expected_revision",
+          "pending_id",
+          "action"
+        ],
+        "title": "ClarificationRequest",
+        "type": "object"
+      },
+      "CreateTicketArguments": {
+        "additionalProperties": false,
+        "properties": {
+          "description": {
+            "$ref": "#/components/schemas/NonEmptyText"
+          },
+          "issue_report_id": {
+            "format": "uuid",
+            "title": "Issue Report Id",
+            "type": "string"
+          },
+          "service_code": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/NonEmptyText"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "severity": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Severity"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "title": {
+            "$ref": "#/components/schemas/NonEmptyText"
+          }
+        },
+        "required": [
+          "issue_report_id",
+          "title",
+          "description",
+          "service_code",
+          "severity"
+        ],
+        "title": "CreateTicketArguments",
+        "type": "object"
+      },
+      "CustomerPause": {
+        "additionalProperties": false,
+        "properties": {
+          "cause": {
+            "enum": [
+              "questions_available",
+              "no_questions",
+              "round_limit"
+            ],
+            "title": "Cause",
+            "type": "string"
+          },
+          "mode": {
+            "enum": [
+              "answer_or_continue",
+              "continue_only"
+            ],
+            "title": "Mode",
+            "type": "string"
+          },
+          "pending_id": {
+            "format": "uuid",
+            "title": "Pending Id",
+            "type": "string"
+          },
+          "questions": {
+            "items": {
+              "maxLength": 2000,
+              "minLength": 1,
+              "type": "string"
+            },
+            "maxItems": 2,
+            "title": "Questions",
+            "type": "array"
+          },
+          "round_number": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Round Number"
+          }
+        },
+        "required": [
+          "pending_id",
+          "round_number",
+          "mode",
+          "cause",
+          "questions"
+        ],
+        "title": "CustomerPause",
+        "type": "object"
+      },
+      "CustomerRun": {
+        "additionalProperties": false,
+        "properties": {
+          "incomplete": {
+            "title": "Incomplete",
+            "type": "boolean"
+          },
+          "message": {
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Message",
+            "type": "string"
+          },
+          "operation_pending": {
+            "title": "Operation Pending",
+            "type": "boolean"
+          },
+          "pending": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CustomerPause"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "provider_mode": {
+            "enum": [
+              "offline",
+              "live"
+            ],
+            "title": "Provider Mode",
+            "type": "string"
+          },
+          "report_id": {
+            "format": "uuid",
+            "title": "Report Id",
+            "type": "string"
+          },
+          "revision": {
+            "maximum": 9007199254740991.0,
+            "minimum": 1.0,
+            "title": "Revision",
+            "type": "integer"
+          },
+          "run_id": {
+            "format": "uuid",
+            "title": "Run Id",
+            "type": "string"
+          },
+          "simulated": {
+            "title": "Simulated",
+            "type": "boolean"
+          },
+          "snapshot": {
+            "$ref": "#/components/schemas/CustomerSnapshot"
+          },
+          "status": {
+            "enum": [
+              "processing",
+              "needs_clarification",
+              "needs_confirmation",
+              "failed"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "turns": {
+            "items": {
+              "$ref": "#/components/schemas/CustomerTurn"
+            },
+            "maxItems": 2,
+            "title": "Turns",
+            "type": "array"
+          },
+          "version": {
+            "const": 1,
+            "default": 1,
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "version",
+          "run_id",
+          "report_id",
+          "revision",
+          "status",
+          "provider_mode",
+          "simulated",
+          "message",
+          "operation_pending",
+          "pending",
+          "turns",
+          "incomplete",
+          "snapshot"
+        ],
+        "title": "CustomerRun",
+        "type": "object"
+      },
+      "CustomerSnapshot": {
+        "additionalProperties": false,
+        "description": "Closed projection. Adapters must supply only authorized customer text.",
+        "properties": {
+          "customer_update": {
+            "anyOf": [
+              {
+                "maxLength": 2000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Customer Update"
+          },
+          "progress": {
+            "enum": [
+              "processing",
+              "waiting_input",
+              "stage_finished",
+              "stage_failed"
+            ],
+            "title": "Progress",
+            "type": "string"
+          },
+          "revision": {
+            "maximum": 9007199254740991.0,
+            "minimum": 1.0,
+            "title": "Revision",
+            "type": "integer"
+          },
+          "run_id": {
+            "format": "uuid",
+            "title": "Run Id",
+            "type": "string"
+          },
+          "version": {
+            "const": 1,
+            "default": 1,
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "version",
+          "run_id",
+          "revision",
+          "progress",
+          "customer_update"
+        ],
+        "title": "CustomerSnapshot",
+        "type": "object"
+      },
+      "CustomerTurn": {
+        "additionalProperties": false,
+        "properties": {
+          "answers": {
+            "items": {
+              "maxLength": 2000,
+              "minLength": 1,
+              "type": "string"
+            },
+            "maxItems": 2,
+            "title": "Answers",
+            "type": "array"
+          },
+          "questions": {
+            "items": {
+              "maxLength": 2000,
+              "minLength": 1,
+              "type": "string"
+            },
+            "maxItems": 2,
+            "title": "Questions",
+            "type": "array"
+          },
+          "round_number": {
+            "maximum": 2.0,
+            "minimum": 1.0,
+            "title": "Round Number",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "round_number",
+          "questions",
+          "answers"
+        ],
+        "title": "CustomerTurn",
+        "type": "object"
+      },
       "Description": {
         "maxLength": 5000,
         "minLength": 1,
         "type": "string"
+      },
+      "DocumentMetadata": {
+        "additionalProperties": false,
+        "properties": {
+          "access_class": {
+            "$ref": "#/components/schemas/AccessClass"
+          },
+          "customer_account_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Customer Account Id"
+          },
+          "document_date": {
+            "format": "date",
+            "title": "Document Date",
+            "type": "string"
+          },
+          "document_id": {
+            "$ref": "#/components/schemas/Text"
+          },
+          "document_type": {
+            "$ref": "#/components/schemas/DocumentType"
+          },
+          "fictional": {
+            "title": "Fictional",
+            "type": "boolean"
+          },
+          "service_code": {
+            "$ref": "#/components/schemas/Text"
+          },
+          "source": {
+            "const": "curated_repository",
+            "title": "Source",
+            "type": "string"
+          },
+          "source_path": {
+            "$ref": "#/components/schemas/Text"
+          },
+          "status": {
+            "$ref": "#/components/schemas/DocumentStatus"
+          },
+          "superseded_by": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Text"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "title": {
+            "$ref": "#/components/schemas/Text"
+          },
+          "version": {
+            "$ref": "#/components/schemas/Text"
+          }
+        },
+        "required": [
+          "document_id",
+          "source",
+          "source_path",
+          "title",
+          "document_type",
+          "service_code",
+          "version",
+          "document_date",
+          "access_class",
+          "status",
+          "fictional"
+        ],
+        "title": "DocumentMetadata",
+        "type": "object"
+      },
+      "DocumentStatus": {
+        "enum": [
+          "current",
+          "superseded"
+        ],
+        "title": "DocumentStatus",
+        "type": "string"
+      },
+      "DocumentType": {
+        "enum": [
+          "runbook",
+          "help_article",
+          "historical_investigation"
+        ],
+        "title": "DocumentType",
+        "type": "string"
+      },
+      "DraftText": {
+        "maxLength": 5000,
+        "minLength": 1,
+        "type": "string"
+      },
+      "EmptyStart": {
+        "additionalProperties": false,
+        "properties": {},
+        "title": "EmptyStart",
+        "type": "object"
       },
       "ErrorResponse": {
         "properties": {
@@ -43,6 +773,385 @@
         ],
         "title": "ErrorResponse",
         "type": "object"
+      },
+      "EventMetadata": {
+        "additionalProperties": false,
+        "properties": {
+          "action_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Action Id"
+          },
+          "action_version": {
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Action Version"
+          },
+          "actor_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Actor Id"
+          },
+          "attempts": {
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Attempts"
+          },
+          "clarification_cause": {
+            "anyOf": [
+              {
+                "enum": [
+                  "questions_available",
+                  "no_questions",
+                  "round_limit"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Clarification Cause"
+          },
+          "extraction_failure": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ExtractionFailureReason"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "fingerprint": {
+            "anyOf": [
+              {
+                "pattern": "^[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fingerprint"
+          },
+          "incomplete": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Incomplete"
+          },
+          "outcome": {
+            "anyOf": [
+              {
+                "enum": [
+                  "unknown",
+                  "simulated"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Outcome"
+          },
+          "provider_failure": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ProviderFailureKind"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "question_count": {
+            "anyOf": [
+              {
+                "maximum": 2.0,
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Question Count"
+          },
+          "reasons": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/ClarificationReason"
+            },
+            "title": "Reasons",
+            "type": "array"
+          },
+          "round_number": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Round Number"
+          },
+          "support_ticket_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Support Ticket Id"
+          }
+        },
+        "title": "EventMetadata",
+        "type": "object"
+      },
+      "EventType": {
+        "enum": [
+          "workflow_started",
+          "extraction_succeeded",
+          "extraction_failed",
+          "clarification_evaluated",
+          "clarification_requested",
+          "clarification_answered",
+          "continued_incomplete",
+          "diagnosis_prepared",
+          "report_ready",
+          "approval_requested",
+          "action_approved",
+          "action_rejected",
+          "tool_succeeded",
+          "tool_failed"
+        ],
+        "title": "EventType",
+        "type": "string"
+      },
+      "EvidencePassage": {
+        "additionalProperties": false,
+        "properties": {
+          "citation": {
+            "$ref": "#/components/schemas/Citation"
+          },
+          "historical": {
+            "title": "Historical",
+            "type": "boolean"
+          },
+          "rank": {
+            "maximum": 5.0,
+            "minimum": 1.0,
+            "title": "Rank",
+            "type": "integer"
+          },
+          "score": {
+            "maximum": 1.0,
+            "minimum": -1.0,
+            "title": "Score",
+            "type": "number"
+          },
+          "score_metric": {
+            "enum": [
+              "fixture",
+              "cosine_similarity"
+            ],
+            "title": "Score Metric",
+            "type": "string"
+          }
+        },
+        "required": [
+          "citation",
+          "rank",
+          "score",
+          "score_metric",
+          "historical"
+        ],
+        "title": "EvidencePassage",
+        "type": "object"
+      },
+      "EvidenceReference": {
+        "additionalProperties": false,
+        "properties": {
+          "chunk_id": {
+            "format": "uuid",
+            "title": "Chunk Id",
+            "type": "string"
+          },
+          "role": {
+            "$ref": "#/components/schemas/EvidenceRole"
+          }
+        },
+        "required": [
+          "chunk_id",
+          "role"
+        ],
+        "title": "EvidenceReference",
+        "type": "object"
+      },
+      "EvidenceRole": {
+        "enum": [
+          "supports",
+          "contradicts"
+        ],
+        "title": "EvidenceRole",
+        "type": "string"
+      },
+      "ExecutionEvent": {
+        "additionalProperties": false,
+        "properties": {
+          "event_id": {
+            "format": "uuid",
+            "title": "Event Id",
+            "type": "string"
+          },
+          "event_type": {
+            "$ref": "#/components/schemas/EventType"
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/EventMetadata"
+          },
+          "occurred_at": {
+            "format": "date-time",
+            "title": "Occurred At",
+            "type": "string"
+          },
+          "sequence": {
+            "minimum": 1.0,
+            "title": "Sequence",
+            "type": "integer"
+          },
+          "stage": {
+            "enum": [
+              "intake",
+              "approval"
+            ],
+            "title": "Stage",
+            "type": "string"
+          },
+          "workflow_run_id": {
+            "format": "uuid",
+            "title": "Workflow Run Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "event_id",
+          "workflow_run_id",
+          "stage",
+          "sequence",
+          "occurred_at",
+          "event_type",
+          "metadata"
+        ],
+        "title": "ExecutionEvent",
+        "type": "object"
+      },
+      "ExtractionFailureReason": {
+        "enum": [
+          "refusal",
+          "empty_output",
+          "malformed_json",
+          "invalid_data",
+          "provider_error"
+        ],
+        "title": "ExtractionFailureReason",
+        "type": "string"
+      },
+      "ExtractionMetrics": {
+        "additionalProperties": false,
+        "properties": {
+          "attempts": {
+            "minimum": 1.0,
+            "title": "Attempts",
+            "type": "integer"
+          },
+          "estimated_cost": {
+            "title": "Estimated Cost",
+            "type": "null"
+          },
+          "latency_ms": {
+            "title": "Latency Ms",
+            "type": "null"
+          },
+          "model": {
+            "minLength": 1,
+            "title": "Model",
+            "type": "string"
+          },
+          "prompt_id": {
+            "minLength": 1,
+            "title": "Prompt Id",
+            "type": "string"
+          },
+          "prompt_version": {
+            "minLength": 1,
+            "title": "Prompt Version",
+            "type": "string"
+          },
+          "usage": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TokenUsage"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "model",
+          "prompt_id",
+          "prompt_version",
+          "attempts",
+          "usage"
+        ],
+        "title": "ExtractionMetrics",
+        "type": "object"
+      },
+      "Fingerprint": {
+        "pattern": "^[0-9a-f]{64}$",
+        "type": "string"
       },
       "IssueReportCreate": {
         "additionalProperties": false,
@@ -158,6 +1267,237 @@
         "minLength": 2,
         "type": "string"
       },
+      "MarkdownLocation": {
+        "additionalProperties": false,
+        "properties": {
+          "heading_path": {
+            "items": {
+              "$ref": "#/components/schemas/Text"
+            },
+            "title": "Heading Path",
+            "type": "array"
+          },
+          "kind": {
+            "const": "markdown",
+            "title": "Kind",
+            "type": "string"
+          },
+          "line_end": {
+            "$ref": "#/components/schemas/PositiveInt"
+          },
+          "line_start": {
+            "$ref": "#/components/schemas/PositiveInt"
+          }
+        },
+        "required": [
+          "kind",
+          "heading_path",
+          "line_start",
+          "line_end"
+        ],
+        "title": "MarkdownLocation",
+        "type": "object"
+      },
+      "NonEmptyText": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "PDFLocation": {
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "const": "pdf",
+            "title": "Kind",
+            "type": "string"
+          },
+          "page_number": {
+            "$ref": "#/components/schemas/PositiveInt"
+          }
+        },
+        "required": [
+          "kind",
+          "page_number"
+        ],
+        "title": "PDFLocation",
+        "type": "object"
+      },
+      "PassageLocation": {
+        "additionalProperties": false,
+        "properties": {
+          "document_id": {
+            "$ref": "#/components/schemas/Text"
+          },
+          "location": {
+            "$ref": "#/components/schemas/SourceLocation"
+          },
+          "version": {
+            "$ref": "#/components/schemas/Text"
+          }
+        },
+        "required": [
+          "document_id",
+          "version",
+          "location"
+        ],
+        "title": "PassageLocation",
+        "type": "object"
+      },
+      "PositiveInt": {
+        "minimum": 1.0,
+        "type": "integer"
+      },
+      "ProposalRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "description": {
+            "$ref": "#/components/schemas/DraftText"
+          },
+          "expected_fingerprint": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Fingerprint"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "explanation": {
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Explanation",
+            "type": "string"
+          },
+          "operation_id": {
+            "format": "uuid",
+            "title": "Operation Id",
+            "type": "string"
+          },
+          "service_code": {
+            "anyOf": [
+              {
+                "maxLength": 100,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Service Code"
+          },
+          "severity": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Severity"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "title": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "operation_id",
+          "expected_fingerprint",
+          "title",
+          "description",
+          "service_code",
+          "severity",
+          "explanation"
+        ],
+        "title": "ProposalRequest",
+        "type": "object"
+      },
+      "ProposedAction": {
+        "additionalProperties": false,
+        "properties": {
+          "action_id": {
+            "format": "uuid",
+            "title": "Action Id",
+            "type": "string"
+          },
+          "arguments": {
+            "$ref": "#/components/schemas/CreateTicketArguments"
+          },
+          "expected_effect": {
+            "$ref": "#/components/schemas/NonEmptyText"
+          },
+          "explanation": {
+            "$ref": "#/components/schemas/NonEmptyText"
+          },
+          "idempotency_key": {
+            "format": "uuid",
+            "title": "Idempotency Key",
+            "type": "string"
+          },
+          "risk": {
+            "$ref": "#/components/schemas/ActionRisk"
+          },
+          "tool": {
+            "const": "create_ticket",
+            "default": "create_ticket",
+            "title": "Tool",
+            "type": "string"
+          },
+          "version": {
+            "minimum": 1.0,
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "action_id",
+          "version",
+          "idempotency_key",
+          "arguments",
+          "explanation",
+          "expected_effect",
+          "risk"
+        ],
+        "title": "ProposedAction",
+        "type": "object"
+      },
+      "ProviderFailureKind": {
+        "enum": [
+          "timeout",
+          "transient",
+          "permanent"
+        ],
+        "title": "ProviderFailureKind",
+        "type": "string"
+      },
+      "RecoveryRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "expected_revision": {
+            "maximum": 9007199254740991.0,
+            "minimum": 1.0,
+            "title": "Expected Revision",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "expected_revision"
+        ],
+        "title": "RecoveryRequest",
+        "type": "object"
+      },
+      "RiskLevel": {
+        "enum": [
+          "low",
+          "medium",
+          "high"
+        ],
+        "title": "RiskLevel",
+        "type": "string"
+      },
       "Service": {
         "properties": {
           "code": {
@@ -173,6 +1513,615 @@
           "label"
         ],
         "title": "Service",
+        "type": "object"
+      },
+      "Severity": {
+        "enum": [
+          "low",
+          "medium",
+          "high",
+          "critical"
+        ],
+        "title": "Severity",
+        "type": "string"
+      },
+      "SimulatedTicketResult": {
+        "additionalProperties": false,
+        "properties": {
+          "simulated": {
+            "const": true,
+            "default": true,
+            "title": "Simulated",
+            "type": "boolean"
+          },
+          "status": {
+            "const": "open",
+            "default": "open",
+            "title": "Status",
+            "type": "string"
+          },
+          "support_ticket_id": {
+            "format": "uuid",
+            "title": "Support Ticket Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "support_ticket_id"
+        ],
+        "title": "SimulatedTicketResult",
+        "type": "object"
+      },
+      "SourceHash": {
+        "pattern": "^[0-9a-f]{64}$",
+        "type": "string"
+      },
+      "SourceLocation": {
+        "discriminator": {
+          "mapping": {
+            "markdown": "#/components/schemas/MarkdownLocation",
+            "pdf": "#/components/schemas/PDFLocation"
+          },
+          "propertyName": "kind"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/MarkdownLocation"
+          },
+          {
+            "$ref": "#/components/schemas/PDFLocation"
+          }
+        ]
+      },
+      "SupportAction": {
+        "additionalProperties": false,
+        "properties": {
+          "archived": {
+            "title": "Archived",
+            "type": "boolean"
+          },
+          "can_prepare": {
+            "title": "Can Prepare",
+            "type": "boolean"
+          },
+          "decision": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ApprovalDecision"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "execution": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ToolExecutionResult"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "failure": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ToolExecutionFailure"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "fingerprint": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Fingerprint"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "input_stale": {
+            "title": "Input Stale",
+            "type": "boolean"
+          },
+          "pending_preparation": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ProposalRequest"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "preparation_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Preparation Id"
+          },
+          "proposal": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ProposedAction"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "report_id": {
+            "format": "uuid",
+            "title": "Report Id",
+            "type": "string"
+          },
+          "run_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Run Id"
+          },
+          "status": {
+            "enum": [
+              "absent",
+              "preparing",
+              "awaiting_decision",
+              "rejected",
+              "approved_unconfirmed",
+              "simulated_success",
+              "execution_unknown"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "timeline": {
+            "items": {
+              "$ref": "#/components/schemas/ExecutionEvent"
+            },
+            "title": "Timeline",
+            "type": "array"
+          },
+          "version": {
+            "const": 1,
+            "default": 1,
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "version",
+          "report_id",
+          "run_id",
+          "status",
+          "archived",
+          "input_stale",
+          "can_prepare",
+          "proposal",
+          "fingerprint",
+          "preparation_id",
+          "pending_preparation",
+          "decision",
+          "execution",
+          "failure",
+          "timeline"
+        ],
+        "title": "SupportAction",
+        "type": "object"
+      },
+      "SupportEvidence": {
+        "additionalProperties": false,
+        "properties": {
+          "analysis_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Analysis Id"
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At"
+          },
+          "input_revision": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Input Revision"
+          },
+          "older_input": {
+            "title": "Older Input",
+            "type": "boolean"
+          },
+          "operation_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Operation Id"
+          },
+          "passages": {
+            "items": {
+              "$ref": "#/components/schemas/EvidencePassage"
+            },
+            "maxItems": 5,
+            "title": "Passages",
+            "type": "array"
+          },
+          "provider_mode": {
+            "anyOf": [
+              {
+                "enum": [
+                  "offline",
+                  "live"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Provider Mode"
+          },
+          "report": {
+            "$ref": "#/components/schemas/CitationReport"
+          },
+          "report_id": {
+            "format": "uuid",
+            "title": "Report Id",
+            "type": "string"
+          },
+          "simulated": {
+            "title": "Simulated",
+            "type": "boolean"
+          },
+          "status": {
+            "enum": [
+              "absent",
+              "pending",
+              "ready",
+              "failed"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "version": {
+            "const": 1,
+            "default": 1,
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "version",
+          "report_id",
+          "analysis_id",
+          "operation_id",
+          "status",
+          "created_at",
+          "provider_mode",
+          "simulated",
+          "input_revision",
+          "older_input",
+          "passages",
+          "report"
+        ],
+        "title": "SupportEvidence",
+        "type": "object"
+      },
+      "SupportMetrics": {
+        "additionalProperties": false,
+        "properties": {
+          "metrics": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ExtractionMetrics"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "operation_pending": {
+            "title": "Operation Pending",
+            "type": "boolean"
+          },
+          "provider_mode": {
+            "anyOf": [
+              {
+                "enum": [
+                  "offline",
+                  "live"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Provider Mode"
+          },
+          "report_id": {
+            "format": "uuid",
+            "title": "Report Id",
+            "type": "string"
+          },
+          "run_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Run Id"
+          },
+          "scope": {
+            "const": "latest_intake_extraction",
+            "default": "latest_intake_extraction",
+            "title": "Scope",
+            "type": "string"
+          },
+          "version": {
+            "const": 1,
+            "default": 1,
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "report_id",
+          "run_id",
+          "provider_mode",
+          "operation_pending",
+          "metrics"
+        ],
+        "title": "SupportMetrics",
+        "type": "object"
+      },
+      "SupportReportState": {
+        "additionalProperties": false,
+        "properties": {
+          "archived": {
+            "title": "Archived",
+            "type": "boolean"
+          },
+          "customer_account_id": {
+            "format": "uuid",
+            "title": "Customer Account Id",
+            "type": "string"
+          },
+          "report_id": {
+            "format": "uuid",
+            "title": "Report Id",
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/IssueReportStatus"
+          },
+          "version": {
+            "const": 1,
+            "default": 1,
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "report_id",
+          "customer_account_id",
+          "status",
+          "archived"
+        ],
+        "title": "SupportReportState",
+        "type": "object"
+      },
+      "SupportRun": {
+        "additionalProperties": false,
+        "properties": {
+          "operation_pending": {
+            "title": "Operation Pending",
+            "type": "boolean"
+          },
+          "provider_mode": {
+            "enum": [
+              "offline",
+              "live"
+            ],
+            "title": "Provider Mode",
+            "type": "string"
+          },
+          "report_id": {
+            "format": "uuid",
+            "title": "Report Id",
+            "type": "string"
+          },
+          "run_id": {
+            "format": "uuid",
+            "title": "Run Id",
+            "type": "string"
+          },
+          "simulated": {
+            "title": "Simulated",
+            "type": "boolean"
+          },
+          "timeline": {
+            "items": {
+              "$ref": "#/components/schemas/ExecutionEvent"
+            },
+            "title": "Timeline",
+            "type": "array"
+          },
+          "version": {
+            "const": 1,
+            "default": 1,
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "run_id",
+          "report_id",
+          "provider_mode",
+          "simulated",
+          "operation_pending",
+          "timeline"
+        ],
+        "title": "SupportRun",
+        "type": "object"
+      },
+      "Text": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "TokenUsage": {
+        "additionalProperties": false,
+        "properties": {
+          "input_tokens": {
+            "minimum": 0.0,
+            "title": "Input Tokens",
+            "type": "integer"
+          },
+          "output_tokens": {
+            "minimum": 0.0,
+            "title": "Output Tokens",
+            "type": "integer"
+          },
+          "total_tokens": {
+            "minimum": 0.0,
+            "title": "Total Tokens",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "input_tokens",
+          "output_tokens",
+          "total_tokens"
+        ],
+        "title": "TokenUsage",
+        "type": "object"
+      },
+      "ToolExecutionFailure": {
+        "additionalProperties": false,
+        "properties": {
+          "action_id": {
+            "format": "uuid",
+            "title": "Action Id",
+            "type": "string"
+          },
+          "fingerprint": {
+            "title": "Fingerprint",
+            "type": "string"
+          },
+          "idempotency_key": {
+            "format": "uuid",
+            "title": "Idempotency Key",
+            "type": "string"
+          },
+          "outcome": {
+            "const": "unknown",
+            "default": "unknown",
+            "title": "Outcome",
+            "type": "string"
+          },
+          "reason": {
+            "const": "tool_failed",
+            "default": "tool_failed",
+            "title": "Reason",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "action_id",
+          "version",
+          "fingerprint",
+          "idempotency_key"
+        ],
+        "title": "ToolExecutionFailure",
+        "type": "object"
+      },
+      "ToolExecutionResult": {
+        "additionalProperties": false,
+        "properties": {
+          "action_id": {
+            "format": "uuid",
+            "title": "Action Id",
+            "type": "string"
+          },
+          "executed_by_user_id": {
+            "format": "uuid",
+            "title": "Executed By User Id",
+            "type": "string"
+          },
+          "fingerprint": {
+            "title": "Fingerprint",
+            "type": "string"
+          },
+          "idempotency_key": {
+            "format": "uuid",
+            "title": "Idempotency Key",
+            "type": "string"
+          },
+          "result": {
+            "$ref": "#/components/schemas/SimulatedTicketResult"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "action_id",
+          "version",
+          "fingerprint",
+          "idempotency_key",
+          "executed_by_user_id",
+          "result"
+        ],
+        "title": "ToolExecutionResult",
         "type": "object"
       },
       "User": {
@@ -256,6 +2205,458 @@
         "summary": "Health",
         "tags": [
           "system"
+        ]
+      }
+    },
+    "/intake-runs/{run_id}": {
+      "get": {
+        "operationId": "get_intake_runs__run_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerRun"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get",
+        "tags": [
+          "customer-intake"
+        ]
+      }
+    },
+    "/intake-runs/{run_id}/clarification": {
+      "post": {
+        "operationId": "clarify_intake_runs__run_id__clarification_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ClarificationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerRun"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Clarify",
+        "tags": [
+          "customer-intake"
+        ]
+      }
+    },
+    "/intake-runs/{run_id}/events": {
+      "get": {
+        "operationId": "events_intake_runs__run_id__events_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "text/event-stream": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Events",
+        "tags": [
+          "customer-intake"
+        ]
+      }
+    },
+    "/intake-runs/{run_id}/recover": {
+      "post": {
+        "operationId": "recover_intake_runs__run_id__recover_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecoveryRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerRun"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Recover",
+        "tags": [
+          "customer-intake"
         ]
       }
     },
@@ -666,6 +3067,240 @@
         ]
       }
     },
+    "/issue-reports/{report_id}/intake-run": {
+      "get": {
+        "operationId": "for_report_issue_reports__report_id__intake_run_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "report_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Report Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerRun"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "For Report",
+        "tags": [
+          "customer-intake"
+        ]
+      },
+      "post": {
+        "operationId": "start_issue_reports__report_id__intake_run_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "report_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Report Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmptyStart"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerRun"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerRun"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Start",
+        "tags": [
+          "customer-intake"
+        ]
+      }
+    },
     "/ready": {
       "get": {
         "operationId": "readiness_ready_get",
@@ -698,6 +3333,790 @@
         "summary": "Readiness",
         "tags": [
           "system"
+        ]
+      }
+    },
+    "/support/issue-reports/{report_id}/action": {
+      "get": {
+        "operationId": "read_action_support_issue_reports__report_id__action_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "report_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Report Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SupportAction"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Read Action",
+        "tags": [
+          "support-actions"
+        ]
+      }
+    },
+    "/support/issue-reports/{report_id}/evidence-analyses": {
+      "post": {
+        "operationId": "create_evidence_support_issue_reports__report_id__evidence_analyses_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "report_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Report Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnalysisRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SupportEvidence"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Create Evidence",
+        "tags": [
+          "support-runs"
+        ]
+      }
+    },
+    "/support/issue-reports/{report_id}/evidence-analysis": {
+      "get": {
+        "operationId": "get_evidence_support_issue_reports__report_id__evidence_analysis_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "report_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Report Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SupportEvidence"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Evidence",
+        "tags": [
+          "support-runs"
+        ]
+      }
+    },
+    "/support/issue-reports/{report_id}/execution-metrics": {
+      "get": {
+        "operationId": "get_metrics_support_issue_reports__report_id__execution_metrics_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "report_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Report Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SupportMetrics"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Metrics",
+        "tags": [
+          "support-runs"
+        ]
+      }
+    },
+    "/support/issue-reports/{report_id}/intake-run": {
+      "get": {
+        "operationId": "get_run_support_issue_reports__report_id__intake_run_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "report_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Report Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SupportRun"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Run",
+        "tags": [
+          "support-runs"
+        ]
+      }
+    },
+    "/support/issue-reports/{report_id}/proposal": {
+      "post": {
+        "operationId": "prepare_action_support_issue_reports__report_id__proposal_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "report_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Report Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProposalRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SupportAction"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Prepare Action",
+        "tags": [
+          "support-actions"
+        ]
+      }
+    },
+    "/support/issue-reports/{report_id}/runs/{run_id}/decision": {
+      "post": {
+        "operationId": "decide_action_support_issue_reports__report_id__runs__run_id__decision_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "report_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Report Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApprovalReply"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SupportAction"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Decide Action",
+        "tags": [
+          "support-actions"
+        ]
+      }
+    },
+    "/support/issue-reports/{report_id}/state": {
+      "get": {
+        "operationId": "get_report_state_support_issue_reports__report_id__state_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "report_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Report Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SupportReportState"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Report State",
+        "tags": [
+          "support-runs"
         ]
       }
     }
