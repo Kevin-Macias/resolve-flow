@@ -2,13 +2,13 @@ name: resolve-flow
 
 services:
   db:
-    image: pgvector/pgvector:0.8.7-pg17-bookworm
+    image: pgvector/pgvector:0.8.7-pg17-bookworm@sha256:ac08538c6f8b9904c33c8224c5e5706dbe760aca29db1d096972b4052c22a75d
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-resolve_flow}
       POSTGRES_USER: ${POSTGRES_USER:-resolve_flow}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-resolve_flow_local}
     ports:
-      - "${POSTGRES_PORT:-5432}:5432"
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
     healthcheck:
@@ -18,7 +18,29 @@ services:
       retries: 10
     restart: unless-stopped
 
+  initialize:
+    image: ${COMPOSE_PROJECT_NAME:-resolve-flow}-api
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    command: ["python", "-m", "api.bootstrap"]
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-resolve_flow}:${POSTGRES_PASSWORD:-resolve_flow_local}@db:5432/${POSTGRES_DB:-resolve_flow}
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: "no"
+    init: true
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m,mode=1777
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    healthcheck:
+      disable: true
+
   api:
+    image: ${COMPOSE_PROJECT_NAME:-resolve-flow}-api
     build:
       context: .
       dockerfile: apps/api/Dockerfile
@@ -26,29 +48,28 @@ services:
       PORT: 8000
       DATABASE_URL: postgresql://${POSTGRES_USER:-resolve_flow}:${POSTGRES_PASSWORD:-resolve_flow_local}@db:5432/${POSTGRES_DB:-resolve_flow}
       CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000}
+      AUTH_MODE: ${AUTH_MODE:-password}
       DEMO_TOKEN_USER_IDS: ${DEMO_TOKEN_USER_IDS:-{}}
       DEMO_SUPPORT_ACCOUNT_IDS: ${DEMO_SUPPORT_ACCOUNT_IDS:-{}}
+      MODEL_PRICING: ${MODEL_PRICING:-}
+      REQUEST_LIMITS: ${REQUEST_LIMITS:-}
       INTAKE_PROVIDER_MODE: ${INTAKE_PROVIDER_MODE:-offline}
       EVIDENCE_PROVIDER_MODE: ${EVIDENCE_PROVIDER_MODE:-offline}
       EVIDENCE_OPENAI_MODEL: ${EVIDENCE_OPENAI_MODEL:-}
       OPENAI_MODEL: ${OPENAI_MODEL:-}
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
     ports:
-      - "${API_PORT:-8000}:8000"
+      - "127.0.0.1:${API_PORT:-8000}:8000"
     depends_on:
-      db:
-        condition: service_healthy
-    healthcheck:
-      test:
-        [
-          "CMD",
-          "python",
-          "-c",
-          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/ready')",
-        ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      initialize:
+        condition: service_completed_successfully
+    init: true
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m,mode=1777
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    stop_grace_period: 30s
     restart: unless-stopped
 
   web:
@@ -57,16 +78,24 @@ services:
       dockerfile: apps/web/Dockerfile
       args:
         VITE_API_URL: ${VITE_API_URL:-http://localhost:8000}
+        VITE_AUTH_MODE: ${AUTH_MODE:-password}
     environment:
       HOST: 0.0.0.0
       PORT: 3000
     ports:
-      - "${WEB_PORT:-3000}:3000"
+      - "127.0.0.1:${WEB_PORT:-3000}:3000"
     depends_on:
       api:
         condition: service_healthy
+    init: true
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m,mode=1777
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    stop_grace_period: 30s
     restart: unless-stopped
 
 volumes:
   postgres-data:
-    name: resolve-flow-postgres-data
+    name: ${POSTGRES_VOLUME_NAME:-resolve-flow-postgres-data}

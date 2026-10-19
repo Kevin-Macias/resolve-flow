@@ -42,7 +42,7 @@ function mount(path = `/support/reports/${id}`) {
   vi.stubGlobal('scrollTo', vi.fn())
   const root = createRootRoute({
     component: () => (
-      <SessionBoundary>
+      <SessionBoundary authMode="demo">
         <Outlet />
       </SessionBoundary>
     ),

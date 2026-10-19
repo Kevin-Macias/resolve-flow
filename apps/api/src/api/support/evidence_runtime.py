@@ -4,9 +4,11 @@ import asyncio
 import os
 from pathlib import Path
 from typing import Protocol
+from uuid import uuid4
 
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
+from api.accounting.recording import generate
 from api.extraction.provider import LLMProvider, OpenAIProvider
 from api.knowledge.chunks import prepare_chunks
 from api.knowledge.citations import (
@@ -32,6 +34,7 @@ from api.knowledge.retrieval import (
     RetrievalResult,
     RetrievalService,
 )
+from api.observability import trace
 
 
 class AnalysisProvider(Protocol):
@@ -71,12 +74,25 @@ class LiveAnalysisProvider:
         self.provider = provider
 
     async def analyze(self, value: EvidenceAnalysisInput) -> str:
-        result = await self.provider.generate(
-            value.instructions, value.input_json, LiveAnalysisOutput
-        )
-        if result.refusal is not None or not result.text:
-            raise ValueError("Analysis did not produce a valid result")
-        return result.text
+        with trace(
+            "model", component="analysis", call_id=uuid4(), error_code="provider"
+        ) as span:
+            result = await generate(
+                self.provider,
+                value.instructions,
+                value.input_json,
+                LiveAnalysisOutput,
+                component="analysis",
+                prompt_id="evidence-analysis",
+                prompt_version=value.policy_id,
+            )
+            if result.refusal is not None or not result.text:
+                span.outcome = "rejected" if result.refusal is not None else "error"
+                span.failure_code = (
+                    "refusal" if result.refusal is not None else "invalid_output"
+                )
+                raise ValueError("Analysis did not produce a valid result")
+            return result.text
 
 
 class EvidenceRuntime:

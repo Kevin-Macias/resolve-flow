@@ -1,4 +1,3 @@
-import logging
 from collections.abc import Mapping
 
 from fastapi import FastAPI, Request
@@ -7,26 +6,34 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-logger = logging.getLogger(__name__)
+from api.observability import bind, emit
 
 ERROR_CODES = {
+    400: "bad_request",
     401: "unauthorized",
     403: "forbidden",
     404: "not_found",
     405: "method_not_allowed",
+    408: "request_timeout",
     409: "conflict",
+    413: "payload_too_large",
     422: "validation_error",
+    429: "rate_limited",
     503: "service_unavailable",
     500: "internal_error",
 }
 
 ERROR_MESSAGES = {
+    400: "Request could not be completed",
     401: "Unauthorized",
     403: "Forbidden",
     404: "Not found",
     405: "Method not allowed",
+    408: "Request body timed out",
     409: "Conflict",
+    413: "Request body exceeds 65536 bytes",
     422: "Request validation failed",
+    429: "Too many requests",
     503: "Service unavailable",
     500: "Internal server error",
 }
@@ -95,8 +102,11 @@ def install_error_handlers(app: FastAPI) -> None:
     async def handle_unexpected_error(
         _request: Request, _error: Exception
     ) -> JSONResponse:
-        logger.error("Unhandled API error (%s)", type(_error).__name__)
-        return error_response(500, ERROR_MESSAGES[500])
+        request_id = getattr(_request.state, "request_id", None)
+        with bind(request_id=request_id):
+            emit("api.error", failure_code="unexpected", outcome="error")
+        headers = {"X-Request-ID": str(request_id)} if request_id else None
+        return error_response(500, ERROR_MESSAGES[500], headers=headers)
 
     app.add_exception_handler(StarletteHTTPException, handle_http_error)
     app.add_exception_handler(RequestValidationError, handle_validation_error)

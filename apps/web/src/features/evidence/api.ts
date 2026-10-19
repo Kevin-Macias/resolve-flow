@@ -1,3 +1,4 @@
+import { limitErrorMessage } from '../api/limit-errors'
 import { createApiClient } from '@resolve-flow/api-client'
 
 import { supportEvidenceSchema } from './schemas'
@@ -5,11 +6,12 @@ import { supportEvidenceSchema } from './schemas'
 export class EvidenceApiError extends Error {
   constructor(public readonly status: number) {
     super(
-      status === 409
+      limitErrorMessage(status) ?? (status === 409
         ? 'An operation is running or needs review. Refresh saved evidence before continuing.'
         : [401, 403, 404].includes(status)
           ? 'Evidence is unavailable to your support identity.'
-          : 'Evidence could not be loaded. Refresh saved evidence before repeating an analysis.',
+          : 'Evidence could not be loaded. Refresh saved evidence before repeating an analysis.'
+      )
     )
   }
 }

@@ -1,12 +1,14 @@
+import { limitErrorMessage } from '../api/limit-errors'
 import { createApiClient } from '@resolve-flow/api-client'
 import { supportMetricsSchema, type GeneratedMetrics } from './schemas'
 
 export class MetricsApiError extends Error {
   constructor(public readonly status: number) {
     super(
-      [401, 403, 404].includes(status)
+      limitErrorMessage(status) ?? ([401, 403, 404].includes(status)
         ? 'Metrics are unavailable to your support identity.'
-        : 'Saved metrics could not be loaded. Refresh to try again.',
+        : 'Saved metrics could not be loaded. Refresh to try again.'
+      )
     )
   }
 }

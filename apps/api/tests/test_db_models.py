@@ -1,6 +1,7 @@
 from sqlalchemy import CheckConstraint
 
 from api.db.models import Base
+from api.identity.models import AuthCredential
 from api.intake.models import IntakeRun
 from api.knowledge.models import KnowledgeDocument
 from api.support.action_models import SupportActionRun
@@ -12,6 +13,7 @@ def test_model_metadata_matches_reviewed_tables() -> None:
     assert IntakeRun.metadata is Base.metadata
     assert EvidenceAnalysis.metadata is Base.metadata
     assert SupportActionRun.metadata is Base.metadata
+    assert AuthCredential.metadata is Base.metadata
     assert set(Base.metadata.tables) == {
         "customer_accounts",
         "users",
@@ -25,6 +27,15 @@ def test_model_metadata_matches_reviewed_tables() -> None:
         "evidence_analyses",
         "support_action_runs",
         "proposal_preparations",
+        "execution_operations",
+        "simulated_ticket_effects",
+        "auth_credentials",
+        "auth_sessions",
+        "auth_invitations",
+        "support_account_grants",
+        "auth_attempt_windows",
+        "model_call_attempts",
+        "request_limit_windows",
     }
 
     reports = Base.metadata.tables["issue_reports"]

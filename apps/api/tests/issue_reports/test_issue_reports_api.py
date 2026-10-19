@@ -56,6 +56,7 @@ async def database() -> AsyncGenerator[
                                 "users",
                                 "services",
                                 "issue_reports",
+                                "request_limit_windows",
                             )
                         ],
                     )
@@ -120,6 +121,7 @@ async def api(
         )
     ]
     app = create_app()
+    app.state.session_factory = sessions
 
     async def override_session() -> AsyncGenerator[AsyncSession]:
         async with sessions() as session:

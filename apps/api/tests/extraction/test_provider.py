@@ -241,3 +241,22 @@ async def test_openai_provider_classifies_transport_errors(
 def test_result_cannot_contain_both_text_and_refusal() -> None:
     with pytest.raises(ValueError):
         ProviderResult(text="output", refusal="no")
+
+
+@pytest.mark.anyio
+@pytest.mark.parametrize("refuses", [False, True])
+async def test_openai_provider_preserves_resolved_model_version(refuses: bool) -> None:
+    content = SimpleNamespace(type="refusal", refusal="declined")
+    message = SimpleNamespace(type="message", content=[content])
+    client, _ = mock_client(
+        SimpleNamespace(
+            status="completed",
+            output=[message] if refuses else [],
+            output_text="{}",
+            usage=None,
+            model="test-model-snapshot-v1",
+        )
+    )
+    result = await call_provider(OpenAIProvider("test-alias", client))
+    assert result.resolved_model == "test-model-snapshot-v1"
+    assert (result.refusal is not None) == refuses

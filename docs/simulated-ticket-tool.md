@@ -43,8 +43,11 @@ model call, database ticket write, or external request. Its `calls` list is
 in-memory test instrumentation.
 
 The UUID identifies a simulation, with no persisted `SupportTicket` to retrieve.
-Real ticket storage is separate work. Repeated calls return equal fake results;
-RF-309 tests edge cases and RF-703 adds durable idempotency for real effects.
+Real ticket storage is separate work. Repeated calls return equal fake results.
+The support HTTP path now wraps this pure fake in RF-703's
+[durable simulation](tool-idempotency.md), which records operation intent and an
+independent simulated destination receipt. Real external effects still require
+their own idempotency contract.
 
 ## Connecting execution
 

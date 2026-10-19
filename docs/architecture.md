@@ -2,13 +2,67 @@
 
 Current implementation and target design are listed separately below.
 Use the [roadmap](roadmap.md) for ticket status.
+The [decision guide](architecture-decisions.md) records the learning goal behind
+the stack and links the application choices that need context.
 
 ## Current implementation
 
+The [Railway deployment runbook](railway-deployment.md) prepares the existing
+Docker images for Kevin's selected Hobby hosting, with a private pgvector
+database and separate web/API services. Hosted provisioning and verification
+remain pending under RF-710.
+
+[Continuous integration](continuous-integration.md) defines separate GitHub
+Actions jobs for repository checks/fixture evaluations and container integration.
+Tests use disposable PostgreSQL; evaluation steps keep their existing offline
+contracts. Reports are retained as artifacts. The workflow uses read-only
+repository permissions and no provider/deployment secrets.
+
+[Container startup](container-startup.md) uses pinned build/runtime images and a
+one-shot schema initializer. Compose waits for database health, successful
+initialization, API schema readiness, then web health. Migrations run outside API
+workers under a database advisory lock. Readiness verifies application/checkpoint
+versions without repairing them. App containers run as non-root with read-only
+roots and temporary storage; the existing local data volume is preserved.
+
+[Request limits](request-limits.md) buffer bounded input before parsing and use
+migration `0009` for shared PostgreSQL windows. Address checks run before route
+handling; authenticated checks reserve user/account/model-operation allowance
+before endpoint work. Counter failure stops dispatch. Health probes and CORS
+preflight are exempt. The supported server ignores forwarded peer headers;
+reverse-proxy deployments share the proxy address allowance until a trusted
+client-address contract is configured.
+
+The standalone [evaluation runner](evaluation-runner.md) executes approved fixture
+scenarios through existing application boundaries. Approval uses temporary
+PostgreSQL schemas and real in-process support HTTP handlers; clarification uses
+in-memory graph checkpoints. JSON artifacts separate observations from labels
+and leave their assessments unmeasured. The separate offline
+[deterministic scorer](deterministic-metrics.md) compares those observations with
+frozen labels, verifies citations and saved action bindings, and reports named
+metrics with explicit denominators and errors. Semantic quality remains
+unmeasured in deterministic reports. A separate
+[rubric judge](rubric-judging.md) assesses approved extraction criteria with
+versioned instructions and model provenance. Its default offline fixture leaves
+semantic quality unmeasured; real judge calls require explicit opt-in and do not
+change the fixture candidate mode. The offline
+[report command](evaluation-report.md) binds these artifacts to matching
+observations and produces Markdown with separate metrics, failures, provenance,
+and compatible baseline comparisons. RF-607 adds a separately labeled
+[prompt experiment](improvement-experiment.md) with an explicitly injected prompt,
+bounded paired extraction calls, retained progress, and human semantic review.
+The application prompt remains v3. These commands add no application endpoint.
+
 Support [execution metrics](execution-metrics-ui.md) expose a read-only projection
 of the latest saved intake extraction record through existing account grants.
-The support page displays configured model, prompt version, attempts, and returned
-tokens. Latency and cost remain unrecorded; full call accounting remains RF-705.
+The support page preserves configured model, prompt version, attempts, and returned
+tokens in that limited snapshot. Separate [model accounting](model-accounting.md)
+uses migration `0008` to persist each application provider attempt before
+dispatch, retain usage/duration/outcomes independently of checkpoints,
+and save versioned cost estimates. Intake and evidence scopes have separate
+totals and explicit legacy coverage. Support loads the protected history on
+request; hosting logs remain separate from this durable accounting store.
+Standalone evaluation/ingestion commands are outside report accounting.
 
 
 ```text
@@ -28,6 +82,26 @@ FastAPI                                   apps/api
         `-- Intake graph -- PostgreSQL checkpoints
 ```
 
+[Invitation authentication](authentication-and-access.md) is the default identity
+path. Migration `0007` adds password credentials, hashed expiring bearer sessions,
+one-use invitations, support account grants, and login-attempt windows. A trusted
+local CLI bootstraps a support administrator. Admin APIs issue invitations and
+manage access; the recipient sets a password and later uses email/password login.
+Administrator capability is separate from report-account grants. Session identity
+snapshots reject role/account/admin changes, while support checks read current
+grants. Browser tokens live in memory; logout revokes the server session.
+Explicit `AUTH_MODE=demo` retains legacy environment maps without a password-mode
+fallback. Offline evaluation fixtures select demo mode explicitly.
+
+[Structured logging](structured-logging.md) emits metadata-only JSON to stdout
+through the supported `api.server` entry point. Pure ASGI middleware creates a
+request ID and observes response/stream completion. Context variables carry
+request and authorized operation IDs through intake, provider attempts, approval,
+and simulated execution. The same formatter sanitizes server/SDK records and
+replaces raw access logging. Importing the app alone keeps CLI artifacts quiet.
+Hosting owns collection, search, access, and retention; saved workflow events
+and durable effect receipts remain the authoritative application history.
+
 The monorepo currently provides:
 
 - A pnpm workspace containing `apps/web`
@@ -41,7 +115,7 @@ The monorepo currently provides:
 - Declarative models and a reversible Alembic migration for customer accounts,
   users, services, and issue reports
 - Customer-scoped issue-report create, list, read-by-ID, service update, and
-  archive endpoints using simulated identity and validated request bodies
+  archive endpoints using current database identity and validated request bodies
 - Shared API error responses with stable codes, safe messages, and validation
   field details
 - A workspace API client generated from FastAPI OpenAPI output, with checked-in
@@ -73,8 +147,10 @@ The monorepo currently provides:
   execution access rechecks and checkpointed deterministic fake results; no
   `SupportTicket` database row or external write is performed
 - A guarded approval runner with per-run PostgreSQL advisory locks, first-decision
-  preservation, duplicate outcome reuse, and checkpointed sanitized tool failures;
-  real effect reconciliation and idempotency remain RF-703
+  preservation, duplicate outcome reuse, and checkpointed sanitized tool failures
+- [Durable support simulation](tool-idempotency.md) with committed operation intent,
+  separate atomic simulated effect/receipt storage, and an explicit recovery API.
+  Real external effects still require a destination-specific idempotency contract
 - Immutable Pydantic knowledge metadata and version-bound Markdown/PDF passage
   location contracts
 - Manifest-driven CommonMark ingestion with exact text/line sections, SHA-256
@@ -184,8 +260,14 @@ checks the registered proposal against the checkpoint under that same run lock.
 Current context is rechecked before a new decision and immediately before
 simulated execution. Saved decisions allow read-only replay even if observations
 later change. GET never advances or repairs a stage. An interrupted preparation
-can be replayed explicitly; an approved action with unconfirmed execution cannot
-be retried by this API. Core approval/runner/tool policy is reused unchanged.
+can be replayed explicitly. RF-703 now supplies a separate
+[execution recovery command](tool-idempotency.md) for operations with durable
+intent. Repeated decisions and GETs remain read-only. Migration `0006` adds the
+operation ledger and simulated destination receipts. Recovery checks current
+access, unchanged observations, and exact approval, then restores the saved
+receipt or safely completes the same simulated operation. Unknown legacy
+executions without an operation record remain manual. No real support ticket
+or external integration is added.
 
 ## Target monorepo
 
@@ -207,7 +289,7 @@ resolve-flow/
 
 ```text
 Customer request
-  -> resolve simulated identity and access scope
+  -> resolve current identity and access scope
   -> status lookup: retrieve own ticket or public incident -> safe response
   -> new report: extract and clarify -> customer confirms summary
   -> internal support queue

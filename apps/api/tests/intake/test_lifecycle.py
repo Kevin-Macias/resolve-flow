@@ -35,6 +35,7 @@ async def test_start_read_stream_resume_and_duplicates(
 ) -> None:
     e = environment
     app = create_app()
+    app.state.session_factory = e.sessions
     app.state.intake_runtime = e.runtime
     headers = {"Authorization": "Bearer customer-a"}
     async with AsyncClient(
@@ -206,6 +207,7 @@ async def test_invalid_or_stale_http_reply_does_not_advance(
     view, _ = await e.service().start(e.report_id)
     body = {**reply(view).model_dump(mode="json"), **change}
     app = create_app()
+    app.state.session_factory = e.sessions
     app.state.intake_runtime = e.runtime
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
@@ -255,6 +257,7 @@ async def test_unknown_and_foreign_cursor_before_stream_headers(
     e = environment
     view, _ = await e.service().start(e.report_id)
     app = create_app()
+    app.state.session_factory = e.sessions
     app.state.intake_runtime = e.runtime
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"

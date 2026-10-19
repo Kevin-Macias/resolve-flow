@@ -1,3 +1,4 @@
+import { limitErrorMessage } from '../api/limit-errors'
 import { createApiClient } from '@resolve-flow/api-client'
 
 import {
@@ -9,11 +10,12 @@ import {
 export class ActionApiError extends Error {
   constructor(public readonly status: number) {
     super(
-      status === 409
+      limitErrorMessage(status) ?? (status === 409
         ? 'The action or its observations changed. Refresh and review the current saved proposal.'
         : [401, 403, 404].includes(status)
           ? 'This action is unavailable to your support identity.'
-          : 'The action could not be loaded. Refresh saved action before deciding again.',
+          : 'The action could not be loaded. Refresh saved action before deciding again.'
+      )
     )
   }
 }

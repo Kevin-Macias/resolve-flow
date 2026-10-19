@@ -1,11 +1,12 @@
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from fastapi.security import HTTPAuthorizationCredentials
 from psycopg import Error as PostgresError
 from sqlalchemy.exc import SQLAlchemyError
 
+from api.accounting.reader import AccountingReader, History
 from api.errors import ErrorResponse
 from api.identity.dependencies import bearer
 from api.support.evidence import SupportEvidenceService
@@ -128,3 +129,25 @@ async def get_metrics(
         raise
     except Exception:
         raise HTTPException(503, "Metrics unavailable") from None
+
+
+@router.get("/issue-reports/{report_id}/model-accounting", response_model=History)
+async def model_accounting(
+    report_id: UUID,
+    request: Request,
+    credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(bearer)],
+    offset: Annotated[int, Query(ge=0, le=9007199254740991)] = 0,
+) -> History:
+    if credentials is None:
+        raise HTTPException(401, "Identity required")
+    sessions = getattr(request.app.state, "session_factory", None)
+    if sessions is None:
+        raise HTTPException(503, "Accounting unavailable")
+    try:
+        return await AccountingReader(sessions).get(
+            credentials.credentials, report_id, offset
+        )
+    except HTTPException:
+        raise
+    except Exception:
+        raise HTTPException(503, "Accounting unavailable") from None

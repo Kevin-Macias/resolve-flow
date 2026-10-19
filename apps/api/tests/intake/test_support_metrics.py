@@ -23,6 +23,7 @@ from api.workflow.checkpoints import open_checkpointer, workflow_config
 async def client_app(e: Environment, monkeypatch: pytest.MonkeyPatch):
     await reader(e, monkeypatch)
     app = create_app()
+    app.state.session_factory = e.sessions
     app.state.support_metrics = SupportMetricsReader(
         e.sessions, e.url, e.runtime.checkpoint_schema
     )

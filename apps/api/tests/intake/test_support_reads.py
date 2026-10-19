@@ -36,6 +36,7 @@ async def test_persisted_order_archival_restart_and_no_read_writes(
     view, _ = await e.service().start(e.report_id)
     source = await reader(e, monkeypatch)
     app = create_app()
+    app.state.session_factory = e.sessions
     app.state.support_runs = source
     # No intake runtime or provider is installed on this app.
     async with open_checkpointer(e.url, e.runtime.checkpoint_schema) as saver:
@@ -132,6 +133,7 @@ async def test_denials_do_not_read_checkpoints(
 
     monkeypatch.setattr(runs, "open_checkpointer", forbidden_read)
     app = create_app()
+    app.state.session_factory = e.sessions
     app.state.support_runs = source
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
@@ -150,6 +152,7 @@ async def test_missing_run_and_empty_accepted_run(
 ) -> None:
     e = environment
     app = create_app()
+    app.state.session_factory = e.sessions
     app.state.support_runs = await reader(e, monkeypatch)
     async with AsyncClient(
         transport=ASGITransport(app=app),
@@ -180,6 +183,7 @@ async def test_access_rechecked_after_checkpoint_read(
     e = environment
     await e.service().start(e.report_id)
     app = create_app()
+    app.state.session_factory = e.sessions
     app.state.support_runs = await reader(e, monkeypatch)
 
     @asynccontextmanager
@@ -268,6 +272,7 @@ async def test_unavailable_checkpoints_and_invalid_path(
     e = environment
     await e.service().start(e.report_id)
     app = create_app()
+    app.state.session_factory = e.sessions
     app.state.support_runs = await reader(e, monkeypatch)
 
     def unavailable(*args: object, **kwargs: object) -> None:

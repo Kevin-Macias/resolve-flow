@@ -8,3 +8,4 @@ class RequestContext:
     user_id: UUID
     user_type: Literal["customer", "support"]
     customer_account_id: UUID | None
+    is_admin: bool = False

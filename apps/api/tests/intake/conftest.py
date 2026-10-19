@@ -81,8 +81,10 @@ async def environment(monkeypatch: pytest.MonkeyPatch) -> AsyncGenerator[Environ
                             "users",
                             "services",
                             "issue_reports",
+                            "request_limit_windows",
                             "intake_runs",
                             "intake_operations",
+                            "model_call_attempts",
                         )
                     ],
                 )

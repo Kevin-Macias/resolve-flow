@@ -1,3 +1,4 @@
+import { limitErrorMessage } from '../api/limit-errors'
 import { createApiClient } from '@resolve-flow/api-client'
 
 import { supportRunSchema } from './schemas'
@@ -12,7 +13,7 @@ export const supportErrorMessages: Readonly<Partial<Record<number, string>>> = {
 export class SupportApiError extends Error {
   constructor(public readonly status: number) {
     super(
-      supportErrorMessages[status] ??
+      limitErrorMessage(status) ?? supportErrorMessages[status] ??
         'The saved timeline could not be loaded. Refresh to try again.',
     )
   }

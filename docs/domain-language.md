@@ -22,6 +22,21 @@ An internal operator who reviews reports, internal evidence, diagnoses, and
 proposed actions. Support engineers can see internal information that customers
 cannot.
 
+### Access administrator
+
+A support user permitted to invite people and manage access. Administrator
+capability does not itself grant access to any customer account's reports.
+
+### Invitation
+
+A one-use offer to join ResolveFlow with a fixed email, role, and account scope.
+Accepting it creates a permanent user; later visits use that user's credentials.
+
+### Session
+
+A revocable, time-limited authorization to act as an authenticated user. An
+invitation starts onboarding; a session enables ordinary application requests.
+
 ### Customer account
 
 The organization boundary that owns customer reports. This is the tenant

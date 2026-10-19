@@ -26,10 +26,11 @@ an accepted pending operation may leave the previous saved record visible and
 must be labeled accordingly. Evidence analysis, embedding calls, and approval
 execution are outside this latest-intake-extraction view.
 
-RF-705 retains full per-call history, latency, retries, and versioned cost
-accounting. This scoped RF-509 does not complete RF-705. Numeric latency and cost
-remain dependent on that work. Kevin approved displaying unavailable values
-in this ticket instead of pulling RF-705 forward.
+RF-705 adds a separate [attempt history](model-accounting.md) with latency,
+retries, and versioned estimates. Open **Show model attempt history** to load
+those records; this latest-extraction snapshot keeps its original contract.
+Kevin approved RF-509's unavailable values rather than pulling accounting into
+that earlier ticket.
 
 ## Read contract
 

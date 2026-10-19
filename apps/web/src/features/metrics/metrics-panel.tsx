@@ -8,6 +8,7 @@ import {
   MetricsResponseError,
 } from './api'
 import type { SupportMetrics } from './schemas'
+import { AccountingPanel } from './accounting'
 
 type ReadResult =
   | { kind: 'ready'; value: SupportMetrics }
@@ -20,6 +21,7 @@ export function MetricsPanel({
   reportId: string
   onAccessLost: () => void
 }) {
+  const [showAccounting, setShowAccounting] = useState(false)
   const token = useDemoToken()
   const [online, setOnline] = useState(true)
   const [disconnectedAt, setDisconnectedAt] = useState(0)
@@ -150,7 +152,8 @@ export function MetricsPanel({
               <p className="hint">
                 Token usage describes the final returned provider response. It
                 does not account for all retry attempts. Latency and cost were
-                not recorded.
+                not recorded in this snapshot. Open model attempt history for
+                per-attempt measurements and estimates.
               </p>
             </>
           )}
@@ -163,6 +166,8 @@ export function MetricsPanel({
       >
         {query.isFetching ? 'Refreshing metrics…' : 'Refresh metrics'}
       </button>
+      <button className="button-secondary mt-4 ml-3" onClick={() => setShowAccounting(!showAccounting)}>{showAccounting ? 'Hide model attempt history' : 'Show model attempt history'}</button>
+      {showAccounting && <AccountingPanel key={`${token}:${reportId}`} reportId={reportId} onAccessLost={onAccessLost} />}
     </section>
   )
 }

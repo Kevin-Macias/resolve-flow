@@ -187,6 +187,7 @@ async def test_tool_failure_is_saved_sanitized_and_never_automatically_retried(
     )
     saved = await runner.submit(run_id, reply(proposal))
     assert "tool_failure" in saved
+    assert saved["tool_failure"] is not None
     assert "customer_update" in saved
     assert saved["tool_failure"].outcome == "unknown"
     assert saved["tool_failure"].idempotency_key == proposal.idempotency_key

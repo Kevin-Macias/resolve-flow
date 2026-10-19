@@ -18,9 +18,15 @@ from api.intake.locks import IntakeLocks
 from api.intake.models import IntakeRun
 from api.intake.schemas import CustomerRun, CustomerTurn
 from api.knowledge.metadata import KnowledgeContract
+from api.observability import attach
 from api.support.access import allowed_accounts
-from api.support.action_models import ProposalPreparation, SupportActionRun
+from api.support.action_models import (
+    ExecutionOperation,
+    ProposalPreparation,
+    SupportActionRun,
+)
 from api.support.action_schemas import ProposalRequest, SupportAction
+from api.support.execution import DurableSimulation
 from api.workflow.actions import (
     ActionRisk,
     CreateTicketArguments,
@@ -29,14 +35,23 @@ from api.workflow.actions import (
     propose_create_ticket,
     revise_create_ticket,
 )
-from api.workflow.approval import ApprovalDecision, ApprovalReply
-from api.workflow.approval_graph import approval_config, build_approval_stage
+from api.workflow.approval import (
+    ApprovalDecision,
+    ApprovalReply,
+    validate_approval_reply,
+)
+from api.workflow.approval_graph import (
+    approval_config,
+    build_approval_stage,
+    execution_succeeded,
+)
 from api.workflow.approval_runner import ApprovalRunner, PostgresRunLocks
 from api.workflow.checkpoints import CHECKPOINT_SCHEMA, open_checkpointer
 from api.workflow.execution import (
     SimulatedCreateTicketTool,
     ToolExecutionFailure,
     ToolExecutionResult,
+    validate_execution,
 )
 from api.workflow.langgraph_types import WorkflowGraph
 from api.workflow.state import ApprovalInput, ApprovalState
@@ -172,11 +187,22 @@ class SupportActions:
         ) as saver:
             # A request-scoped adapter avoids accumulating tool call history on app.state.
             yield build_approval_stage(
-                load_context, checkpointer=saver, tool=self.tool()
+                load_context,
+                checkpointer=saver,
+                tool=self.tool(),
+                execute=self.simulation(token, report_id, row).execute,
             )
 
     def tool(self) -> SimulatedCreateTicketTool:
         return SimulatedCreateTicketTool()
+
+    def simulation(
+        self, token: str, report_id: UUID, row: SupportActionRun
+    ) -> DurableSimulation:
+        async def load_context() -> RequestContext:
+            return await self.context(token, report_id, row, fresh=True)
+
+        return DurableSimulation(self.sessions, row.run_id, load_context)
 
     async def snapshot(
         self, stage: WorkflowGraph[ApprovalInput], row: SupportActionRun
@@ -487,6 +513,7 @@ class SupportActions:
             if row is None or row.run_id != run_id:
                 raise HTTPException(404, "Action unavailable")
             await self.context(token, report_id, row, fresh=False)
+            attach(run_id=row.run_id)
             if row.preparing:
                 raise HTTPException(409, "Proposal is still preparing")
             # Choose freshness under the same lock that protects runner submission.
@@ -501,7 +528,10 @@ class SupportActions:
                 self.database_url, self.checkpoint_schema
             ) as saver:
                 stage = build_approval_stage(
-                    load_context, checkpointer=saver, tool=self.tool()
+                    load_context,
+                    checkpointer=saver,
+                    tool=self.tool(),
+                    execute=self.simulation(token, report_id, row).execute,
                 )
 
                 @asynccontextmanager
@@ -525,4 +555,77 @@ class SupportActions:
                     raise HTTPException(
                         409, "Proposal changed; refresh before deciding"
                     ) from None
+            return await self.get(token, report_id)
+
+    async def recover(
+        self, token: str, report_id: UUID, run_id: UUID, reply: ApprovalReply
+    ) -> SupportAction:
+        """Explicit recovery; ordinary reads and duplicate decisions never dispatch."""
+        await self.observations(token, report_id)
+        async with self.report_locks.hold(report_id):
+            row = await self.registry(report_id)
+            if row is None or row.run_id != run_id:
+                raise HTTPException(404, "Action unavailable")
+            context = await self.context(token, report_id, row, fresh=True)
+            attach(run_id=row.run_id)
+            if row.preparing:
+                raise HTTPException(409, "Proposal is still preparing")
+            proposal = ProposedAction.model_validate(row.proposal)
+            if (
+                reply.decision != "approve"
+                or validate_approval_reply(reply, proposal) is None
+            ):
+                raise HTTPException(409, "Recovery must bind the approved proposal")
+            async with (
+                self.run_locks(row.run_id),
+                self.stage(token, report_id, row, fresh=True) as stage,
+            ):
+                context = await self.context(token, report_id, row, fresh=True)
+                state, _ = await self.snapshot(stage, row)
+                if (
+                    state is None
+                    or ProposedAction.model_validate(state["proposed_action"])
+                    != proposal
+                ):
+                    raise HTTPException(409, "No approved execution to recover")
+                approval = state.get("approval")
+                validate_execution(proposal, approval, context)
+                assert approval is not None
+                async with self.sessions() as session:
+                    operation = await session.get(
+                        ExecutionOperation, proposal.idempotency_key
+                    )
+                if operation is None:
+                    raise HTTPException(
+                        409, "No durable operation; manual review is required"
+                    )
+                simulation = self.simulation(token, report_id, row)
+                simulation.check_operation(operation, proposal, approval)
+                if state.get("tool_execution") is None:
+                    # Freshness and authorization are rechecked immediately before dispatch.
+                    context = await self.context(token, report_id, row, fresh=True)
+                    execution = await simulation.execute(
+                        proposal, approval, context, self.tool()
+                    )
+                    await self.context(token, report_id, row, fresh=True)
+                    update = execution_succeeded(state, execution)
+                    # aget_state includes committed node writes that may not yet
+                    # be folded into the checkpoint used by aupdate_state. Replay
+                    # the observed event prefix and approval as well as success;
+                    # the timeline reducer safely deduplicates saved event IDs.
+                    update["timeline"] = [
+                        *state.get("timeline", []),
+                        *update.get("timeline", []),
+                    ]
+                    await stage.aupdate_state(
+                        approval_config(run_id),
+                        {**update, "approval": approval, "tool_failure": None},
+                        as_node="execute_action",
+                    )
+                else:
+                    checked = ToolExecutionResult.model_validate(
+                        state.get("tool_execution")
+                    )
+                    if operation.result != checked.model_dump(mode="json"):
+                        raise ValueError("Checkpoint and operation result disagree")
             return await self.get(token, report_id)

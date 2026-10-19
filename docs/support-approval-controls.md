@@ -113,9 +113,12 @@ body so an authorized reviewer can replay it after a browser or worker restart.
 
 Approval with no execution result remains approved but unconfirmed. Tool failure
 retains the approval receipt and an unknown outcome. Neither refresh, reconnect,
-duplicate approval, nor proposal replay retries execution. Reconciliation and real
-effect idempotency remain RF-703. The only injected adapter is the existing pure,
-deterministic simulation: no persisted support ticket and no external write.
+duplicate approval, nor proposal replay retries execution. RF-703 adds a separate
+[explicit recovery command](tool-idempotency.md) backed by durable operation and
+simulated destination receipts. It reuses the same approved proposal and key;
+unknown attempts without durable intent stay manual. There is still no persisted
+support ticket or external write. Real-effect idempotency requires its own
+destination contract.
 
 ## Errors and browser behavior
 

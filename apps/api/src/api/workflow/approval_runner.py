@@ -10,8 +10,14 @@ from uuid import UUID
 from langgraph.types import Command
 from psycopg import AsyncConnection
 
+from api.observability import trace
 from api.workflow.actions import ProposedAction
-from api.workflow.approval import ApprovalDecision, matches, validate_approval_reply
+from api.workflow.approval import (
+    ApprovalChoice,
+    ApprovalDecision,
+    matches,
+    validate_approval_reply,
+)
 from api.workflow.approval_graph import ApprovalContextLoader, approval_config
 from api.workflow.checkpoints import postgres_connection_url
 from api.workflow.langgraph_types import WorkflowGraph
@@ -81,21 +87,36 @@ class ApprovalRunner:
             context = await self._load_context(state["issue_report_id"])
             if context.user_type != "support":
                 raise PermissionError("Only authorized support can review an action")
-            proposal = ProposedAction.model_validate(state["proposed_action"])
-            if proposal.arguments.issue_report_id != state["issue_report_id"]:
-                raise ValueError("Proposal must belong to this workflow's issue report")
-            if validate_approval_reply(reply, proposal) is None:
-                raise ValueError("Invalid or stale approval")
-            decision = state.get("approval")
-            if decision is not None:
-                decision = ApprovalDecision.model_validate(decision)
-                if not matches(decision, proposal):
-                    raise ValueError("Saved decision belongs to a different proposal")
-                # First accepted decision wins, including a rejection. A saved
-                # approval with unfinished execution is not permission to retry.
-                return state
-            if not any(task.interrupts for task in snapshot.tasks):
-                raise ValueError("Approval run is not awaiting a decision")
-            await self._stage.ainvoke(Command(resume=reply), config, durability="sync")
-            completed = await self._stage.aget_state(config)
-            return cast(ApprovalState, completed.values)
+            with trace("run", component="approval", run_id=run_id) as span:
+                proposal = ProposedAction.model_validate(state["proposed_action"])
+                if proposal.arguments.issue_report_id != state["issue_report_id"]:
+                    raise ValueError(
+                        "Proposal must belong to this workflow's issue report"
+                    )
+                if validate_approval_reply(reply, proposal) is None:
+                    raise ValueError("Invalid or stale approval")
+                decision = state.get("approval")
+                if decision is not None:
+                    decision = ApprovalDecision.model_validate(decision)
+                    if not matches(decision, proposal):
+                        raise ValueError(
+                            "Saved decision belongs to a different proposal"
+                        )
+                    # First accepted decision wins, including a rejection. A saved
+                    # approval with unfinished execution is not permission to retry.
+                    span.outcome = "reused"
+                    return state
+                if not any(task.interrupts for task in snapshot.tasks):
+                    raise ValueError("Approval run is not awaiting a decision")
+                await self._stage.ainvoke(
+                    Command(resume=reply), config, durability="sync"
+                )
+                completed = await self._stage.aget_state(config)
+                result = cast(ApprovalState, completed.values)
+                accepted_decision = result.get("approval")
+                if (
+                    accepted_decision is not None
+                    and accepted_decision.decision == ApprovalChoice.REJECT
+                ):
+                    span.outcome = "rejected"
+                return result

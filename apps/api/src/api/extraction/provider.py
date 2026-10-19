@@ -22,6 +22,8 @@ class ProviderResult:
     text: str | None = None
     refusal: str | None = None
     usage: "ProviderUsage | None" = None
+    resolved_model: str | None = None
+    cached_input_tokens: int | None = None
 
     def __post_init__(self) -> None:
         if self.text is not None and self.refusal is not None:
@@ -45,9 +47,18 @@ class ProviderError(Exception):
     """The provider failed before producing usable output."""
 
     def __init__(
-        self, message: str, kind: ProviderFailureKind = ProviderFailureKind.PERMANENT
+        self,
+        message: str,
+        kind: ProviderFailureKind = ProviderFailureKind.PERMANENT,
+        *,
+        usage: "ProviderUsage | None" = None,
+        resolved_model: str | None = None,
+        cached_input_tokens: int | None = None,
     ) -> None:
         self.kind = kind
+        self.usage = usage
+        self.resolved_model = resolved_model
+        self.cached_input_tokens = cached_input_tokens
         super().__init__(message)
 
 
@@ -154,9 +165,6 @@ class OpenAIProvider:
         except OpenAIError as error:
             raise ProviderError("OpenAI request failed") from error
 
-        if response.status != "completed":
-            raise ProviderError("OpenAI response was not completed")
-
         usage = (
             ProviderUsage(
                 input_tokens=response.usage.input_tokens,
@@ -167,10 +175,34 @@ class OpenAIProvider:
             else None
         )
 
+        resolved_model = getattr(response, "model", None)
+        resolved_model = resolved_model if isinstance(resolved_model, str) else None
+        details = getattr(response.usage, "input_tokens_details", None)
+        cached = getattr(details, "cached_tokens", None)
+        cached = (
+            cached if isinstance(cached, int) and not isinstance(cached, bool) else None
+        )
+        if response.status != "completed":
+            raise ProviderError(
+                "OpenAI response was not completed",
+                usage=usage,
+                resolved_model=resolved_model,
+                cached_input_tokens=cached,
+            )
         for item in response.output:
             if item.type == "message":
                 for content in item.content:
                     if content.type == "refusal":
-                        return ProviderResult(refusal=content.refusal, usage=usage)
+                        return ProviderResult(
+                            refusal=content.refusal,
+                            usage=usage,
+                            resolved_model=resolved_model,
+                            cached_input_tokens=cached,
+                        )
 
-        return ProviderResult(text=response.output_text or None, usage=usage)
+        return ProviderResult(
+            text=response.output_text or None,
+            usage=usage,
+            resolved_model=resolved_model,
+            cached_input_tokens=cached,
+        )

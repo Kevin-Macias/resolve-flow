@@ -71,7 +71,7 @@ class ApprovalState(ApprovalInput):
     timeline: Annotated[list[ExecutionEvent], append_events]
     approval: NotRequired[ApprovalDecision]
     customer_update: NotRequired[CustomerSafeReport]
-    tool_failure: NotRequired[ToolExecutionFailure]
+    tool_failure: NotRequired[ToolExecutionFailure | None]
     tool_execution: NotRequired[ToolExecutionResult]
     support_ticket_id: NotRequired[UUID]
 

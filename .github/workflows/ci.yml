@@ -1,0 +1,139 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  CI: "true"
+  AUTH_MODE: demo
+  DATABASE_URL: ""
+  INTAKE_PROVIDER_MODE: offline
+  EVIDENCE_PROVIDER_MODE: offline
+  OPENAI_API_KEY: ""
+  OPENAI_MODEL: ""
+  EVIDENCE_OPENAI_MODEL: ""
+
+jobs:
+  quality:
+    name: Quality and fixture evaluations
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: pgvector/pgvector:0.8.7-pg17-bookworm@sha256:ac08538c6f8b9904c33c8224c5e5706dbe760aca29db1d096972b4052c22a75d
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: ci_only
+          POSTGRES_DB: resolveflow_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d resolveflow_ci"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      UV_LOCKED: "true"
+      TEST_DATABASE_URL: postgresql://postgres:ci_only@127.0.0.1:5432/resolveflow_ci
+      EVALUATION_DATABASE_URL: postgresql://postgres:ci_only@127.0.0.1:5432/resolveflow_ci
+      PYTEST_ADDOPTS: --junitxml=../../artifacts/pytest.xml --cov-report=xml:../../artifacts/coverage.xml
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          package-manager-cache: false
+      - name: Set up pnpm
+        uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+        with:
+          cache: true
+      - name: Set up uv and Python
+        uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+        with:
+          version: "0.12.1"
+          python-version: "3.14.6"
+          enable-cache: true
+      - name: Install locked dependencies
+        run: |
+          pnpm install --frozen-lockfile
+          uv sync --directory apps/api --locked
+          mkdir -p artifacts/evaluation
+      - name: Run repository checks
+        run: pnpm check
+      - name: Require database tests to run without skips
+        run: |
+          uv run --directory apps/api python - <<'PY'
+          from xml.etree import ElementTree
+
+          suites = list(ElementTree.parse("../../artifacts/pytest.xml").iter("testsuite"))
+          if not suites or any(int(suite.get("skipped", "0")) for suite in suites):
+              raise SystemExit("Backend tests were skipped; check database setup and permissions")
+          print("All backend tests ran without skips")
+          PY
+      - name: Execute approved fixture scenarios
+        run: >-
+          uv run --directory apps/api python scripts/evaluate_workspace.py
+          --output ../../artifacts/evaluation/observations.json
+      - name: Score deterministic fixture checks
+        run: >-
+          uv run --directory apps/api python scripts/score_workspace.py
+          --input ../../artifacts/evaluation/observations.json
+          --output ../../artifacts/evaluation/metrics.json
+      - name: Exercise offline fixture judging
+        run: >-
+          uv run --directory apps/api python scripts/judge_workspace.py
+          --judge fixture
+          --input ../../artifacts/evaluation/observations.json
+          --output ../../artifacts/evaluation/judgments.json
+      - name: Render evaluation report
+        run: >-
+          uv run --directory apps/api python scripts/report_workspace.py
+          --observations ../../artifacts/evaluation/observations.json
+          --metrics ../../artifacts/evaluation/metrics.json
+          --judgments ../../artifacts/evaluation/judgments.json
+          --output ../../artifacts/evaluation/report.md
+      - name: Retain test and evaluation reports
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: quality-and-fixture-reports
+          path: |
+            artifacts/pytest.xml
+            artifacts/coverage.xml
+            artifacts/evaluation/
+          if-no-files-found: ignore
+          retention-days: 7
+
+  containers:
+    name: Container integration
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up uv and Python
+        uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+        with:
+          version: "0.12.1"
+          python-version: "3.14.6"
+      - name: Verify container startup and recovery
+        run: uv run --no-project python apps/api/scripts/smoke_containers.py

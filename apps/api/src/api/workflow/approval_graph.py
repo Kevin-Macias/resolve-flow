@@ -24,9 +24,11 @@ from api.workflow.approval import (
 )
 from api.workflow.checkpoints import checkpoint_serializer
 from api.workflow.execution import (
+    ExecutionHandler,
     SimulatedCreateTicketTool,
     ToolCallError,
     ToolExecutionFailure,
+    ToolExecutionResult,
     execute_approved_action,
 )
 from api.workflow.langgraph_types import WorkflowBuilder, WorkflowGraph
@@ -47,11 +49,40 @@ def approval_config(run_id: UUID) -> RunnableConfig:
     return {"configurable": {"thread_id": f"{run_id}:approval"}}
 
 
+def execution_succeeded(
+    state: ApprovalState, execution: ToolExecutionResult
+) -> WorkflowUpdate:
+    return {
+        "timeline": transition_event(
+            state["workflow_run_id"],
+            state.get("timeline", []),
+            "approval",
+            EventType.TOOL_SUCCEEDED,
+            execution.fingerprint,
+            EventMetadata(
+                action_id=execution.action_id,
+                action_version=execution.version,
+                fingerprint=execution.fingerprint,
+                actor_id=execution.executed_by_user_id,
+                support_ticket_id=execution.result.support_ticket_id,
+                outcome="simulated",
+            ),
+        ),
+        "tool_execution": execution,
+        "support_ticket_id": execution.result.support_ticket_id,
+        "customer_update": CustomerSafeReport(
+            ReportStatus.SIMULATED_TICKET_CREATED,
+            "A simulated support ticket was created; its status is open.",
+        ),
+    }
+
+
 def build_approval_stage(
     load_context: ApprovalContextLoader,
     *,
     checkpointer: BaseCheckpointSaver[str] | None = None,
     tool: SimulatedCreateTicketTool | None = None,
+    execute: ExecutionHandler = execute_approved_action,
 ) -> WorkflowGraph[ApprovalInput]:
     """load_context must authenticate the current actor and authorize this report.
 
@@ -147,9 +178,7 @@ def build_approval_stage(
         if proposal.arguments.issue_report_id != state["issue_report_id"]:
             raise ValueError("Proposal must belong to this workflow's issue report")
         try:
-            execution = await execute_approved_action(
-                proposal, state.get("approval"), context, tool
-            )
+            execution = await execute(proposal, state.get("approval"), context, tool)
         except ToolCallError:
             return {
                 **event(
@@ -169,21 +198,7 @@ def build_approval_stage(
                     "Ticket creation could not be confirmed. Support review is required.",
                 ),
             }
-        return {
-            **event(
-                state,
-                EventType.TOOL_SUCCEEDED,
-                actor_id=execution.executed_by_user_id,
-                ticket_id=execution.result.support_ticket_id,
-                outcome="simulated",
-            ),
-            "tool_execution": execution,
-            "support_ticket_id": execution.result.support_ticket_id,
-            "customer_update": CustomerSafeReport(
-                ReportStatus.SIMULATED_TICKET_CREATED,
-                "A simulated support ticket was created; its status is open.",
-            ),
-        }
+        return execution_succeeded(state, execution)
 
     builder = cast(
         WorkflowBuilder[ApprovalState, ApprovalInput, WorkflowUpdate],

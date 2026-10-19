@@ -80,3 +80,25 @@ async def decide_action(
         raise
     except Exception:
         raise HTTPException(503, "Action unavailable") from None
+
+
+@router.post(
+    "/issue-reports/{report_id}/runs/{run_id}/recover-execution",
+    response_model=SupportAction,
+)
+async def recover_execution(
+    report_id: UUID,
+    run_id: UUID,
+    body: ApprovalReply,
+    request: Request,
+    credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(bearer)],
+) -> SupportAction:
+    actions, token = service(request, credentials)
+    try:
+        return await actions.recover(token, report_id, run_id, body)
+    except HTTPException:
+        raise
+    except PermissionError:
+        raise HTTPException(409, "No approved execution to recover") from None
+    except Exception:
+        raise HTTPException(503, "Execution recovery unavailable") from None

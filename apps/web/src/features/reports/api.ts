@@ -1,3 +1,4 @@
+import { limitErrorMessage } from '../api/limit-errors'
 import { createApiClient, type components } from '@resolve-flow/api-client'
 
 import {
@@ -12,7 +13,7 @@ export type CreateReport = components['schemas']['IssueReportCreate']
 export type UpdateReport = components['schemas']['IssueReportUpdate']
 
 export const reportErrorMessages: Readonly<Partial<Record<number, string>>> = {
-  401: 'Your demo identity was not accepted. End this session and enter a valid customer token.',
+  401: 'Your session was not accepted. End this session and sign in again.',
   403: 'This identity cannot access customer reports.',
   404: 'This report is unavailable to your account. It may be missing or no longer visible.',
   422: 'Check the description and service code. The supplied values were not accepted.',
@@ -23,7 +24,7 @@ export const defaultReportErrorMessage =
 
 export class ReportApiError extends Error {
   constructor(public readonly status: number) {
-    super(reportErrorMessages[status] ?? defaultReportErrorMessage)
+    super(limitErrorMessage(status) ?? reportErrorMessages[status] ?? defaultReportErrorMessage)
   }
 }
 

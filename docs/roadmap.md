@@ -33,8 +33,21 @@ implemented and verified; Kevin accepted final PAIR review on 2026-10-13, so
 RF-508 is DONE. RF-509 is DONE within the approved latest-extraction display
 scope. RF-510 is DONE: the frontend coverage audit added 15 regression cases;
 all 184 frontend tests, TypeScript checks, and the production build passed.
-RF-601 is NEXT under PAIR ownership. Full metrics accounting
-remains RF-705. The broader hands-on platform checkpoint remains pending;
+RF-601 is DONE after Kevin approved the evaluation specification on 2026-10-14.
+RF-602 is DONE: Kevin approved all 20 case labels on 2026-10-14.
+RF-603 is DONE after Kevin accepted final PAIR review on 2026-10-15.
+RF-604 is DONE after Kevin accepted final PAIR review on 2026-10-15.
+RF-605 is DONE after Kevin accepted final PAIR review on 2026-10-15.
+RF-606 is DONE after DELEGATE implementation and verification on 2026-10-15.
+RF-607 is DONE after Kevin accepted the comparison and decision to keep v3
+on 2026-10-15. RF-701–703 are DONE after Kevin accepted final reviews on 2026-10-18.
+RF-704 and RF-705 are DONE after final PAIR review on 2026-10-18. RF-706 is
+DONE after DELEGATE implementation and verification. RF-707 is also DONE after
+verified container startup work. RF-708 is DONE for its locally verified CI
+implementation; its first hosted run awaits a push. RF-709 is DONE; RF-710 is NEXT.
+Kevin approved RF-703's separate durable simulation design on 2026-10-15;
+its implementation passed final PAIR review on 2026-10-18.
+The broader hands-on platform checkpoint remains pending;
 see `customer-intake-runs.md`.
 
 Phases 1–3 are complete. MVP Phase 4 is complete within its recorded scopes:
@@ -81,6 +94,13 @@ run, not the current test-suite size. Detailed contracts live in the ticket docs
 | RF-506 | Explicit preliminary support analysis, durable UUID-bound results, current report/source access checks, verified citations, and an evidence panel | Kevin approved the separate support integration on 2026-10-13. Root checks: 563 backend and 120 frontend tests passed, no skips, on disposable PostgreSQL 16 / pgvector 0.6.0; migration roundtrip and ORM drift passed. Production Chromium verified real HTTP, saved results, API restart, desktop/mobile, input freshness, archival, and access loss. Default labeled simulation; no live calls. See `evidence-panel.md` |
 | RF-509 | Authorized latest-extraction metrics projection and support panel; missing latency/cost explicit, scoped contract approved | Root checks: 601 backend and 169 frontend tests, no skips, on disposable PostgreSQL. Production Chromium real HTTP/checkpoint reads, reload, offline recovery, desktop/mobile, empty/archived and foreign-account cases passed on 2026-10-13; full accounting remains RF-705. See `execution-metrics-ui.md` |
 | RF-510 | Frontend coverage audit and 15 regression cases; real combined support panels and clarification reconciliation | All 184 frontend tests, TypeScript checks, and production build passed on 2026-10-13. No runtime changes; controlled HTTP tests do not complete the hands-on platform checkpoint. See `frontend-tests.md` |
+| RF-601 | Approved evaluation specification for separate implemented targets, reviewed expectations, fixture/live modes, and explicit assessment limits | Kevin accepted PAIR review on 2026-10-14. Documentation links, whitespace, and single NEXT ticket passed; no evaluator code, live calls, or case labels. See `evaluation-specification.md` |
+| RF-602 | Approved 20-case set, exact inputs/fixtures, expectations, target applicability, and provenance; workspace-evaluation-v1 frozen | Kevin accepted PAIR review on 2026-10-14. Offline counts/schema/reference/policy consistency and documentation checks passed. No scenario execution or live calls; see `evaluation-cases.md` |
+| RF-603 | Repeatable fixture runner for all 20 cases with isolated approval state, JSON observations/provenance, and explicit unmeasured quality | Kevin accepted final PAIR review on 2026-10-15. Root checks: 625 backend and 184 frontend tests, no skips; 24 focused tests and full fixture runs passed. No live calls or project database changes; see `evaluation-runner.md` |
+| RF-604 | Offline deterministic scorer for classification, clarification, retrieval/citations, exact saved approval bindings, and structure | Kevin accepted final PAIR review on 2026-10-15. Root checks: 659 backend and 184 frontend tests, no skips; 123 fixture checks passed, zero failures/errors, six semantic assessments unmeasured. See `deterministic-metrics.md` |
+| RF-605 | Approved extraction rubric and separate judging command with explicit model/version, prompt/rubric provenance, and status accounting | Kevin accepted final PAIR review on 2026-10-15. Root checks: 698 backend and 184 frontend tests, no skips; 37 judge tests and two provider provenance tests. No live judge calls or human calibration; see `rubric-judging.md` |
+| RF-606 | Readable evaluation report with validated artifact bundles, explicit assessment limits, and compatible baseline comparisons | DELEGATE implementation verified on 2026-10-15. Root checks: 732 backend and 184 frontend tests, no skips; 34 reporting tests passed separately. Generated fixture report and comparison control; no live calls or improvement claim. See `evaluation-report.md` |
+| RF-607 | Controlled live prompt comparison and reviewed decision to retain v3 | Kevin accepted final PAIR interpretation on 2026-10-15. Twelve successful calls: baseline 23/33 deterministic passes, candidate 22/33; A01 question-count regression rejected the candidate. Prior full checks: 765 backend/184 frontend, no skips; subsequent report fix: 34 focused tests, lint/types passed. Semantic judgments remain unmeasured; see `improvement-experiment.md` |
 
 ## Phase 0 — Scope and foundation
 
@@ -214,7 +234,7 @@ made. RF-512 remains a separate
 current-report-state lookup; neither endpoint implicitly grants the other's
 access. Kevin accepted the final PAIR implementation review on 2026-10-12.
 RF-513, RF-504, RF-505, RF-506, RF-507, RF-508, RF-509, RF-510, and RF-512 are
-DONE; RF-601 is NEXT. The
+DONE; RF-601–607 and RF-701–708 are also DONE, and RF-709 is DONE; RF-710 is NEXT. The
 [approved approval experience](approval-experience.md) builds on RF-306/307 and
 RF-501 placement. Kevin accepted its complete read-only action card, inline
 confirmations for both decisions, simulation/reversibility copy, and separate
@@ -284,14 +304,104 @@ All 184 frontend tests, TypeScript checks, and the production build passed on
 2026-10-13. No application behavior or backend contract changed. The hands-on
 platform checkpoint and remaining integrations are still pending.
 
-RF-601 is NEXT under PAIR ownership. Kevin owns evaluation expectations and
-acceptance criteria; Codex may help draft and implement the agreed specification
-for service/severity, clarification, evidence, facts, and tool policy. It builds on the reviewed extraction, retrieval/citation, workflow,
-and approval contracts. Existing RF-410 relevance cases can inform it but do
-not complete it. First distinguish behavior that can be measured now from
-planned integration and live-provider quality that remains unmeasured. Codex
-may suggest approaches and implement agreed parts; Kevin reviews the cases,
-expected behavior, and metric interpretation.
+RF-601 is DONE under PAIR ownership. Kevin approved the
+[evaluation specification](evaluation-specification.md) on 2026-10-14: separate
+implemented targets and fixture/live results, reviewed case expectations,
+deterministic versus semantic assessment, explicit incomplete results, and the
+case/result contract for RF-602–604. Documentation links and whitespace passed;
+no evaluator code, case labels, thresholds, or live runs were introduced.
+
+RF-602 is DONE under PAIR ownership. Kevin approved the
+[20 cases](evaluation-cases.md) and their expected outcomes on 2026-10-14,
+freezing `workspace-evaluation-v1`: five straightforward, five ambiguous, five
+adversarial, and five failure/safety cases. Group counts, unique IDs, source and
+policy references, extraction fixtures, proposal fields, and fixture-policy
+consistency passed offline checks. Approval changed version/review metadata only;
+no labels changed after review. These checks validate the dataset, not actual
+scenario execution or model quality.
+
+RF-603 is DONE under PAIR ownership after Kevin accepted final implementation
+review on 2026-10-15. Its contract is to run the approved
+versioned cases repeatably and emit machine-readable results. It depends on
+RF-601's specification, RF-602's frozen case set, and existing application
+boundaries. Keep observed results separate from expected labels; distinguish
+handled application failures from evaluator errors and unmeasured semantic
+quality. The immediate learning objective is to build a repeatable harness that
+exercises actual code without treating fixture success as provider quality.
+Live runs remain separately authorized; RF-604 owns deterministic metrics. The
+[fixture runner](evaluation-runner.md) is implemented and has executed all 20
+cases without executor errors. Kevin accepted final PAIR implementation review
+on 2026-10-15; completion does not imply matching labels or measured model quality. Root
+checks passed formatting/lint, generated-client drift, Python/TypeScript checks,
+the production build, all 625 backend tests, and all 184 frontend tests with no
+skips on disposable PostgreSQL/pgvector on 2026-10-15. The 24 focused runner tests
+passed separately. The project database and approved case labels are unchanged.
+
+RF-604 is DONE after Kevin accepted final PAIR review on 2026-10-15. It depends on RF-601's approved measurement
+semantics, RF-602's frozen labels, RF-603's observed results, and RF-410's
+retrieval metric definitions. Its goal is code-based checks for classification,
+retrieval, citations, tools, and structure, with explicit applicability and
+pass/fail/error/unmeasured counts. The immediate learning objective is to compare
+observations with reviewed expectations without hiding errors in averages or
+claiming semantic quality from structural checks. Subjective judging remains
+RF-605; new thresholds or interpretations require Kevin's review. The offline
+[scorer](deterministic-metrics.md) now checks classification, clarification,
+retrieval/citations, saved approval bindings, and structure. Summaries retain
+separate named metrics, explicit denominators, and missing/error slots. The
+fresh fixture baseline has 123 passing checks, zero failures/errors, and six
+unmeasured semantic assessments. Root checks passed on 2026-10-15: 659 backend
+and 184 frontend tests with no skips, lint, type checks, generated-client drift,
+and the production build. Kevin accepted the final PAIR review on 2026-10-15.
+
+RF-605 is DONE after Kevin accepted final PAIR review on 2026-10-15. Its goal is explicit subjective rubrics
+with retained judge model/version, building on RF-601's measurement limits,
+RF-602's frozen semantic review notes, and RF-603/604's observation and scoring
+artifacts. The learning objective is to assess meaning with reviewable criteria
+while keeping judge opinions separate from deterministic checks and fixture
+mechanics. Kevin approved the scope, criteria, and status rules on 2026-10-15.
+The [judging command](rubric-judging.md) is implemented with offline tests and
+explicit model/prompt/rubric provenance. Root checks passed on 2026-10-15:
+698 backend and 184 frontend tests with no skips, lint, types, generated-client
+drift, and production build. Kevin accepted final PAIR implementation review on
+2026-10-15.
+No live judge run or calibration labels have been approved.
+
+RF-606 is DONE under DELEGATE ownership after implementation and verification
+on 2026-10-15. It depends on RF-603's observations,
+RF-604's deterministic scores, and RF-605's separate semantic assessments.
+Its goal is a human-readable report of scores, failures, regressions, and a
+baseline comparison. The learning objective is to interpret compatible artifacts
+with visible denominators, provenance changes, and unmeasured quality. A report
+must preserve the fixture/live and deterministic/judge distinctions; an absent
+baseline cannot be presented as evidence of improvement. The
+[report command](evaluation-report.md) validates matching artifacts and renders
+Markdown with explicit errors, unmeasured checks, and compatible comparisons.
+Root checks passed: 732 backend and 184 frontend tests, no skips, lint, types,
+generated-client drift, and production build. All 34 focused reporting tests
+passed separately. The generated same-artifact comparison is a control; no
+improvement experiment or live baseline was run.
+
+RF-607 is DONE after Kevin accepted the comparison interpretation and rejected
+the candidate on 2026-10-15. It depends on the reviewed cases,
+repeatable observations/scoring/judging, and RF-606's report/comparison command.
+Kevin owns the design change, baseline, success criteria, and interpretation.
+The learning objective is to compare a concrete change on compatible inputs
+and explain the measured result and its limits without treating fixture
+mechanics as evidence of live model quality. The
+[prompt experiment](improvement-experiment.md) records Kevin's approved prompt
+addition, six-case live extraction comparison (12 calls, no retries), and
+human-reviewed decision rule. The configured model is gpt-6-luna with low
+reasoning effort. After an initial authentication-failed run, Kevin corrected the
+key and explicitly approved a fresh 12-attempt run. All fresh calls completed
+without provider errors: baseline 23/33 deterministic passes, candidate 22/33.
+A01 question_count regressed from pass to fail, so the approved rule does not
+support adopting the candidate. The app remains on v3 and semantic judgments
+remain unmeasured. Kevin accepted the deterministic rejection and interpretation
+on 2026-10-15; both run artifacts are preserved.
+Implementation checks passed on 2026-10-15: 765 backend and 184 frontend tests
+with no skips, lint, types, generated-client checks, and production build. The
+existing restart test failed once, then passed isolated and in the full rerun;
+see the experiment record.
 
 ## Phase 6 — Evaluations
 
@@ -301,28 +411,222 @@ under the [PAIR agreement](working-agreement.md#pair).
 
 | ID | Ticket | Owner | Status | Acceptance |
 | --- | --- | --- | --- | --- |
-| RF-601 | Define evaluation specification | PAIR | NEXT | Cases express expected service/severity, clarification, evidence, facts, and tool policy |
-| RF-602 | Author 20 evaluation cases | PAIR | PLANNED | Dataset has five straightforward, ambiguous, adversarial, and failure/safety cases each |
-| RF-603 | Build evaluation runner | PAIR | PLANNED | Versioned cases run repeatably and emit machine-readable results |
-| RF-604 | Implement deterministic metrics | PAIR | PLANNED | Classification, retrieval, citations, tools, and structure have code-based metrics |
-| RF-605 | Add rubric-based judging | PAIR | PLANNED | Subjective rubric is explicit and judge model/version are retained |
-| RF-606 | Generate evaluation report | DELEGATE | PLANNED | Human-readable scores, failures, regressions, and baseline comparison are produced |
-| RF-607 | Run improvement experiment | PAIR | PLANNED | At least one design change is compared with a baseline and interpreted |
+| RF-601 | Define evaluation specification | PAIR | DONE | Kevin approved the target/mode, case expectations, measurement, result, and reporting contract on 2026-10-14; covers service/severity, clarification, evidence, facts, and tool policy. Documentation links and whitespace passed; see evaluation-specification.md |
+| RF-602 | Author 20 evaluation cases | PAIR | DONE | Kevin approved all 20 scenarios and labels on 2026-10-14; workspace-evaluation-v1 has five cases per group. Offline schemas, references, and fixture-policy consistency verified; scenarios not yet executed. See evaluation-cases.md |
+| RF-603 | Build evaluation runner | PAIR | DONE | Fixture runner implemented: all 20 approved cases execute with separate observations/labels and machine-readable provenance; isolated PostgreSQL approval, cancellation cleanup, safe errors, and output-file protection verified. Root checks: 625 backend and 184 frontend tests, no skips, on 2026-10-15. Kevin accepted final PAIR review on the same date; see evaluation-runner.md |
+| RF-604 | Implement deterministic metrics | PAIR | DONE | Code-based classification, retrieval/citation, tool-binding, and structure checks implemented; explicit per-metric status counts and denominators. Root checks: 659 backend and 184 frontend tests, no skips, on 2026-10-15. Kevin accepted final PAIR review on 2026-10-15; see deterministic-metrics.md |
+| RF-605 | Add rubric-based judging | PAIR | DONE | Kevin approved the extraction rubric on 2026-10-15; separate judging command retains model/settings, resolved version when returned, prompt/rubric hashes, and explicit statuses. Root checks: 698 backend and 184 frontend tests, no skips. Kevin accepted final PAIR review on 2026-10-15; no live judging/calibration. See rubric-judging.md |
+| RF-606 | Generate evaluation report | DELEGATE | DONE | Offline Markdown reports bind matching observations/scores/judgments; show separate metrics, failures, provenance, status changes, and guarded baseline comparisons. Root checks: 732 backend and 184 frontend tests, no skips, on 2026-10-15; 34 reporting tests passed. See evaluation-report.md |
+| RF-607 | Run improvement experiment | PAIR | DONE | Approved live prompt comparison executed after key correction: 12 successful calls, baseline 23/33 deterministic passes vs candidate 22/33. A01 question-count regression prevents adoption under the agreed rule; v3 retained. Checks: 765 backend and 184 frontend tests, no skips. Kevin accepted the interpretation and rejection on 2026-10-15; semantic judgments remain unmeasured. The later report-order fix passed 34 focused tests, lint, and types; see improvement-experiment.md |
+
+RF-701 is DONE after Kevin accepted the threat-model review on 2026-10-18.
+The [threat model](threat-model.md) maps assets, trust boundaries, and eight
+threat scenarios to implementation/test evidence and follow-up priorities.
+It covers injection, leakage, access, secrets, approval, duplicate effects, and
+logs. Accepting the analysis does not claim production readiness or close the
+remaining operational and provider-data handling gaps.
+Verification on 2026-10-15: all 43 draft links resolve, documentation whitespace
+checks pass, and 87 focused offline regression tests pass. The sandboxed approval
+test stalled; the same focused suite passed outside the sandbox in 1.14 seconds.
+No database-backed tests or live providers were run for this documentation task.
+
+RF-703's [durable simulation](tool-idempotency.md) is implemented under Kevin's
+approved PAIR contract: commit application intent before dispatch, commit the
+simulated destination effect/receipt together, and explicitly recover with the
+same proposal/key after a crash. The recovery API preserves current support
+access, observation freshness, and exact approval checks. Unknown legacy attempts
+without durable intent remain manual; GETs and duplicate decisions never recover
+execution. The generated client includes the command; support UI controls remain
+unchanged. This is a local simulation demonstration, not a real external-effect
+guarantee. Kevin accepted final PAIR implementation review on 2026-10-18;
+RF-703 is DONE within the approved local simulation scope.
+Verification on 2026-10-15: `pnpm check` passed formatting/lint, generated-client
+drift, Python/TypeScript checks, production build, all 781 backend tests, and all
+184 frontend tests with no skips. All 15 focused recovery tests passed separately.
+Tests terminate real processes at four execution boundaries and recover in a
+fresh interpreter; a deterministic pending-node-write regression preserves the
+saved approval and contiguous event history. Migration `0006` upgrade/rollback
+and ORM drift passed in a separate disposable database. The project database was
+not migrated; no live provider or external tool was called.
 
 ## Phase 7 — Production quality
 
+RF-702's [invitation authentication](authentication-and-access.md) is implemented
+under PAIR ownership. Kevin selected permanent onboarding and email/password
+repeat login on 2026-10-15. A trusted local CLI bootstraps the first support admin;
+admin endpoints issue one-use invitations and manage grants/disable access.
+Expiring revocable sessions, password reset, tenant/role guards, and browser
+signup/login preserve the existing application access policy. Admin capability
+does not grant report access. Explicit legacy demo mode retains test fixtures;
+password mode never falls back to them. Kevin accepted final PAIR implementation
+review on 2026-10-18; RF-702 is DONE within this scope. Hands-on deployment
+verification remains separate.
+
+Verification on 2026-10-15: `pnpm check` passed formatting/lint,
+generated-client drift, Python/TypeScript checks, production build, all 794
+backend tests, and all 192 frontend tests with no skips on disposable PostgreSQL.
+The 13 account lifecycle cases and eight new browser interaction cases passed.
+Migration `0007` upgrade/rollback and ORM drift passed in a separate disposable
+database; CLI help and documentation links/whitespace passed. The first full run
+hit the previously recorded checkpoint restart flake; it passed in isolation
+and in the full rerun without changes to that test. The project database is
+unchanged. No live providers or hands-on browser verification were used.
+
+RF-704 is DONE after Kevin accepted final PAIR review on 2026-10-18.
+Its goal and acceptance criterion are to trace requests, workflow runs, model
+calls, and tools without unsafe data. It builds on RF-701's log threat analysis,
+RF-702's authentication boundaries, and RF-703's durable execution identifiers.
+The learning objective is to connect asynchronous work through correlation IDs
+while keeping operational logs separate from saved workflow history. The
+[logging contract](structured-logging.md) records Kevin's approved metadata-only
+JSON stdout scope, with host-managed collection/search/retention. Implementation
+adds request correlation, authorized operation IDs, model attempts, durable tool
+phases, and safe server/SDK output through `api.server`. No local viewer or
+external collector is added. The database-backed correlation test passed after
+Docker became available on 2026-10-18. Kevin accepted the verified implementation
+on the same date.
+
+Initial verification on 2026-10-18: `pnpm check` passed formatting/lint,
+generated-client drift, Python/TypeScript types, production build, 606 backend
+tests, and 192 frontend tests. Docker/PostgreSQL was unavailable in WSL;
+215 database-dependent tests were skipped. The
+26 logging cases passed, including a real ephemeral Uvicorn process, concurrent
+request isolation, streaming interruption, retries, embedding timeouts, refusal,
+server/SDK secret exclusion, and quiet CLI imports. A 62-case focused logging,
+embedding, and evidence suite passed separately. The added real PostgreSQL
+approval/recovery correlation test was collected but skipped in that initial run.
+Documentation links/whitespace and the single NEXT ticket passed. No live provider
+calls, project database changes, external log service, or deployment were performed.
+
+Follow-up verification on 2026-10-18 after Docker became available: `pnpm check`
+passed all 821 backend tests and 192 frontend tests with no skips, plus
+formatting/lint, generated-client drift, Python/TypeScript types, and production
+build. The new PostgreSQL-backed logging test also passed separately. It confirms
+that approval and recovery have different request IDs, retain run/execution IDs,
+and reuse a committed destination receipt without a second dispatch. Tests used
+a disposable PostgreSQL 17/pgvector container with isolated schemas; the project
+database is unchanged. The database blocker is closed, and Kevin accepted final
+PAIR review on 2026-10-18.
+
+RF-705 is DONE after Kevin accepted final PAIR review on 2026-10-18.
+Its goal and acceptance criterion are to persist model, prompt, token usage,
+latency, retries, and estimated cost per run. It builds on RF-509's limited
+latest-extraction view, RF-511's durable intake operations, RF-506's separate
+evidence operations, RF-702's access rules, and RF-704's correlation IDs.
+Kevin selected versioned pricing configuration and stopping before live dispatch
+when a durable accounting start cannot be saved. The
+[accounting contract](model-accounting.md) records the scope and remaining limits.
+The learning objective is to retain actual attempts across retries/restarts and
+make incomplete measurements visible instead of treating missing usage as zero.
+Implementation is verified: migration `0008`, durable per-attempt records for
+intake/evidence/embedding requests, frozen pricing snapshots, explicit
+unknown/legacy coverage, and a separate support history with per-scope totals.
+RF-509's latest-extraction view is preserved. Kevin accepted final PAIR review
+on 2026-10-18.
+
+Verification on 2026-10-18: final `pnpm check` passed formatting/lint,
+generated-client drift, Python/TypeScript checks, production build, all 838
+backend tests, and all 203 frontend tests with no skips on disposable PostgreSQL
+17/pgvector. Seventeen accounting cases cover prices/unknowns, separate commits,
+retries and rounds, process exit, failed start/completion writes, version changes,
+embedding batches, partial response usage, timeout/cancellation, and protected
+read-only HTTP history. Eleven browser interaction cases cover partial and zero
+estimates, offline labeling, invalid/report-mismatched records, stale recovery,
+access loss, explicit loading, and late session responses. Migration `0008`
+upgrade/rollback and ORM drift passed in a separate disposable database. The
+project database is unchanged. No live provider calls, real billing comparison,
+production-browser walkthrough, or deployment were performed.
+
+RF-706 is DONE after DELEGATE implementation and verification on 2026-10-18.
+Kevin approved shared PostgreSQL counters. The [request-limit contract](request-limits.md)
+records the 64 KiB body cap, upload deadline, configurable address/user/account/
+model-operation limits, explicit HTTP errors, and remaining deployment limits.
+Atomic reservations precede endpoint work, including across independent workers;
+blocked model operations create no run and dispatch no provider call. The
+supported server ignores forwarded address headers; reverse-proxy callers share
+the proxy's address allowance. Concurrent-work/storage/spend quotas remain separate.
+
+Final `pnpm check` passed formatting/lint, generated-client drift, Python/TypeScript
+checks, production build, all 864 backend tests, and all 206 frontend tests with
+no skips on disposable PostgreSQL 17/pgvector. Twenty-six new backend cases cover
+input boundaries, counter concurrency/expiry/cleanup, HTTP and model-operation
+rejections, access and token/account isolation, and invalid configuration. Three
+new frontend cases verify clear errors without repeating requests. Migration
+`0009` upgrade/rollback and ORM drift passed separately. The project database is
+unchanged; no live provider calls or deployment were performed. RF-707 followed
+this work and is now complete.
+
+RF-707 is DONE after DELEGATE implementation and verification on 2026-10-18.
+The [container contract](container-startup.md) records pinned images, the fixed
+web workspace build, one-shot migrations/checkpoint setup under an advisory
+lock, schema-gated readiness, and startup order. Application containers run as
+non-root with read-only roots; the existing local data volume is preserved.
+
+Full `pnpm check` passed formatting/lint, generated-client drift, Python/TypeScript
+checks, production build, all 871 backend tests, and all 206 frontend tests with
+no skips on disposable PostgreSQL. Seven startup cases cover fresh/concurrent
+initialization, preserved data, old/unknown application revisions, missing/old
+checkpoint versions, failed migrations, and sanitized failures. The isolated
+`pnpm docker:smoke` passed real image builds, failed-initialization gating, fresh
+health/startup order, runtime permissions, volume persistence, and database
+outage/recovery including a database-backed authentication request. Final
+focused type checks passed after that assertion was added. Tests removed their
+own temporary containers and volumes; the project database is unchanged.
+No live model calls, user provisioning, or deployment were performed.
+RF-708 followed this work and its implementation is now complete.
+
+RF-708 is DONE for the implemented and locally verified workflow under DELEGATE
+ownership on 2026-10-18. The [CI contract](continuous-integration.md) records
+GitHub Actions jobs for repository checks with PostgreSQL, offline fixture
+execution/scoring/judging/reporting, container integration, and retained reports.
+Actions are pinned to verified commits, repository permissions are read-only,
+and provider/deployment secrets are not configured.
+
+Actionlint 1.7.12 accepted the workflow; configured inputs match the pinned
+official action definitions. Local replay of its exact shell steps passed
+frozen/locked installs, formatting/lint, generated-client drift, Python/TypeScript
+checks, production build, all 871 backend tests with zero skips, all 206 frontend
+tests, and the fixture pipeline. All 20 cases completed without executor errors;
+123 deterministic checks passed, six semantic checks remained unmeasured, and
+fixture judging retained 15 unmeasured checks with no failures/errors. The
+container integration command also passed. Reports are available locally in
+ignored `artifacts/` for review. Disposable resources were cleaned up; the
+project database is unchanged. No live provider calls or deployment occurred.
+The first GitHub-hosted run remains unverified until the changes are committed
+and pushed; neither a commit/push nor repository-setting changes were performed.
+RF-709 is DONE; RF-710 is NEXT.
+
+Kevin narrowed RF-709 on 2026-10-18: the stack supports learning current AI
+workflows; the ticket does not require a formal defense of each library.
+The [decision guide](architecture-decisions.md) links existing approval,
+execution-recovery, retrieval, and evaluation rationale instead of duplicating
+those contracts. Kevin accepted final PAIR review on 2026-10-18; RF-709 is DONE.
+All 127 checked local documentation links resolve, whitespace checks pass, and
+the roadmap has exactly one NEXT ticket. RF-710 follows the completed container,
+authentication, safety, accounting, request-limit, CI, and decision work. Hosting
+and configuration choices remain Kevin-owned under PAIR; deployment has not started.
+
+Kevin changed RF-701, RF-703, and RF-709 from HAND to PAIR on 2026-10-15.
+These tickets follow the [PAIR agreement](working-agreement.md#pair).
+
 | ID | Ticket | Owner | Status | Acceptance |
 | --- | --- | --- | --- | --- |
-| RF-701 | Create threat model | HAND | PLANNED | Injection, leakage, access, secrets, approval, duplicates, and logs are analyzed |
-| RF-702 | Add authentication and authorization | PAIR | PLANNED | Access policy and unauthorized paths are documented and tested |
-| RF-703 | Enforce tool idempotency | HAND | PLANNED | Repeated or resumed runs cannot duplicate consequential actions |
-| RF-704 | Add structured correlated logging | PAIR | PLANNED | Requests, runs, model calls, and tools are traceable without unsafe data |
-| RF-705 | Record model cost and performance | PAIR | PLANNED | Model, prompt, tokens, latency, retries, and estimated cost persist per run |
-| RF-706 | Add rate and input limits | DELEGATE | PLANNED | Limits and client-visible errors are tested |
-| RF-707 | Harden container startup | DELEGATE | PLANNED | Images, migrations, health checks, and startup order are reproducible |
-| RF-708 | Add continuous integration | DELEGATE | PLANNED | Lint, types, tests, integration smoke, eval smoke, and client drift checks run |
-| RF-709 | Write architecture decisions | HAND | PLANNED | LangGraph, tool control, pgvector, approval, retrieval, and eval choices are defended |
-| RF-710 | Deploy the demonstration | PAIR | PLANNED | Public demo uses safe simulated actions and documented configuration |
+| RF-701 | Create threat model | PAIR | DONE | Required threat areas analyzed; Kevin accepted final security review on 2026-10-18. Remaining gaps are explicit; see threat-model.md |
+| RF-702 | Add authentication and authorization | PAIR | DONE | Permanent invitation onboarding, repeat login, and access management implemented and tested; Kevin accepted final PAIR review on 2026-10-18. See authentication-and-access.md |
+| RF-703 | Enforce tool idempotency | PAIR | DONE | Approved durable simulation prevents duplicate effects across repeated/recovered execution; Kevin accepted final PAIR review on 2026-10-18. Real external effects require a destination contract; see tool-idempotency.md |
+| RF-704 | Add structured correlated logging | PAIR | DONE | Metadata-only request/run/model/tool logs verified; 821 backend and 192 frontend tests passed without skips. Kevin accepted final PAIR review on 2026-10-18; see structured-logging.md |
+| RF-705 | Record model cost and performance | PAIR | DONE | Durable per-attempt model/prompt/usage/latency/retry records and versioned estimates implemented with explicit partial/legacy coverage; all checks pass. Kevin accepted final PAIR review on 2026-10-18; see model-accounting.md |
+| RF-706 | Add rate and input limits | DELEGATE | DONE | Shared PostgreSQL rate counters, bounded uploads, and client-visible errors verified on 2026-10-18; all 864 backend and 206 frontend tests passed without skips, plus migration roundtrip/drift. See request-limits.md |
+| RF-707 | Harden container startup | DELEGATE | DONE | Pinned images, one-shot schema initialization, readiness/startup order, and non-root runtimes verified on 2026-10-18. All 871 backend and 206 frontend tests passed without skips, plus real Docker smoke; see container-startup.md |
+| RF-708 | Add continuous integration | DELEGATE | DONE | Workflow validated and commands replayed locally on 2026-10-18: all 871 backend/206 frontend tests, fixture pipeline, and container smoke passed. First GitHub-hosted run awaits a push; see continuous-integration.md |
+| RF-709 | Record consequential architecture choices | PAIR | DONE | Stack learning goal and consequential choices recorded through existing contracts; documentation links/whitespace verified. Kevin accepted final PAIR review on 2026-10-18; see architecture-decisions.md |
+| RF-710 | Deploy the demonstration | PAIR | NEXT | Public demo uses safe simulated actions and documented configuration |
+
+Kevin selected Railway Hobby on 2026-10-18. The
+[deployment runbook](railway-deployment.md) and per-service variable templates
+prepare the existing images for dashboard setup. Budget selection, authenticated
+provisioning, fictional demo records, and hosted/browser/restart verification
+remain pending. RF-710 stays NEXT; no Railway resources have been created.
 
 ## Phase 8 — Portfolio package
 
@@ -342,5 +646,5 @@ under the [PAIR agreement](working-agreement.md#pair).
 4. Small retrieval slice with verifiable citations
 5. Inspectable incident workspace
 6. Safe approval and simulated execution
-7. Evaluation baseline and measured improvement
+7. Evaluation baseline and measured design comparison
 8. Hardened, deployed portfolio demonstration

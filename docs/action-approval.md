@@ -97,8 +97,10 @@ and authorization are never inferred from the resume payload or checkpoint.
 
 RF-308's optional simulation checks `permits` against the saved proposal and
 rechecks execution access. RF-309's [guarded submission boundary](approval-edge-cases.md)
-handles duplicates, concurrency, failures, and restart. RF-703 adds durable effect
-idempotency; approval alone cannot prevent duplicate effects.
+handles duplicates, concurrency, failures, and restart. RF-703 adds
+[durable simulation receipts and explicit recovery](tool-idempotency.md);
+approval alone cannot prevent duplicate effects. Real external tools need their
+own destination idempotency contract.
 
 The implementation uses LangGraph's dynamic interrupt and `Command(resume=...)`
 pattern. The interrupted node starts again on resume, allowing current access

@@ -1,9 +1,10 @@
+import { limitErrorMessage } from '../api/limit-errors'
 import { createApiClient } from '@resolve-flow/api-client'
 
 import { customerRunSchema, type ClarificationRequest } from './schemas'
 
 export const intakeErrorMessages: Readonly<Partial<Record<number, string>>> = {
-  401: 'Your demo identity was not accepted. End this session and enter a valid customer token.',
+  401: 'Your session was not accepted. End this session and sign in again.',
   403: 'This identity cannot access customer intake.',
   404: 'This report or its intake is unavailable to your account.',
   409: 'Intake changed or another operation is running. Refresh saved intake before taking another action.',
@@ -12,7 +13,7 @@ export const intakeErrorMessages: Readonly<Partial<Record<number, string>>> = {
 export class IntakeApiError extends Error {
   constructor(public readonly status: number) {
     super(
-      intakeErrorMessages[status] ??
+      limitErrorMessage(status) ?? intakeErrorMessages[status] ??
         'Intake could not be completed. Refresh saved intake to check whether the operation was accepted.',
     )
   }

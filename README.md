@@ -49,12 +49,25 @@ pnpm dev
 - API: http://localhost:8000
 - API docs: http://localhost:8000/docs
 
+The API emits [structured JSON logs](docs/structured-logging.md) to stdout through
+its supported server entry point. Use request, run, and execution IDs in your
+hosting service's log viewer; collection and retention belong to the host.
+
+[Model accounting](docs/model-accounting.md) separately persists attempt history,
+provider timing, and versioned cost estimates. Apply migration `0008` before
+intake/evidence operations; support can open **Show model attempt history** from
+the metrics panel. Optional pricing configuration leaves unknown costs explicit.
+
 Run formatting verification, linting, Python and TypeScript type checking,
 backend tests, and informational branch coverage with:
 
 ```bash
 pnpm check
 ```
+
+[GitHub Actions CI](docs/continuous-integration.md) runs these checks with a
+disposable PostgreSQL database, an offline fixture evaluation pipeline, and a
+separate container integration job. Reports are retained as workflow artifacts.
 
 The API client in `packages/api-client` uses types generated from FastAPI's
 OpenAPI schema. After changing an API route or schema, run
@@ -65,11 +78,14 @@ The web app uses
 `VITE_API_URL=http://localhost:8000` by default; copy `apps/web/.env.example`
 to `apps/web/.env` to override it.
 
-Customer report screens are available at `/reports`. They use a demo customer
-token entered in the browser, with account access enforced by the API. See
-[customer report screens](docs/customer-report-screens.md) for identity setup,
-supported edits, and the review walkthrough. `pnpm test:web` runs their offline
-interaction tests and is included in `pnpm check`.
+Customer report screens are available at `/reports`. The default uses permanent
+invited accounts and email/password sign-in, with account access enforced by
+the API. Apply migrations and bootstrap an admin using
+[authentication and access](docs/authentication-and-access.md) before onboarding
+users. Existing token-based walkthroughs require explicit legacy demo mode. See
+[customer report screens](docs/customer-report-screens.md) for supported edits
+and the earlier demo walkthrough. `pnpm test:web` runs offline interaction tests
+and is included in `pnpm check`.
 
 Customer intake start/read/clarification/recovery endpoints and a read-only SSE
 route are also implemented. Apply migrations and checkpoint setup as documented
@@ -78,10 +94,10 @@ offline simulation. Report details now expose start, clarification, incomplete
 continuation, and explicit recovery controls; see
 [customer clarification UI](docs/customer-clarification-ui.md).
 
-The support timeline is available at `/support`. Enter a configured support
-token and a report ID to read its saved intake events. Support account grants
+The support timeline is available at `/support`. Sign in with a support account
+and enter a report ID to read its saved intake events. Support account grants
 are enforced by the API, and switching between customer and support routes
-requires a separate demo session. See [execution timeline UI](docs/execution-timeline-ui.md)
+requires a separate session. See [execution timeline UI](docs/execution-timeline-ui.md)
 for setup, behavior, verification limits, and the database-backed walkthrough.
 
 The support report page also offers **Analyze evidence** and **Refresh saved
@@ -119,7 +135,13 @@ when you intentionally want to delete local database data.
 The API exposes two probes:
 
 - `GET /health` checks that the process is alive.
-- `GET /ready` verifies its PostgreSQL connection.
+- `GET /ready` verifies PostgreSQL and the application/checkpoint schema versions.
+
+Compose now initializes both schemas before starting the API, then waits for
+API readiness before starting the web server. Images are pinned and application
+containers run as non-root. See [container startup](docs/container-startup.md)
+for upgrades, health checks, admin setup, and the isolated `pnpm docker:smoke`
+verification command.
 
 ### Deployment
 
@@ -129,7 +151,8 @@ The application Dockerfiles are independent deployment targets:
 - `apps/web/Dockerfile` for the TanStack Start service
 
 On Railway or a similar platform, provision managed PostgreSQL and pass its
-`DATABASE_URL` to the API. Set `CORS_ORIGINS` to the public web URL. Build the
+`DATABASE_URL` to a one-shot `python -m api.bootstrap` release command and the
+API. Complete initialization before starting API instances. Set `CORS_ORIGINS` to the public web URL. Build the
 web image with `VITE_API_URL` set to the public API URL. Do not deploy the local
 PostgreSQL service or reuse the development password in production.
 
@@ -141,3 +164,6 @@ transition review before recreating their container.
 Heading-aware indexing and the opt-in embedding command are documented in
 [retrieval integration](docs/retrieval-integration.md). Search adapters are
 implemented but are not connected to an endpoint or the workflow yet.
+
+Request and input controls require migration `0009`. Defaults, overrides, and
+reverse-proxy behavior are in [request limits](docs/request-limits.md).

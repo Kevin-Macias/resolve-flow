@@ -53,10 +53,13 @@ Duplicates return that saved failure, even after restart; retry requires review.
 
 A saved approval with no execution result also returns as-is. This can happen
 when execution access is revoked, a process dies, or a checkpoint write fails.
-A duplicate approval does not resume unfinished execution. Reconciliation and
-real effect idempotency belong to RF-703. The lock is request coordination, not
-an atomic transaction combining checkpoints with external effects. The current
-tool remains a pure deterministic simulation with no persisted ticket write.
+A duplicate approval does not resume unfinished execution. RF-703 adds a separate
+[explicit recovery command](tool-idempotency.md) to the support HTTP path for
+operations with durable intent and simulated destination receipts. The lock is
+request coordination, not an atomic transaction combining checkpoints with
+external effects. The reusable pure fake still has no persisted ticket write;
+the HTTP wrapper persists simulated effect records. Real-effect idempotency
+requires a destination-specific contract.
 
 ## Review cases
 

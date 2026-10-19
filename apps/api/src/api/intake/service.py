@@ -12,6 +12,8 @@ from pydantic import ValidationError
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from api.accounting.contracts import Mode
+from api.accounting.recording import Scope, recording
 from api.db.models import IssueReport
 from api.identity.context import RequestContext
 from api.identity.dependencies import resolve_request_context
@@ -19,6 +21,7 @@ from api.intake.models import IntakeOperation, IntakeRun
 from api.intake.projection import failed, processing, project
 from api.intake.runtime import IntakeRuntime
 from api.intake.schemas import ClarificationRequest, CustomerRun
+from api.observability import attach, trace
 from api.streaming.transport import CustomerSnapshot
 from api.workflow.checkpoints import workflow_config
 from api.workflow.clarification import validate_reply
@@ -102,6 +105,7 @@ class IntakeService:
         )
         if run is None:
             raise HTTPException(404, "Intake unavailable")
+        attach(run_id=run.id)
         return run
 
     async def get(self, run_id: UUID) -> CustomerRun:
@@ -153,6 +157,7 @@ class IntakeService:
                         pending_operation_id=operation_id,
                     )
                     session.add(run)
+                    run.accounting_version = 1
                     await session.flush()
                     session.add(
                         IntakeOperation(
@@ -278,47 +283,111 @@ class IntakeService:
                 operation.kind,
                 operation.payload,
             )
-        if mode != self.runtime.mode:
-            raise HTTPException(503, "Configured intake mode does not match saved run")
+        with (
+            recording(
+                self.runtime.sessions,
+                Scope(
+                    report_id,
+                    run.customer_account_id,
+                    "intake",
+                    run_id,
+                    operation_id,
+                    cast(Mode, mode),
+                ),
+            ),
+            trace("run", component="intake", run_id=run_id, operation_id=operation_id),
+        ):
+            if mode != self.runtime.mode:
+                raise HTTPException(
+                    503, "Configured intake mode does not match saved run"
+                )
 
-        async def loader(requested_id: UUID) -> str:
-            if requested_id != report_id:
-                raise ValueError("Report binding mismatch")
-            await self.get(run_id)
-            async with self.runtime.sessions() as session:
-                report, _ = await self.report(session, report_id)
-                return report.description
+            async def loader(requested_id: UUID) -> str:
+                if requested_id != report_id:
+                    raise ValueError("Report binding mismatch")
+                await self.get(run_id)
+                async with self.runtime.sessions() as session:
+                    report, _ = await self.report(session, report_id)
+                    return report.description
 
-        try:
-            async with asyncio.timeout(EXECUTION_TIMEOUT_SECONDS):
-                async with self.runtime.graph(loader) as graph:
-                    config = workflow_config(run_id)
-                    snapshot = await graph.aget_state(config)
-                    state = cast(WorkflowState, snapshot.values)
-                    command: WorkflowInput | Command[object] | None = None
-                    invoke = False
-                    if not state:
-                        if kind != "start":
-                            raise ValueError("Missing resume checkpoint")
-                        command = WorkflowInput(
-                            workflow_run_id=run_id, issue_report_id=report_id
-                        )
-                        invoke = True
-                    else:
-                        if (
-                            state["workflow_run_id"] != run_id
-                            or state["issue_report_id"] != report_id
-                        ):
-                            raise ValueError("Checkpoint binding mismatch")
+            try:
+                async with asyncio.timeout(EXECUTION_TIMEOUT_SECONDS):
+                    async with self.runtime.graph(loader) as graph:
+                        config = workflow_config(run_id)
+                        snapshot = await graph.aget_state(config)
+                        state = cast(WorkflowState, snapshot.values)
+                        command: WorkflowInput | Command[object] | None = None
+                        invoke = False
+                        if not state:
+                            if kind != "start":
+                                raise ValueError("Missing resume checkpoint")
+                            command = WorkflowInput(
+                                workflow_run_id=run_id, issue_report_id=report_id
+                            )
+                            invoke = True
+                        else:
+                            if (
+                                state["workflow_run_id"] != run_id
+                                or state["issue_report_id"] != report_id
+                            ):
+                                raise ValueError("Checkpoint binding mismatch")
+                            interrupts = [
+                                interrupt
+                                for task in snapshot.tasks
+                                for interrupt in task.interrupts
+                            ]
+                            if kind == "clarification":
+                                request = ClarificationRequest.model_validate(payload)
+                                if request.operation_id != operation_id:
+                                    raise ValueError("Operation binding mismatch")
+                                event_type = (
+                                    EventType.CLARIFICATION_ANSWERED
+                                    if request.action == "answer"
+                                    else EventType.CONTINUED_INCOMPLETE
+                                )
+                                event_id = uuid5(
+                                    run_id,
+                                    f"resolveflow:intake:{event_type}:{request.pending_id}",
+                                )
+                                consumed = any(
+                                    event.event_id == event_id
+                                    for event in state.get("timeline", [])
+                                )
+                                if not consumed:
+                                    pending = state.get("pending_clarification")
+                                    if (
+                                        pending is None
+                                        or validate_reply(request.reply(), pending)
+                                        is None
+                                        or len(interrupts) != 1
+                                    ):
+                                        raise ValueError(
+                                            "Cannot establish saved reply ownership"
+                                        )
+                                    # Target the saved interrupt; never replay a reply into a later pause.
+                                    command = Command(
+                                        resume={interrupts[0].id: request.reply()}
+                                    )
+                                    invoke = True
+                                else:
+                                    invoke = bool(snapshot.next) and not interrupts
+                            elif kind == "start":
+                                invoke = bool(snapshot.next) and not interrupts
+                            else:
+                                raise ValueError("Unknown operation")
+                        if invoke:
+                            await graph.ainvoke(command, config, durability="sync")
+                        snapshot = await graph.aget_state(config)
+                        state = cast(WorkflowState, snapshot.values)
                         interrupts = [
                             interrupt
                             for task in snapshot.tasks
                             for interrupt in task.interrupts
                         ]
+                        if snapshot.next and not interrupts:
+                            raise ValueError("Graph work is unfinished")
                         if kind == "clarification":
                             request = ClarificationRequest.model_validate(payload)
-                            if request.operation_id != operation_id:
-                                raise ValueError("Operation binding mismatch")
                             event_type = (
                                 EventType.CLARIFICATION_ANSWERED
                                 if request.action == "answer"
@@ -328,86 +397,41 @@ class IntakeService:
                                 run_id,
                                 f"resolveflow:intake:{event_type}:{request.pending_id}",
                             )
-                            consumed = any(
+                            if not any(
                                 event.event_id == event_id
                                 for event in state.get("timeline", [])
-                            )
-                            if not consumed:
-                                pending = state.get("pending_clarification")
-                                if (
-                                    pending is None
-                                    or validate_reply(request.reply(), pending) is None
-                                    or len(interrupts) != 1
-                                ):
-                                    raise ValueError(
-                                        "Cannot establish saved reply ownership"
-                                    )
-                                # Target the saved interrupt; never replay a reply into a later pause.
-                                command = Command(
-                                    resume={interrupts[0].id: request.reply()}
-                                )
-                                invoke = True
-                            else:
-                                invoke = bool(snapshot.next) and not interrupts
-                        elif kind == "start":
-                            invoke = bool(snapshot.next) and not interrupts
-                        else:
-                            raise ValueError("Unknown operation")
-                    if invoke:
-                        await graph.ainvoke(command, config, durability="sync")
-                    snapshot = await graph.aget_state(config)
-                    state = cast(WorkflowState, snapshot.values)
-                    interrupts = [
-                        interrupt
-                        for task in snapshot.tasks
-                        for interrupt in task.interrupts
-                    ]
-                    if snapshot.next and not interrupts:
-                        raise ValueError("Graph work is unfinished")
-                    if kind == "clarification":
-                        request = ClarificationRequest.model_validate(payload)
-                        event_type = (
-                            EventType.CLARIFICATION_ANSWERED
-                            if request.action == "answer"
-                            else EventType.CONTINUED_INCOMPLETE
-                        )
-                        event_id = uuid5(
-                            run_id,
-                            f"resolveflow:intake:{event_type}:{request.pending_id}",
-                        )
-                        if not any(
-                            event.event_id == event_id
-                            for event in state.get("timeline", [])
-                        ):
-                            raise ValueError("Reply did not commit")
-            async with self.runtime.sessions() as session:
-                run = await self.run(
-                    session, run_id
-                )  # Recheck access before publication.
-                base = saved_view(run)
-                try:
-                    view = project(base, state)
-                except (ValidationError, ValueError):
-                    view = failed(base, recoverable=False)
-                self.publish(run, view)
-                run.pending_operation_id = None
-                operation = await session.get(IntakeOperation, (run_id, operation_id))
-                if operation is None:
-                    raise ValueError("Missing accepted operation")
-                operation.completed = True
-                await session.commit()
-        except HTTPException:
-            raise
-        except Exception as error:
-            # Checkpoint commits may precede this registry write. Keep the accepted
-            # payload for explicit recovery, and never expose the raw exception.
-            try:
+                            ):
+                                raise ValueError("Reply did not commit")
                 async with self.runtime.sessions() as session:
-                    run = await self.run(session, run_id)
-                    self.publish(run, failed(saved_view(run), recoverable=True))
+                    run = await self.run(
+                        session, run_id
+                    )  # Recheck access before publication.
+                    base = saved_view(run)
+                    try:
+                        view = project(base, state)
+                    except (ValidationError, ValueError):
+                        view = failed(base, recoverable=False)
+                    self.publish(run, view)
+                    run.pending_operation_id = None
+                    operation = await session.get(
+                        IntakeOperation, (run_id, operation_id)
+                    )
+                    if operation is None:
+                        raise ValueError("Missing accepted operation")
+                    operation.completed = True
                     await session.commit()
-            except Exception:
-                pass  # Infrastructure may be unavailable; original pending state persists.
-            raise HTTPException(
-                503, "Intake interrupted; inspect saved state"
-            ) from error
+            except HTTPException:
+                raise
+            except Exception as error:
+                # Checkpoint commits may precede this registry write. Keep the accepted
+                # payload for explicit recovery, and never expose the raw exception.
+                try:
+                    async with self.runtime.sessions() as session:
+                        run = await self.run(session, run_id)
+                        self.publish(run, failed(saved_view(run), recoverable=True))
+                        await session.commit()
+                except Exception:
+                    pass  # Infrastructure may be unavailable; original pending state persists.
+                raise HTTPException(
+                    503, "Intake interrupted; inspect saved state"
+                ) from error

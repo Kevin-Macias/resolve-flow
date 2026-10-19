@@ -8,6 +8,7 @@ from psycopg import Error as PostgresError
 from sqlalchemy.exc import SQLAlchemyError
 from starlette.responses import StreamingResponse
 
+from api.accounting.recording import AccountingUnavailable
 from api.errors import ErrorResponse
 from api.identity.dependencies import bearer
 from api.intake.runtime import IntakeRuntime
@@ -39,7 +40,12 @@ async def get_intake_service(
         raise HTTPException(503, "Intake unavailable")
     try:
         yield IntakeService(runtime, credentials.credentials)
-    except (SQLAlchemyError, PostgresError, TimeoutError) as error:
+    except (
+        AccountingUnavailable,
+        SQLAlchemyError,
+        PostgresError,
+        TimeoutError,
+    ) as error:
         raise HTTPException(503, "Intake unavailable") from error
 
 

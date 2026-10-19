@@ -39,6 +39,7 @@ async def evidence(
     monkeypatch.setenv("EVIDENCE_PROVIDER_MODE", "offline")
     service = SupportEvidenceService(e.sessions, e.url)
     app = create_app()
+    app.state.session_factory = e.sessions
     app.state.support_evidence = service
     async with AsyncClient(
         transport=ASGITransport(app=app),

@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from sqlalchemy import BigInteger, Boolean, CheckConstraint, ForeignKey, Text
+from sqlalchemy import BigInteger, Boolean, CheckConstraint, ForeignKey, Integer, Text
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -9,6 +9,7 @@ from api.db.models import Base, Timestamps
 
 class IntakeRun(Timestamps, Base):
     __tablename__ = "intake_runs"
+    accounting_version: Mapped[int | None] = mapped_column(Integer, nullable=True)
     __table_args__ = (
         CheckConstraint("revision BETWEEN 1 AND 9007199254740991", name="revision"),
         CheckConstraint("provider_mode IN ('offline', 'live')", name="provider_mode"),

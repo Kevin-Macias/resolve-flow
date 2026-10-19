@@ -38,11 +38,19 @@ ResolveFlow then:
   while retaining responsibility for internal conclusions and consequential
   actions.
 
+An **access administrator** is a support user who can invite users and manage
+access. This capability does not grant report access; support account grants
+remain explicit.
+
+[Invitation onboarding](authentication-and-access.md) creates permanent users
+with a fixed role and scope. Users sign in again with email/password. Sessions
+expire and can be revoked; static fixtures require explicit legacy demo mode.
+
 ## MVP demonstration
 
 The first complete demonstration must take less than five minutes:
 
-1. A simulated authenticated customer reports that a previously submitted
+1. An authenticated customer reports that a previously submitted
    issue report is missing from their list.
 2. ResolveFlow checks public incidents and that customer's tickets, then asks a
    clarification question because it cannot safely identify a match.
@@ -68,7 +76,7 @@ The first complete demonstration must take less than five minutes:
 ## MVP scope
 
 - Issue-report CRUD
-- Simulated customer identity and tenant context
+- Invitation-only permanent accounts, email/password login, and tenant context
 - Customer issue intake and own-ticket status lookup
 - Matching against customer-visible known incidents
 - Structured extraction and classification
@@ -87,7 +95,7 @@ The first complete demonstration must take less than five minutes:
 - Autonomous remediation
 - Production integrations with external issue trackers, payment providers, or
   cloud providers
-- Production identity management; the MVP uses explicit simulated identities
+- Enterprise identity integration, SSO, MFA, and automated invitation delivery
 - Large-scale document crawling
 - Multi-agent orchestration
 - Training or fine-tuning a model
@@ -98,7 +106,7 @@ The first complete demonstration must take less than five minutes:
 ### 1. Existing issue status
 
 A customer asks whether support is investigating their missing report.
-ResolveFlow checks the simulated identity and returns only that customer's
+ResolveFlow checks the current identity and returns only that customer's
 ticket status and latest customer-visible update. Internal comments, assignees, and other
 customers' tickets stay private.
 
@@ -180,9 +188,27 @@ persisted support ticket. Customer confirmation and automatic proposal generatio
 remain separate. Kevin accepted RF-508's final PAIR implementation review on
 2026-10-13.
 
+The support API now saves [durable simulated operation receipts](tool-idempotency.md)
+and offers an explicit recovery command for interrupted execution. Repeated
+decisions and reads do not retry effects. Recovery retains the approved arguments
+and key, checks current access and unchanged observations, and reuses the saved
+destination result. This persists simulated effects, not real support tickets.
+The existing support screen shows saved outcomes; recovery is an API operation.
 
 Support also sees [metrics for the latest saved intake extraction](execution-metrics-ui.md):
 configured model, prompt version, attempts, and token usage when returned. Kevin
-approved this limited display on 2026-10-13. Offline execution is labeled, missing
-latency/cost appear as not recorded, and the view makes no run-total or billing
-claim. Full accounting remains RF-705.
+approved this limited display on 2026-10-13. That snapshot retains its limited
+scope and unavailable latency/cost fields. A separate
+[model attempt history](model-accounting.md) adds durable intake/evidence records,
+measured provider time, and versioned cost estimates with partial and unavailable
+states. Offline activity remains labeled; estimates are not provider bills.
+
+Operators can trace requests through workflow, model, and simulated tool events
+using [metadata-only JSON logs](structured-logging.md). Sensitive content stays
+out of operational logs; hosting supplies collection and search. These logs
+support diagnosis and do not replace saved workflow history or effect receipts.
+
+[Request limits](request-limits.md) bound upload size and request frequency.
+Rejected work returns clear errors and a retry delay when rate allowance is
+exhausted. Model-operation limits preserve a separate allowance for saved reads;
+actual provider usage remains in the accounting history.

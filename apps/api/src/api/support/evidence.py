@@ -2,7 +2,7 @@
 
 import hashlib
 import json
-from typing import Literal
+from typing import Literal, cast
 from uuid import UUID, uuid4
 
 from fastapi import HTTPException
@@ -10,6 +10,8 @@ from pydantic import Field
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
+from api.accounting.contracts import Mode
+from api.accounting.recording import Scope, recording
 from api.db.models import IssueReport, Service
 from api.intake.locks import IntakeLocks
 from api.intake.models import IntakeRun
@@ -27,6 +29,7 @@ from api.knowledge.retrieval import (
     RetrievalResult,
     RetrievalScope,
 )
+from api.observability import trace
 from api.support.access import allowed_accounts
 from api.support.evidence_models import EvidenceAnalysis
 from api.support.evidence_runtime import EvidenceRuntime
@@ -250,71 +253,86 @@ class SupportEvidenceService:
                     customer_account_id=owner,
                     operation_id=operation_id,
                     status="pending",
+                    accounting_version=1,
                     provider_mode=mode,
                     input_hash=inputs.fingerprint(),
                     input_record=inputs.model_dump(mode="json"),
                 )
                 session.add(row)
                 await session.commit()
-            try:
-                sources = await self.runtime.sources()
-                request = RetrievalRequest(
-                    query=inputs.query(),
-                    scope=RetrievalScope(
-                        allow_internal=True, customer_account_ids=frozenset({owner})
+            with (
+                recording(
+                    self.sessions,
+                    Scope(
+                        report_id,
+                        owner,
+                        "evidence",
+                        row.id,
+                        operation_id,
+                        cast(Mode, mode),
                     ),
-                    active_revisions=tuple(
-                        DocumentRevision(
-                            document_id=s.metadata.document_id,
-                            version=s.metadata.version,
-                        )
-                        for s in sources
-                    ),
-                    service_code=inputs.service_code,
-                )
-                result, report = await self.runtime.generate(request, sources, mode)
-                verify_evidence_catalog(request, result, sources)
-                saved = SavedEvidence(
-                    request=request,
-                    result=result,
-                    sources=tuple(
-                        source
-                        for source in sources
-                        if any(
-                            item.metadata.document_id == source.metadata.document_id
-                            and item.metadata.version == source.metadata.version
-                            for item in result.evidence
-                        )
-                    ),
-                    report=report,
-                )
-                final_owner, final_inputs = await self.inputs(token, report_id)
-                if final_owner != owner or final_inputs != inputs:
-                    raise HTTPException(409, "Report observations changed")
-                # Validate current source access before publishing; GET repeats checks.
-                latest = {
-                    s.metadata.document_id: s.metadata
-                    for s in await self.runtime.sources()
-                }
-                if any(
-                    latest.get(item.metadata.document_id) != item.metadata
-                    for item in result.evidence
-                ):
-                    raise ValueError("Source policy changed")
-                async with self.sessions() as session:
-                    persisted = await session.get(EvidenceAnalysis, row.id)
-                    if persisted is None:
-                        raise ValueError("Missing operation")
-                    persisted.result_record = saved.model_dump(mode="json")
-                    persisted.status = "ready"
-                    await session.commit()
-            except Exception:
-                # Cancellation/process loss deliberately leaves durable pending state.
-                async with self.sessions() as session:
-                    persisted = await session.get(EvidenceAnalysis, row.id)
-                    if persisted is not None:
-                        persisted.status = "failed"
-                        persisted.result_record = None
+                ),
+                trace("run", component="evidence", operation_id=operation_id),
+            ):
+                try:
+                    sources = await self.runtime.sources()
+                    request = RetrievalRequest(
+                        query=inputs.query(),
+                        scope=RetrievalScope(
+                            allow_internal=True, customer_account_ids=frozenset({owner})
+                        ),
+                        active_revisions=tuple(
+                            DocumentRevision(
+                                document_id=s.metadata.document_id,
+                                version=s.metadata.version,
+                            )
+                            for s in sources
+                        ),
+                        service_code=inputs.service_code,
+                    )
+                    result, report = await self.runtime.generate(request, sources, mode)
+                    verify_evidence_catalog(request, result, sources)
+                    saved = SavedEvidence(
+                        request=request,
+                        result=result,
+                        sources=tuple(
+                            source
+                            for source in sources
+                            if any(
+                                item.metadata.document_id == source.metadata.document_id
+                                and item.metadata.version == source.metadata.version
+                                for item in result.evidence
+                            )
+                        ),
+                        report=report,
+                    )
+                    final_owner, final_inputs = await self.inputs(token, report_id)
+                    if final_owner != owner or final_inputs != inputs:
+                        raise HTTPException(409, "Report observations changed")
+                    # Validate current source access before publishing; GET repeats checks.
+                    latest = {
+                        s.metadata.document_id: s.metadata
+                        for s in await self.runtime.sources()
+                    }
+                    if any(
+                        latest.get(item.metadata.document_id) != item.metadata
+                        for item in result.evidence
+                    ):
+                        raise ValueError("Source policy changed")
+                    async with self.sessions() as session:
+                        persisted = await session.get(EvidenceAnalysis, row.id)
+                        if persisted is None:
+                            raise ValueError("Missing operation")
+                        persisted.result_record = saved.model_dump(mode="json")
+                        persisted.status = "ready"
                         await session.commit()
-                raise
-            return await self.get(token, report_id, row.id)
+                except Exception:
+                    # Cancellation/process loss deliberately leaves durable pending state.
+                    async with self.sessions() as session:
+                        persisted = await session.get(EvidenceAnalysis, row.id)
+                        if persisted is not None:
+                            persisted.status = "failed"
+                            persisted.result_record = None
+                            await session.commit()
+                    raise
+                return await self.get(token, report_id, row.id)

@@ -11,6 +11,8 @@ import {
 } from 'react'
 
 import { demoTokenSchema } from '../reports/validation'
+import { AccountForm } from './account-form'
+import { accountApi } from './account-api'
 
 const SessionContext = createContext<{
   token: string
@@ -29,9 +31,11 @@ export function useSessionIsCurrent() {
 export function DemoSession({
   children,
   experience = 'customer',
+  authMode = 'demo',
 }: {
   children: ReactNode
   experience?: 'customer' | 'support'
+  authMode?: 'demo' | 'password'
 }) {
   const support = experience === 'support'
   const [client] = useState(
@@ -47,6 +51,7 @@ export function DemoSession({
   const generation = useRef(0)
   const sessionGeneration = generation.current
   const [enteredToken, setEnteredToken] = useState('')
+  const [signOutNotice, setSignOutNotice] = useState('')
   useEffect(
     () => () => {
       generation.current += 1
@@ -63,11 +68,18 @@ export function DemoSession({
     setToken(result.data)
     setEnteredToken('')
   }
-  function disconnect() {
+  async function disconnect() {
+    const previousToken = token
     generation.current += 1
+    const endedAt = generation.current
     void client.cancelQueries()
     client.clear()
     setToken('')
+    setSignOutNotice('')
+    if (authMode === 'password') {
+      try { await accountApi.logout(previousToken) }
+      catch { if (generation.current === endedAt) setSignOutNotice('Signed out on this browser. Server sign-out could not be confirmed; that session remains valid until revoked or expired.') }
+    }
   }
   return (
     <QueryClientProvider client={client}>
@@ -84,7 +96,7 @@ export function DemoSession({
         {token && (
           <button
             className="button-secondary max-[600px]:px-2.5 max-[600px]:py-2 max-[600px]:text-[0.8rem]"
-            onClick={disconnect}
+            onClick={() => void disconnect()}
           >
             End session
           </button>
@@ -106,7 +118,12 @@ export function DemoSession({
                 ? 'Inspect execution history for reports your support identity can access.'
                 : 'Submit a problem, review your reports, and update the affected service.'}
             </p>
-            <form onSubmit={connect}>
+            {signOutNotice && <p role="status" className="notice">{signOutNotice}</p>}
+            {authMode === 'password' ? <AccountForm experience={experience} onConnect={(value) => {
+              generation.current += 1
+              setToken(value)
+              setSignOutNotice('')
+            }} /> : <form onSubmit={connect}>
               <label className="form-label" htmlFor="demo-token">
                 Demo {experience} token
               </label>
@@ -126,7 +143,7 @@ export function DemoSession({
               <button className="button-primary" type="submit">
                 {support ? 'Open support timeline' : 'Open my reports'}
               </button>
-            </form>
+            </form>}
           </section>
         ) : (
           <SessionContext.Provider

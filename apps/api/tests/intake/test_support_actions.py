@@ -32,7 +32,12 @@ async def actions(
     e = environment
     async with e.sessions() as session:
         connection = await session.connection()
-        for name in ("support_action_runs", "proposal_preparations"):
+        for name in (
+            "support_action_runs",
+            "proposal_preparations",
+            "execution_operations",
+            "simulated_ticket_effects",
+        ):
             await connection.run_sync(Base.metadata.tables[name].create)
         report = await session.get(IssueReport, e.report_id)
         assert report is not None
@@ -57,6 +62,7 @@ async def actions(
     tool = SimulatedCreateTicketTool()
     monkeypatch.setattr(service, "tool", lambda: tool)
     app = create_app()
+    app.state.session_factory = e.sessions
     app.state.support_actions = service
     async with AsyncClient(
         transport=ASGITransport(app=app),
@@ -287,8 +293,13 @@ async def test_http_access_for_reads_preparation_and_decisions(
             json=reply(saved).model_dump(mode="json"),
             headers=headers,
         ),
+        await client.post(
+            f"{path}/runs/{saved.run_id}/recover-execution",
+            json=reply(saved).model_dump(mode="json"),
+            headers=headers,
+        ),
     ]
-    assert [response.status_code for response in responses] == [expected] * 3
+    assert [response.status_code for response in responses] == [expected] * 4
     assert all("proposed_action" not in response.text for response in responses)
     assert not tool.calls
 

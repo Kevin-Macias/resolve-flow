@@ -32,7 +32,7 @@ async def database_lifespan(app: FastAPI) -> AsyncGenerator[None]:
         return
 
     sqlalchemy_url = make_url(db_url).set(drivername="postgresql+psycopg")
-    engine = create_async_engine(sqlalchemy_url)
+    engine = create_async_engine(sqlalchemy_url, pool_pre_ping=True)
     app.state.session_factory = async_sessionmaker[AsyncSession](
         engine, expire_on_commit=False
     )
