@@ -624,9 +624,14 @@ These tickets follow the [PAIR agreement](working-agreement.md#pair).
 
 Kevin selected Railway Hobby on 2026-10-18. The
 [deployment runbook](railway-deployment.md) and per-service variable templates
-prepare the existing images for dashboard setup. Budget selection, authenticated
-provisioning, fictional demo records, and hosted/browser/restart verification
-remain pending. RF-710 stays NEXT; no Railway resources have been created.
+prepare the existing images for hosting. On 2026-10-19 the authenticated CLI
+provisioned private pgvector storage and the API, reused the existing web
+service, and configured Docker builds, schema initialization, HTTPS, and offline
+password-mode operation. All three deployments succeeded; public web, API
+liveness/readiness, anonymous access denial, CORS, and browser-bundle API-origin
+checks passed. Web readiness uses `/reports` because `/` redirects. Budget
+limits, administrator setup, fictional demo records, and authenticated
+browser/restart verification remain pending. RF-710 stays NEXT.
 
 ## Phase 8 — Portfolio package
 

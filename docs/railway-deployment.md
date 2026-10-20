@@ -1,7 +1,27 @@
 # Railway demonstration (RF-710)
 
-Kevin selected Railway Hobby on 2026-10-18. This is the deployment runbook;
-the hosted deployment and browser verification are still pending.
+Kevin selected Railway Hobby on 2026-10-18. Services were provisioned and public
+HTTPS checks passed on 2026-10-19. Administrator setup, authenticated browser
+verification, and final PAIR review remain pending.
+
+## Hosted environment
+
+- Project: `airy-celebration`, environment: `production`, region: `iad`.
+- Web: <https://resolve-flowweb-production.up.railway.app>, retaining the existing
+  Railway service name `@resolve-flow/web`.
+- API: <https://api-production-98d1.up.railway.app>.
+- Database: private `db` service with `db-volume` mounted at the path below.
+- Source revision for the initial deployment: `ff9d31e` on `main`.
+
+The CLI is authenticated and linked. The database password was generated and
+sent directly to Railway; it is not stored in this repository. API/web use the
+existing Dockerfiles, explicit ports 8000/3000, readiness checks, password
+authentication, and offline model modes. The existing web service's start-command
+override is `node .output/server/index.mjs` to match the Docker runtime.
+
+The compute usage limit was unset when inspected; no workspace billing limits
+were changed. The Railway Agent's separate default limit does not cap service
+hosting costs.
 
 Use three services named `db`, `api`, and `web` in one project/environment.
 Keep one replica per service and place them in the same region. Start with
@@ -19,7 +39,7 @@ explicit step.
 | Start command | Image default | Image default | Image default |
 | Pre-deploy command | — | `python -m api.bootstrap` | — |
 | Pre-deploy timeout | — | 300 seconds | — |
-| Deployment health path | — | `/ready` | `/` |
+| Deployment health path | — | `/ready` | `/reports` |
 | Health timeout | — | 300 seconds | 300 seconds |
 | Persistent volume mount | `/var/lib/postgresql/data` | None | None |
 | Public HTTPS domain | None | Generate | Generate |
@@ -39,6 +59,8 @@ the saved database password.
 Both application Dockerfiles require the whole repository as their build
 context. Selecting `apps/web` or `apps/api` as the service root would omit
 required files. Railway supplies `PORT`, which both app entry points honor.
+The web's `/` route redirects; use `/reports` for Railway's readiness check,
+which requires a successful page response.
 
 ## First deployment
 
@@ -74,11 +96,35 @@ required files. Railway supplies `PORT`, which both app entry points honor.
    has no tenants or demonstration reports; choosing and provisioning fictional
    demo records remains part of the deployment walkthrough.
 
+   With the CLI linked to the hosted project, open the API shell using:
+
+   ```bash
+   railway ssh --service api --environment production
+   ```
+
+   Run the admin command inside that shell. Choose the password there rather
+   than sharing it in chat or putting it in command arguments.
+
 The variable examples contain Railway references, not shell substitutions.
 Paste them into Railway; do not source them in a terminal. Store real secrets
 in Railway, keeping these checked-in examples unchanged.
 
 ## Verification before accepting RF-710
+
+Verified on 2026-10-19 against the hosted services:
+
+- Railway reports successful database, API, and web deployments.
+- API `/health` and `/ready` return 200, including database/schema readiness.
+- Anonymous `GET /issue-reports` returns 401.
+- Login preflight permits the exact HTTPS web origin.
+- Web `/reports` returns 200 with the password login page, and its deployed
+  JavaScript contains the configured HTTPS API origin.
+
+The initial web readiness check received HTTP 307 from `/`; changing its path
+to `/reports` resolved readiness. Superseded deployments using the old check were
+canceled. These HTTP and bundle checks do not replace an authenticated browser
+walkthrough. No administrator, customer accounts, or invitation credentials were
+created, and no live model calls were made.
 
 Verify customer onboarding, repeat login, cross-account denial, clarification
 and streaming, support grants, evidence, exact-action approval, simulated

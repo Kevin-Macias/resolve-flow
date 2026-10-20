@@ -9,8 +9,10 @@ the stack and links the application choices that need context.
 
 The [Railway deployment runbook](railway-deployment.md) prepares the existing
 Docker images for Kevin's selected Hobby hosting, with a private pgvector
-database and separate web/API services. Hosted provisioning and verification
-remain pending under RF-710.
+database and separate web/API services. Services were provisioned on 2026-10-19;
+Web/API HTTPS, schema readiness, anonymous denial, CORS, and deployed bundle
+configuration checks pass. Authenticated browser verification and first-account
+setup remain pending under RF-710.
 
 [Continuous integration](continuous-integration.md) defines separate GitHub
 Actions jobs for repository checks/fixture evaluations and container integration.
