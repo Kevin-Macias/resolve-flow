@@ -1031,11 +1031,6 @@ export interface components {
         InvitationRequest: {
             /** Customer Account Id */
             customer_account_id: string | null;
-            /**
-             * Email
-             * Format: email
-             */
-            email: string;
             /** Support Account Ids */
             support_account_ids?: string[];
             /**
@@ -1214,6 +1209,11 @@ export interface components {
         };
         /** RedeemInvitation */
         RedeemInvitation: {
+            /**
+             * Email
+             * Format: email
+             */
+            email: string;
             /** Last Name */
             last_name: string;
             /** Name */

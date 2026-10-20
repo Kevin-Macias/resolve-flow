@@ -156,10 +156,6 @@ async def create_invitation(
     require_password_mode()
     if not actor.is_admin or actor.user_type != "support":
         raise HTTPException(403, "Administrator access required")
-    if await session.scalar(
-        select(AuthCredential.user_id).where(AuthCredential.email == str(body.email))
-    ):
-        raise HTTPException(409, "An account already exists for this email")
     await check_accounts(
         session,
         ([body.customer_account_id] if body.customer_account_id else [])
@@ -167,7 +163,6 @@ async def create_invitation(
     )
     token = new_token("invitation")
     invitation = AuthInvitation(
-        email=str(body.email),
         user_type=body.user_type,
         customer_account_id=body.customer_account_id,
         support_account_ids=[str(account) for account in body.support_account_ids],
@@ -206,9 +201,9 @@ async def redeem(session: AsyncSession, body: RedeemInvitation) -> SessionCreate
     if issuer is None or not issuer.is_admin or issuer.disabled_at:
         raise HTTPException(400, "Invitation unavailable")
     if await session.scalar(
-        select(AuthCredential.user_id).where(AuthCredential.email == invitation.email)
+        select(AuthCredential.user_id).where(AuthCredential.email == str(body.email))
     ):
-        raise HTTPException(400, "Invitation unavailable")
+        raise HTTPException(409, "Email unavailable")
     accounts = [UUID(value) for value in invitation.support_account_ids]
     await check_accounts(session, accounts)
     user = User(
@@ -221,7 +216,7 @@ async def redeem(session: AsyncSession, body: RedeemInvitation) -> SessionCreate
     await session.flush()
     credential = AuthCredential(
         user_id=user.id,
-        email=invitation.email,
+        email=str(body.email),
         password_hash=await hash_password(body.password.get_secret_value()),
         is_admin=False,
     )

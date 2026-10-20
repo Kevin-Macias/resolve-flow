@@ -1,6 +1,7 @@
 import { Link } from '@tanstack/react-router'
 import type { ReactNode } from 'react'
 
+import { Brand } from '../../components/brand'
 import { AccountForm } from './account-form'
 import { DemoTokenForm } from './demo-token-form'
 import { EntryCardContent } from './entry-card-content'
@@ -23,10 +24,7 @@ function SignInLayout({ introduction, children, workspaceLink, details, appearan
     <main className={appearance === 'support' ? 'sign-in-page support-sign-in' : 'sign-in-page'}>
       <section className={details ? 'sign-in-hero sign-in-hero-with-details' : 'sign-in-hero'} aria-labelledby="sign-in-heading">
         <div className="sign-in-introduction">
-          <Link to="/" className="sign-in-brand" aria-label="Resolve Flow">
-            <span className="brand-mark" aria-hidden="true">r<span className="text-white/60">f</span></span>
-            <span>Resolve<span className="font-normal text-brand">Flow</span></span>
-          </Link>
+          <Brand className="sign-in-brand" />
           {introduction}
         </div>
         <div className="sign-in-card-stack">

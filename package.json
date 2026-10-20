@@ -7,7 +7,7 @@
   },
   "scripts": {
     "dev": "concurrently -n api,web -c blue,green \"pnpm dev:api\" \"pnpm --filter @resolve-flow/web dev\"",
-    "dev:api": "uv run --directory apps/api python -m api.server --reload --host 127.0.0.1",
+    "dev:api": "uv run --directory apps/api --env-file ../../.env python -m api.server --reload --host 127.0.0.1",
     "setup": "uv sync --directory apps/api",
     "generate:api-client": "uv run --directory apps/api python scripts/export_openapi.py && pnpm --filter @resolve-flow/api-client generate",
     "check:api-client": "uv run --directory apps/api python scripts/export_openapi.py --check && pnpm --filter @resolve-flow/api-client check:generated",

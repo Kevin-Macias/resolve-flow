@@ -58,8 +58,180 @@
     @apply flex flex-wrap items-center gap-4 border-b border-line bg-white px-[max(1.25rem,calc((100vw_-_1080px)/2))] py-4;
   }
 
+  .workspace-header-actions {
+    @apply ml-auto flex flex-wrap items-center justify-end gap-3;
+  }
+
+  .workspace-switch-link {
+    @apply rounded-lg px-3 py-2 text-sm font-medium text-muted no-underline hover:bg-page hover:text-ink;
+  }
+
+  .logout-button {
+    @apply inline-flex cursor-pointer items-center gap-2 rounded-lg border border-[#9bb7ab] bg-transparent px-3.5 py-2 text-sm font-semibold text-brand transition-colors hover:border-brand hover:bg-[#edf4ef] active:bg-[#e2eee5];
+  }
+
+  .logout-button svg {
+    @apply size-4 shrink-0;
+  }
+
   .workspace-content {
     @apply mx-auto max-w-[960px] px-5 pt-12 pb-20 max-[600px]:pt-8;
+  }
+
+  .reports-page-heading {
+    @apply mb-8 flex flex-wrap items-center justify-between gap-5;
+  }
+
+  .reports-page-heading .eyebrow {
+    @apply mt-0 mb-2;
+  }
+
+  .reports-page-heading h1 {
+    @apply mt-0 mb-3;
+  }
+
+  .reports-page-description {
+    @apply m-0 max-w-[52ch] text-muted;
+  }
+
+  .reports-collection {
+    @apply overflow-hidden rounded-2xl border border-line bg-white shadow-[0_4px_24px_-16px_#172d2b33];
+  }
+
+  .reports-collection-toolbar {
+    @apply flex items-center justify-between gap-4 border-b border-line bg-[#fafbf8] px-6 py-3 max-[600px]:px-4;
+  }
+
+  .reports-refresh {
+    @apply cursor-pointer rounded-lg px-3 py-2 text-sm font-semibold text-brand transition-colors hover:bg-[#e8f1eb] disabled:cursor-wait disabled:opacity-55;
+  }
+
+  .reports-loading {
+    @apply m-0 px-6 py-14 text-center text-muted;
+  }
+
+  .reports-empty {
+    @apply flex flex-col items-center px-5 py-16 text-center;
+  }
+
+  .reports-empty-icon {
+    @apply mb-5 flex size-16 items-center justify-center rounded-2xl border border-[#d0e1d6] bg-[#edf4ef] text-brand;
+  }
+
+  .reports-empty h2 {
+    @apply mb-2 font-display text-3xl font-medium tracking-tight;
+  }
+
+  .reports-empty p {
+    @apply mt-0 mb-6 max-w-[42ch] text-muted;
+  }
+
+  .reports-list {
+    @apply m-0 list-none divide-y divide-line p-0;
+  }
+
+  .report-list-item {
+    @apply relative flex items-start gap-4 px-6 py-6 transition-colors hover:bg-[#f7faf6] focus-within:bg-[#f7faf6] max-[600px]:gap-3 max-[600px]:px-4;
+  }
+
+  .report-list-icon {
+    @apply flex size-10 shrink-0 items-center justify-center rounded-xl border border-line bg-[#f3f6f1] text-brand;
+  }
+
+  .report-list-heading {
+    @apply flex items-start justify-between gap-4 max-[600px]:flex-col max-[600px]:gap-2;
+  }
+
+  .report-list-link {
+    @apply text-ink no-underline after:absolute after:inset-0 after:rounded-lg hover:text-brand;
+  }
+
+  .report-list-meta {
+    @apply mt-3 flex flex-wrap gap-x-5 gap-y-1 text-xs leading-relaxed text-muted;
+  }
+
+  .report-list-arrow {
+    @apply mt-2 size-4 shrink-0 self-center text-[#8a9e92] max-[600px]:hidden;
+  }
+
+  .reports-back-link {
+    @apply inline-block text-sm font-medium text-muted no-underline hover:text-brand hover:underline;
+  }
+
+  .reports-back-link + .reports-page-heading {
+    @apply mt-7;
+  }
+
+  .new-report-layout {
+    @apply grid items-start gap-8 md:grid-cols-[minmax(0,1fr)_240px];
+  }
+
+  .new-report-form {
+    @apply min-w-0 rounded-2xl border border-line bg-white p-6 shadow-[0_4px_24px_-16px_#172d2b33] sm:p-8;
+  }
+
+  .new-report-form-heading {
+    @apply mb-6 flex items-center gap-3 border-b border-line pb-6;
+  }
+
+  .new-report-form-heading h2 {
+    @apply m-0 text-base;
+  }
+
+  .new-report-form-heading p {
+    @apply mt-1 mb-0 text-sm text-muted;
+  }
+
+  .new-report-form .form-field {
+    @apply rounded-lg border-line bg-[#fdfefa] focus:border-brand;
+  }
+
+  .report-description-input {
+    @apply min-h-48 resize-y leading-relaxed placeholder:text-[#839489];
+  }
+
+  .description-guidance {
+    @apply mt-2 flex flex-wrap justify-between gap-x-4 gap-y-1 text-xs leading-relaxed text-muted;
+  }
+
+  .description-guidance p {
+    @apply m-0;
+  }
+
+  .new-report-actions {
+    @apply mt-7 flex flex-wrap items-center gap-5 border-t border-line pt-6;
+  }
+
+  .new-report-guide {
+    @apply py-3;
+  }
+
+  .new-report-guide .eyebrow {
+    @apply mt-0 text-[0.65rem];
+  }
+
+  .new-report-guide > h2 {
+    @apply mb-6 font-display text-2xl font-medium tracking-tight;
+  }
+
+  .new-report-guide ul {
+    @apply m-0 list-none space-y-6 p-0;
+  }
+
+  .new-report-guide li {
+    @apply flex items-start gap-3;
+  }
+
+  .new-report-guide li > span {
+    @apply pt-0.5 font-mono text-xs text-brand;
+  }
+
+  .new-report-guide h3 {
+    @apply text-sm font-semibold;
+  }
+
+  .new-report-guide li p {
+    @apply mt-1 mb-0 text-sm text-muted;
   }
 
   .sign-in-page {
@@ -87,8 +259,20 @@
     @apply md:col-start-1 md:row-start-2 md:self-start;
   }
 
+  .brand {
+    @apply inline-flex shrink-0 items-center gap-3 text-3xl font-semibold tracking-tight text-ink no-underline;
+  }
+
   .sign-in-brand {
-    @apply mb-12 inline-flex items-center gap-3 text-3xl font-semibold tracking-tight text-ink no-underline;
+    @apply mb-12;
+  }
+
+  .workspace-brand {
+    @apply gap-2.5 font-sans text-2xl leading-none tracking-normal no-underline;
+  }
+
+  .workspace-brand .brand-mark {
+    @apply size-10 shrink-0 text-2xl leading-none;
   }
 
   .brand-mark {
@@ -254,6 +438,18 @@
     .entry-card-icon {
       @apply size-9;
     }
+  }
+
+  .invitation-token-control {
+    @apply flex items-center gap-2;
+  }
+
+  .invitation-token-input {
+    @apply min-w-0 flex-1 font-mono;
+  }
+
+  .invitation-token-toggle {
+    @apply cursor-pointer rounded-lg px-3 py-2 text-sm font-semibold text-[#254a40] hover:bg-white disabled:opacity-55;
   }
 
   .button-primary,

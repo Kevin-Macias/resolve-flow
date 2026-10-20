@@ -294,7 +294,7 @@ describe('support evidence panel', () => {
     await screen.findByText(/No evidence analysis/)
     await user.click(screen.getByRole('button', { name: 'Analyze evidence' }))
     await screen.findByRole('button', { name: 'Analyzing…' })
-    await user.click(screen.getByRole('button', { name: 'End session' }))
+    await user.click(screen.getByRole('button', { name: 'Log out' }))
     await connect(user, 'support-two')
     await screen.findByText(/No evidence analysis/)
     await act(async () => {

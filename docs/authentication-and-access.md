@@ -37,16 +37,17 @@ image after changing this value.
 ## Account lifecycle
 
 A trusted local operator creates the first access administrator. That admin
-invites a person with a fixed email, role, and account scope. The recipient
-redeems the invitation with their name and password, creating a permanent user
+creates an invitation with a fixed role and account scope. The recipient
+redeems it with their chosen email, name, and password, creating a permanent user
 and an initial session. Later visits use email and password.
 
 An invitation expires after 24 hours and can be redeemed once. Redemption locks
 the invitation and commits user creation, credentials, grants, consumption, and
 the initial session together. Concurrent redemption creates one account. The
 issuer must still be an enabled administrator. Invitations cannot reset an
-existing user's password or upgrade their permissions. Multiple outstanding
-invitations for an email are allowed; after one creates the user, others fail.
+existing user's password or upgrade their permissions. A registered email is
+rejected without consuming the invitation, so the recipient can choose another.
+Whoever redeems the token first chooses the email; mailbox ownership is not verified.
 Revoke an older invitation when replacing it.
 
 Passwords accept 15-128 characters and use pwdlib's recommended Argon2id hash.
@@ -94,7 +95,6 @@ Open the API's `/docs`, call `POST /auth/login`, and paste the returned
 
 ```json
 {
-  "email": "customer@example.com",
   "user_type": "customer",
   "customer_account_id": "<existing customer account UUID>",
   "support_account_ids": []
@@ -106,7 +106,8 @@ explicit account UUIDs in `support_account_ids`. Accounts must already exist.
 Record the invitation ID for revocation and deliver the returned token privately.
 The token is returned once; the service does not send email or verify mailbox
 ownership. The recipient opens `/reports` for customer access or `/support`
-for support access, selects **Have an invitation?**, and sets their password.
+for support access, selects **Have an invitation?**, and enters their email, name,
+and password.
 Invited users cannot choose their role, tenant, grants, or admin capability.
 
 To recover a forgotten password, a trusted local operator runs:
@@ -117,6 +118,10 @@ uv run --directory apps/api --env-file ../../.env python scripts/manage_auth.py 
 
 Admin operations use the API; there is no management screen or user/account
 listing endpoint. Use known user and account IDs when managing access.
+
+Migration `0010` removes invitation email bindings. Existing unused tokens also
+allow a chosen email. Deploy the API and web changes together. Rolling back
+`0010` revokes invitations because their original email bindings cannot be restored.
 
 ## Authentication and administration API
 
@@ -160,7 +165,7 @@ and [execution recovery](tool-idempotency.md) retain their additional guards.
 401 means absent or invalid identity, 403 means wrong role/capability, and 404
 hides missing, foreign-account, or ungranted records. Customer archive reads
 also return 404. Stale authorized mutations return 409. Invalid/expired/used
-invitations return a generic 400; existing-user invitation creation returns 409.
+invitations return a generic 400; redemption with a registered email returns 409.
 Malformed identity configuration fails closed with 503.
 
 Fresh support reads, stream sends, and execution checks recheck current access.
@@ -185,6 +190,15 @@ storage quotas, and provider spend caps still need separate controls. Review
 deployment and operational controls before using real customer data.
 
 ## Verification
+
+Recipient-chosen email follow-up, 2026-10-20: `pnpm check` passed with all 874
+backend and 219 frontend tests, no skips, on a disposable PostgreSQL database.
+Coverage includes chosen-email normalization, repeat login, duplicate-email
+rejection without token consumption, required/invalid emails, and the existing
+single-use and access checks. Migration `0010` upgrade, legacy-token preservation,
+rollback revocation, re-upgrade, and ORM drift passed separately. The local app
+was upgraded to `0010`; readiness and the running API contract passed. The earlier
+manual-test token remained usable. Hands-on browser review remains Kevin's check.
 
 [`test_accounts.py`](../apps/api/tests/identity/test_accounts.py) exercises actual
 HTTP handlers and isolated PostgreSQL schemas: repeat login, tenant scoping,

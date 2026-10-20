@@ -7,6 +7,7 @@ export const loginSchema = z.strictObject({
   password: z.string().min(1, 'Enter your password.').max(128),
 })
 export const enrollmentSchema = z.strictObject({
+  email: z.email().trim().toLowerCase(),
   token: z.string().trim().min(1, 'Enter your invitation token.').max(256),
   name: z.string().trim().min(1, 'Enter your first name.').max(200),
   last_name: z.string().trim().min(1, 'Enter your last name.').max(200),
@@ -35,8 +36,9 @@ async function parse(data: unknown, response: Response, enroll: boolean) {
   if (!response.ok) throw new Error(
     limitErrorMessage(response.status) ?? (response.status === 401 ? 'Email or password was not accepted.'
         : response.status === 400 ? 'This invitation is invalid, expired, revoked, or already used. If you already accepted it, sign in with your email and password.'
+          : response.status === 409 ? 'This email is already registered. Sign in or choose another email.'
           : response.status === 422 ? 'Check your details and password length.'
-            : enroll ? 'Account setup could not be confirmed. Try signing in with your invited email and password before accepting again.'
+            : enroll ? 'Account setup could not be confirmed. Try signing in with the email and password you entered before accepting again.'
               : 'Sign-in is unavailable. Try again later.'),
   )
   const result = sessionSchema.safeParse(data)

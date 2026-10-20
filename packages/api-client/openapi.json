@@ -1566,11 +1566,6 @@
             ],
             "title": "Customer Account Id"
           },
-          "email": {
-            "format": "email",
-            "title": "Email",
-            "type": "string"
-          },
           "support_account_ids": {
             "items": {
               "format": "uuid",
@@ -1590,7 +1585,6 @@
           }
         },
         "required": [
-          "email",
           "user_type",
           "customer_account_id"
         ],
@@ -2037,6 +2031,11 @@
       "RedeemInvitation": {
         "additionalProperties": false,
         "properties": {
+          "email": {
+            "format": "email",
+            "title": "Email",
+            "type": "string"
+          },
           "last_name": {
             "maxLength": 200,
             "minLength": 1,
@@ -2067,6 +2066,7 @@
           }
         },
         "required": [
+          "email",
           "token",
           "name",
           "last_name",

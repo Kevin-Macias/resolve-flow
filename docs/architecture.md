@@ -88,7 +88,9 @@ FastAPI                                   apps/api
 path. Migration `0007` adds password credentials, hashed expiring bearer sessions,
 one-use invitations, support account grants, and login-attempt windows. A trusted
 local CLI bootstraps a support administrator. Admin APIs issue invitations and
-manage access; the recipient sets a password and later uses email/password login.
+manage access; the recipient chooses an email and password and later uses them
+to sign in. Migration `0010` removes invitation email bindings; tokens retain
+their fixed role, tenant, grants, expiry, and single-use checks.
 Administrator capability is separate from report-account grants. Session identity
 snapshots reject role/account/admin changes, while support checks read current
 grants. Browser tokens live in memory; logout revokes the server session.

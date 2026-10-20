@@ -69,6 +69,12 @@ only an empty mapping. This remains simulated identity, not production login.
 
 ## Styling
 
+The list groups reports into a single panel with status badges, service and
+updated-time metadata, and an empty state with a create action. The new-report
+page pairs the form with writing guidance; on smaller screens the guide follows
+the form. The character limit and reminder that descriptions stay as submitted
+appear beside the form controls. Both pages share the login palette and brand.
+
 The report screens use Tailwind through its Vite plugin. `styles.css` imports
 Tailwind and defines theme tokens, base typography/focus rules, and shared
 classes for buttons, cards, fields, notices, and labels. See the

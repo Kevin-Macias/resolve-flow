@@ -339,7 +339,7 @@ describe('complete support workspace', () => {
     await connect(user)
     await screen.findByText('Loading saved metrics…')
     await waitFor(() => expect(requests).toHaveLength(4))
-    await user.click(screen.getByRole('button', { name: 'End session' }))
+    await user.click(screen.getByRole('button', { name: 'Log out' }))
     await waitFor(() =>
       expect(requests.every((r) => r.signal.aborted)).toBe(true),
     )

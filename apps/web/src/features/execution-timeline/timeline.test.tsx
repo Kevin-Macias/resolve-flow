@@ -375,7 +375,7 @@ describe('authorized support route', () => {
     const { user } = mount()
     await connect(user)
     await screen.findByText('Loading saved timeline…')
-    await user.click(screen.getByRole('button', { name: 'End session' }))
+    await user.click(screen.getByRole('button', { name: 'Log out' }))
     expect(firstRequest.signal.aborted).toBe(true)
     await connect(user, 'support-two')
     await screen.findByRole('alert')

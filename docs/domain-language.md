@@ -29,8 +29,9 @@ capability does not itself grant access to any customer account's reports.
 
 ### Invitation
 
-A one-use offer to join ResolveFlow with a fixed email, role, and account scope.
-Accepting it creates a permanent user; later visits use that user's credentials.
+A one-use offer to join ResolveFlow with a fixed role and account scope.
+The recipient chooses an email and password when accepting it; later visits
+use those credentials.
 
 ### Session
 

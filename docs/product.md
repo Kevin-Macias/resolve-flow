@@ -43,7 +43,8 @@ access. This capability does not grant report access; support account grants
 remain explicit.
 
 [Invitation onboarding](authentication-and-access.md) creates permanent users
-with a fixed role and scope. Users sign in again with email/password. Sessions
+with a fixed role and scope. Recipients choose their email and password during
+setup, then use them to sign in again. Sessions
 expire and can be revoked; static fixtures require explicit legacy demo mode.
 
 ## MVP demonstration

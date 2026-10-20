@@ -54,7 +54,6 @@ class AuthInvitation(Timestamps, Base):
         ),
     )
     id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
-    email: Mapped[str] = mapped_column(Text)
     user_type: Mapped[str] = mapped_column(Text)
     customer_account_id: Mapped[UUID | None] = mapped_column(
         ForeignKey("customer_accounts.id", ondelete="RESTRICT")

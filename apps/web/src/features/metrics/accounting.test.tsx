@@ -96,7 +96,7 @@ it('does not show a late response after ending the session', async () => {
   vi.stubGlobal('fetch', vi.fn(() => pending))
   const { user } = mount(); await connect(user)
   await screen.findByText('Loading model attempts…')
-  await user.click(screen.getByRole('button', { name: 'End session' }))
+  await user.click(screen.getByRole('button', { name: 'Log out' }))
   await act(async () => { resolve(json(saved())); await pending })
   expect(screen.queryByText(/saved-model/)).toBeNull()
   expect(screen.getByLabelText('Demo support token')).toBeTruthy()

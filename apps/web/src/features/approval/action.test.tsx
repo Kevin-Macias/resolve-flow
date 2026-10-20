@@ -489,7 +489,7 @@ describe('support action review', () => {
       finish(json(fixtures.success))
     })
     expect(screen.queryByText('Saved decision: Approved')).toBeNull()
-    await user.click(screen.getByRole('button', { name: 'End session' }))
+    await user.click(screen.getByRole('button', { name: 'Log out' }))
     await connect(user, 'support-two')
     await screen.findByText('No action is currently proposed.')
     expect(screen.queryByText(p.arguments.description)).toBeNull()

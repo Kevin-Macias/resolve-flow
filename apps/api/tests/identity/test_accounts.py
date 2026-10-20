@@ -93,14 +93,11 @@ async def accounts(monkeypatch: pytest.MonkeyPatch) -> AsyncGenerator[Accounts]:
             )
 
 
-async def invite(
-    e: Accounts, email: str = "customer@example.com", *, support: bool = False
-) -> dict[str, object]:
+async def invite(e: Accounts, *, support: bool = False) -> dict[str, object]:
     response = await e.client.post(
         "/admin/invitations",
         headers=e.admin,
         json={
-            "email": email,
             "user_type": "support" if support else "customer",
             "customer_account_id": None if support else str(e.account),
             "support_account_ids": [str(e.account)] if support else [],
@@ -111,9 +108,10 @@ async def invite(
     return response.json()
 
 
-def enrollment(token: object) -> dict[str, object]:
+def enrollment(token: object, email: str = "customer@example.com") -> dict[str, object]:
     return {
         "token": token,
+        "email": email,
         "name": "Invited",
         "last_name": "Person",
         "password": PASSWORD,
@@ -123,9 +121,9 @@ def enrollment(token: object) -> dict[str, object]:
 async def enroll(
     e: Accounts, email: str = "customer@example.com", *, support: bool = False
 ) -> tuple[dict[str, str], SessionCreated]:
-    invitation = await invite(e, email, support=support)
+    invitation = await invite(e, support=support)
     response = await e.client.post(
-        "/auth/invitations/redeem", json=enrollment(invitation["token"])
+        "/auth/invitations/redeem", json=enrollment(invitation["token"], email)
     )
     assert response.status_code == 201, response.text
     assert response.headers["Cache-Control"] == "no-store"
@@ -198,6 +196,56 @@ async def test_database_keeps_only_hashes_and_invitation_cannot_authenticate(
         assert all(
             row.token_hash != response.json()["access_token"] for row in sessions
         )
+
+
+@pytest.mark.anyio
+async def test_recipient_chooses_email_and_duplicate_does_not_consume_token(
+    accounts: Accounts,
+) -> None:
+    e = accounts
+    invitation = await invite(e)
+    duplicate = await e.client.post(
+        "/auth/invitations/redeem",
+        json=enrollment(invitation["token"], "ADMIN@EXAMPLE.COM"),
+    )
+    assert duplicate.status_code == 409
+    async with e.sessions() as session:
+        saved = await session.get(
+            AuthInvitation, UUID(str(invitation["invitation_id"]))
+        )
+        assert saved is not None and saved.consumed_at is None
+        assert await session.scalar(select(func.count()).select_from(User)) == 1
+    response = await e.client.post(
+        "/auth/invitations/redeem",
+        json=enrollment(invitation["token"], "Chosen@EXAMPLE.COM"),
+    )
+    assert response.status_code == 201, response.text
+    assert response.json()["user"]["email"] == "chosen@example.com"
+    assert response.json()["user"]["customer_account_id"] == str(e.account)
+    assert response.json()["user"]["user_type"] == "customer"
+    assert response.json()["user"]["is_admin"] is False
+    assert (
+        await e.client.post(
+            "/auth/login", json={"email": "chosen@example.com", "password": PASSWORD}
+        )
+    ).status_code == 200
+
+
+@pytest.mark.anyio
+@pytest.mark.parametrize("email", [None, "not-an-email"])
+async def test_redemption_requires_valid_recipient_email(
+    accounts: Accounts, email: str | None
+) -> None:
+    e = accounts
+    invitation = await invite(e)
+    body = enrollment(invitation["token"])
+    if email is None:
+        body.pop("email")
+    else:
+        body["email"] = email
+    assert (
+        await e.client.post("/auth/invitations/redeem", json=body)
+    ).status_code == 422
 
 
 @pytest.mark.anyio
@@ -279,7 +327,6 @@ async def test_admin_management_does_not_grant_report_access(
             "/admin/invitations",
             headers=support,
             json={
-                "email": "bad@example.com",
                 "user_type": "customer",
                 "customer_account_id": str(e.account),
             },
@@ -399,7 +446,6 @@ async def test_login_failures_are_generic_and_throttled(accounts: Accounts) -> N
 async def test_role_and_admin_injection_is_rejected(accounts: Accounts) -> None:
     e = accounts
     body = {
-        "email": "customer@example.com",
         "user_type": "customer",
         "customer_account_id": str(e.account),
     }

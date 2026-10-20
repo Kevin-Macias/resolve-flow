@@ -230,7 +230,7 @@ it('isolates late reads after ending a session', async () => {
   const { user } = mount()
   await connect(user)
   await screen.findByText('Loading saved metrics…')
-  await user.click(screen.getByRole('button', { name: 'End session' }))
+  await user.click(screen.getByRole('button', { name: 'Log out' }))
   await act(async () => {
     resolve(json(saved))
     await Promise.resolve()

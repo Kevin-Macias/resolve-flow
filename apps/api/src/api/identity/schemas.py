@@ -28,7 +28,7 @@ class EmailContract(Contract):
         return value.casefold()
 
 
-class InvitationRequest(EmailContract):
+class InvitationRequest(Contract):
     user_type: Literal["customer", "support"]
     customer_account_id: UUID | None
     support_account_ids: Annotated[list[UUID], Field(max_length=100)] = Field(
@@ -56,7 +56,7 @@ class LoginRequest(EmailContract):
     password: Annotated[SecretStr, Field(min_length=1, max_length=128)]
 
 
-class RedeemInvitation(Contract):
+class RedeemInvitation(EmailContract):
     token: Annotated[SecretStr, Field(min_length=1, max_length=256)]
     name: Name
     last_name: Name

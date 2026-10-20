@@ -331,7 +331,7 @@ describe('customer report screens against the typed client', () => {
     const user = mount()
     await connect(user)
     await screen.findByRole('link', { name: initial.description })
-    await user.click(screen.getByRole('button', { name: 'End session' }))
+    await user.click(screen.getByRole('button', { name: 'Log out' }))
     expect(screen.queryByText(initial.description)).toBeNull()
     expect(window.localStorage.length).toBe(0)
     expect(window.sessionStorage.length).toBe(0)
@@ -358,7 +358,7 @@ describe('customer report screens against the typed client', () => {
     await connect(user)
     await user.type(screen.getByLabelText('Description'), initial.description)
     await user.click(screen.getByRole('button', { name: 'Submit report' }))
-    await user.click(screen.getByRole('button', { name: 'End session' }))
+    await user.click(screen.getByRole('button', { name: 'Log out' }))
     await connect(user, 'customer-two')
     await act(async () => {
       finishCreate?.(json(initial, 201))

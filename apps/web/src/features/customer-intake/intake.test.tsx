@@ -497,7 +497,7 @@ describe('customer intake integration', () => {
       screen.getByRole('button', { name: 'Submit answers' }),
     )
     await context.user.click(
-      screen.getByRole('button', { name: 'End session' }),
+      screen.getByRole('button', { name: 'Log out' }),
     )
     context.setSaved(null)
     await connect(context.user, 'customer-two')

@@ -19,6 +19,10 @@ Ownership:
 - `PAIR`: Kevin owns decisions; AI assists implementation and review
 - `DELEGATE`: AI may implement from the ticket contract; Kevin reviews
 
+Kevin approved recipient-chosen invitation emails on 2026-10-20. Follow-up
+implementation and verification are recorded in `authentication-and-access.md`;
+RF-710 remains NEXT.
+
 ## Current milestone
 
 **Milestone 5: incident workspace with visible state and approval.**
