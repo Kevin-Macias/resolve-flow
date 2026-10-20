@@ -3,7 +3,7 @@ import { useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
 
 import { reportKeys, reportsApi, type IssueReport } from '../api'
-import { useDemoToken, useSessionIsCurrent } from '../session'
+import { useSessionToken, useSessionIsCurrent } from '../session'
 import { updateReportSchema } from '../validation'
 import { ArchiveReport } from './archive-report'
 import { ReportStatus } from './report-status'
@@ -19,7 +19,7 @@ export function ReportContent({
   refreshing: boolean
   refresh: () => Promise<boolean>
 }) {
-  const token = useDemoToken()
+  const token = useSessionToken()
   const client = useQueryClient()
   const navigate = useNavigate()
   const isCurrentSession = useSessionIsCurrent()

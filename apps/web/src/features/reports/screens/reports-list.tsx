@@ -5,10 +5,10 @@ import { reportKeys, reportsApi } from '../api'
 import { ErrorNotice } from '../components/error-notice'
 import { ReportStatus } from '../components/report-status'
 import { dateLabel, reportLabel } from '../format'
-import { useDemoToken } from '../session'
+import { useSessionToken } from '../session'
 
 export function ReportsList() {
-  const token = useDemoToken()
+  const token = useSessionToken()
   const query = useQuery({
     queryKey: reportKeys.all(token),
     queryFn: ({ signal }) => reportsApi(token).list(signal),

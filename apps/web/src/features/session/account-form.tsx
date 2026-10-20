@@ -1,11 +1,13 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 
 import { accountApi, enrollmentSchema, loginSchema } from './account-api'
+import { EntryCardContent } from './entry-card-content'
 
 export function AccountForm({ experience, onConnect }: {
   experience: 'customer' | 'support'
-  onConnect: (token: string) => void
+  onConnect: (token: string, role: 'customer' | 'support') => void
 }) {
+  const invitationEmail = import.meta.env.VITE_INVITATION_EMAIL?.trim()
   const [enrolling, setEnrolling] = useState(false)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
@@ -28,12 +30,11 @@ export function AccountForm({ experience, onConnect }: {
       const session = enrolling
         ? await accountApi.enroll(enrollmentSchema.parse(fields))
         : await accountApi.login(loginSchema.parse(fields))
-      if (!mounted.current || session.user.user_type !== experience) {
+      if (!mounted.current) {
         void accountApi.logout(session.access_token).catch(() => undefined)
-        if (mounted.current) setError(`This account belongs in the ${session.user.user_type === 'support' ? 'support workspace' : 'customer reports'}. Open that area to sign in.`)
         return
       }
-      onConnect(session.access_token)
+      onConnect(session.access_token, session.user.user_type)
     } catch (error) {
       if (mounted.current) setError(error instanceof TypeError
         ? enrolling ? 'Could not confirm account setup. Try signing in with your invited email and password.' : 'Could not reach ResolveFlow. Try signing in again.'
@@ -44,7 +45,10 @@ export function AccountForm({ experience, onConnect }: {
     }
   }
   return <>
-    <h2 className="section-title">{enrolling ? 'Accept your invitation' : 'Sign in'}</h2>
+    <div className="card sign-in-card">
+    {experience === 'support' && <p className="access-label">Internal access</p>}
+    <h2 className="sign-in-title">{enrolling ? 'Accept your invitation' : 'Sign in'}</h2>
+    <p className="sign-in-subtitle">{enrolling ? 'Set up your account to get started.' : experience === 'support' ? 'Welcome back to your support workspace.' : 'Welcome back. Let’s get you connected.'}</p>
     {error && <p role="alert" className="notice-error">{error}</p>}
     <form onSubmit={(event) => void submit(event)} key={enrolling ? 'enroll' : 'login'}>
       {enrolling ? <>
@@ -60,11 +64,18 @@ export function AccountForm({ experience, onConnect }: {
       </>}
       <label className="form-label" htmlFor="password">Password</label>
       <input className="form-field" id="password" name="password" type="password" autoComplete={enrolling ? 'new-password' : 'current-password'} minLength={enrolling ? 15 : 1} maxLength={128} required disabled={busy} />
-      <p className="hint">{enrolling
-        ? 'Use at least 15 characters. Your invitation fixes your email and account access. You can sign in again after setup.'
-        : 'Use the email and password you set when accepting your invitation. Your session stays in memory; reload signs you out locally.'}</p>
-      <button className="button-primary" type="submit" disabled={busy}>{busy ? 'Connecting…' : enrolling ? 'Create account' : 'Sign in'}</button>
+      {enrolling && <p className="hint">Use at least 15 characters. Your invitation fixes your email and account access. You can sign in again after setup.</p>}
+      <button className="button-primary mt-5 w-full" type="submit" disabled={busy}>{busy ? 'Connecting…' : enrolling ? 'Create account' : 'Sign in'}</button>
     </form>
-    <button className="button-secondary mt-3" disabled={busy} onClick={() => { setEnrolling(!enrolling); setError('') }}>{enrolling ? 'Already accepted? Sign in' : 'Have an invitation?'}</button>
+    {invitationEmail && <p className="hint mb-0 text-center">
+      Need access? <a href={`mailto:${encodeURIComponent(invitationEmail)}?subject=${encodeURIComponent('ResolveFlow invitation request')}`}>Request an invitation</a>
+    </p>}
+    </div>
+    <button className="entry-card invitation-card" type="button" disabled={busy}
+      aria-label={enrolling ? 'Already accepted? Sign in' : 'Have an invitation?'}
+      onClick={() => { setEnrolling(!enrolling); setError('') }}>
+      <EntryCardContent icon="invitation" title={enrolling ? 'Already accepted? Sign in' : 'Have an invitation?'}
+        description={enrolling ? 'Return to your account.' : 'Use your invitation to set up your account.'} />
+    </button>
   </>
 }

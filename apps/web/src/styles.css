@@ -54,6 +54,208 @@
 }
 
 @layer components {
+  .workspace-header {
+    @apply flex flex-wrap items-center gap-4 border-b border-line bg-white px-[max(1.25rem,calc((100vw_-_1080px)/2))] py-4;
+  }
+
+  .workspace-content {
+    @apply mx-auto max-w-[960px] px-5 pt-12 pb-20 max-[600px]:pt-8;
+  }
+
+  .sign-in-page {
+    @apply flex min-h-svh items-center px-5 py-12 sm:px-10;
+    background: radial-gradient(ellipse at top left, #e2eee5, transparent 65%);
+  }
+
+  .sign-in-hero {
+    @apply mx-auto grid w-full max-w-[1080px] items-center gap-10 md:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] md:gap-16;
+  }
+
+  .sign-in-hero-with-details {
+    @apply md:gap-y-0;
+  }
+
+  .sign-in-hero-with-details .sign-in-introduction {
+    @apply md:self-end;
+  }
+
+  .sign-in-hero-with-details .sign-in-card-stack {
+    @apply md:col-start-2 md:row-span-2 md:row-start-1;
+  }
+
+  .sign-in-details {
+    @apply md:col-start-1 md:row-start-2 md:self-start;
+  }
+
+  .sign-in-brand {
+    @apply mb-12 inline-flex items-center gap-3 text-3xl font-semibold tracking-tight text-ink no-underline;
+  }
+
+  .brand-mark {
+    @apply inline-flex size-11 items-center justify-center rounded-xl bg-brand font-display text-2xl font-bold tracking-[-0.12em] text-white shadow-sm;
+  }
+
+  .sign-in-title {
+    @apply mb-2 font-display text-3xl font-medium tracking-tight;
+  }
+
+  .sign-in-subtitle {
+    @apply mt-0 mb-6 text-sm text-muted;
+  }
+
+  .sign-in-introduction h1 {
+    @apply max-w-[12ch] text-[clamp(2.8rem,6vw,4.8rem)] leading-[1.06];
+  }
+
+  .sign-in-description {
+    @apply mb-8 max-w-[42ch] text-lg text-muted;
+  }
+
+  .support-sign-in {
+    background-color: #f1f4f3;
+    background-image: radial-gradient(ellipse at top left, #e1eae5, transparent 65%);
+  }
+
+  .support-sign-in .sign-in-introduction h1 {
+    @apply mt-4 max-w-[15ch] font-sans text-[clamp(2.5rem,4.5vw,3.7rem)] font-semibold tracking-tight;
+  }
+
+  .support-console-label {
+    @apply mt-0 mb-3 flex items-center gap-2 font-mono text-xs font-semibold tracking-[0.12em] text-brand uppercase;
+  }
+
+  .support-capabilities {
+    @apply grid max-w-[440px] gap-5 border-t border-line pt-6;
+  }
+
+  .support-capabilities li {
+    @apply flex items-start gap-3;
+  }
+
+  .support-capability-icon {
+    @apply flex size-10 shrink-0 items-center justify-center rounded-lg border border-line bg-white/75 text-brand;
+  }
+
+  .support-capabilities h2 {
+    @apply m-0 text-sm font-semibold;
+  }
+
+  .support-capabilities p {
+    @apply mt-1 mb-0 text-sm text-muted;
+  }
+
+  .support-sign-in .sign-in-title {
+    @apply font-sans text-2xl font-semibold;
+  }
+
+  .support-sign-in .sign-in-card {
+    @apply border-t-3 border-t-brand;
+  }
+
+  .access-label {
+    @apply mt-0 mb-4 inline-flex rounded-md border border-line bg-[#eef3f1] px-2.5 py-1 text-[0.7rem] font-semibold tracking-widest text-brand uppercase;
+  }
+
+  .sign-in-return {
+    @apply mt-5 self-center text-sm text-muted no-underline hover:text-brand hover:underline;
+  }
+
+  .sign-in-session-note {
+    @apply mt-4 mb-0 text-center;
+  }
+
+  .sign-in-card {
+    @apply relative z-10 min-w-0 border-line shadow-sm sm:p-8;
+  }
+
+  .sign-in-card-stack {
+    @apply isolate flex min-w-0 flex-col;
+  }
+
+  .entry-card {
+    @apply relative z-1 -mt-3 flex w-full cursor-pointer items-center gap-3 rounded-b-xl border px-5 pt-8 pb-5 text-left text-base no-underline transition-colors focus-visible:z-20 disabled:cursor-wait disabled:opacity-55 sm:px-8;
+  }
+
+  .entry-card-icon {
+    @apply flex size-10 shrink-0 items-center justify-center rounded-xl bg-white/65;
+  }
+
+  .invitation-card {
+    @apply z-3 border-[#e5d4b7] bg-[#faf0df] text-[#75532b] hover:bg-[#f4e5cd];
+  }
+
+  .workspace-switch-card {
+    @apply border-[#cbdcd0] bg-[#e8f0e9] text-ink hover:bg-[#dce9df];
+  }
+
+  .sign-in-card .section-title {
+    @apply mt-0;
+  }
+
+  @media (width < 48rem) {
+    .sign-in-page {
+      @apply items-start px-4 py-4;
+    }
+
+    .sign-in-hero {
+      @apply max-w-[480px] gap-4;
+    }
+
+    .sign-in-brand {
+      @apply mb-4 gap-2 text-2xl;
+    }
+
+    .sign-in-brand .brand-mark {
+      @apply size-9 text-xl;
+    }
+
+    .sign-in-introduction .eyebrow,
+    .support-console-label {
+      @apply mt-0 mb-2 text-[0.65rem];
+    }
+
+    .sign-in-introduction h1,
+    .support-sign-in .sign-in-introduction h1 {
+      @apply mt-0 mb-0 max-w-none text-2xl leading-tight;
+    }
+
+    .sign-in-description {
+      @apply hidden;
+    }
+
+    .sign-in-page .sign-in-card {
+      @apply p-4;
+    }
+
+    .sign-in-title {
+      @apply mb-1 text-2xl;
+    }
+
+    .sign-in-subtitle {
+      @apply hidden;
+    }
+
+    .sign-in-card .form-label {
+      @apply mt-3 mb-1;
+    }
+
+    .sign-in-card .form-field {
+      @apply py-2.5 text-base;
+    }
+
+    .access-label {
+      @apply mb-2 py-0.5 text-[0.65rem];
+    }
+
+    .entry-card {
+      @apply gap-3 px-4 pt-7 pb-4;
+    }
+
+    .entry-card-icon {
+      @apply size-9;
+    }
+  }
+
   .button-primary,
   .button-secondary,
   .button-danger {

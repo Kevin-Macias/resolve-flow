@@ -9,7 +9,7 @@ import {
   RouterProvider,
 } from '@tanstack/react-router'
 import { afterEach, expect, it, vi } from 'vitest'
-import { DemoSession } from '../session/demo-session'
+import { WorkspaceSession } from '../session/workspace-session'
 import { SupportReport } from '../execution-timeline/screens/support-report'
 import timelineFixture from '../execution-timeline/timeline.fixture.json'
 const timeline = timelineFixture.run
@@ -51,9 +51,9 @@ function mount(combined = false) {
   const lost = vi.fn()
   const root = createRootRoute({
     component: () => (
-      <DemoSession experience="support">
+      <WorkspaceSession experience="support">
         <Outlet />
-      </DemoSession>
+      </WorkspaceSession>
     ),
   })
   const page = createRoute({

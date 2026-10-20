@@ -5,11 +5,11 @@ import { useState, type FormEvent } from 'react'
 import { reportKeys, reportsApi, type CreateReport } from '../api'
 import { ErrorNotice } from '../components/error-notice'
 import { ServiceInput } from '../components/service-input'
-import { useDemoToken, useSessionIsCurrent } from '../session'
+import { useSessionToken, useSessionIsCurrent } from '../session'
 import { createReportSchema } from '../validation'
 
 export function NewReport() {
-  const token = useDemoToken()
+  const token = useSessionToken()
   const isCurrentSession = useSessionIsCurrent()
   const client = useQueryClient()
   const navigate = useNavigate()

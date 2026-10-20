@@ -3,7 +3,7 @@ import { Link } from '@tanstack/react-router'
 import { useCallback, useEffect, useState } from 'react'
 
 import { uuidSchema } from '../../../lib/validation'
-import { useDemoToken } from '../../session/demo-session'
+import { useSessionToken } from '../../session/workspace-session'
 import { EvidencePanel } from '../../evidence/evidence-panel'
 import { MetricsPanel } from '../../metrics/metrics-panel'
 import { ActionPanel } from '../../approval/action-panel'
@@ -21,7 +21,7 @@ type ReadResult =
   | { kind: 'unavailable'; message: string; accessLost: boolean }
 
 export function SupportReport({ reportId }: { reportId: string }) {
-  const token = useDemoToken()
+  const token = useSessionToken()
   const scope = `${token}:${reportId}`
   const [lostScope, setLostScope] = useState('')
   const onAccessLost = useCallback(() => setLostScope(scope), [scope])

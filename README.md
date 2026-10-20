@@ -96,8 +96,9 @@ continuation, and explicit recovery controls; see
 
 The support timeline is available at `/support`. Sign in with a support account
 and enter a report ID to read its saved intake events. Support account grants
-are enforced by the API, and switching between customer and support routes
-requires a separate session. See [execution timeline UI](docs/execution-timeline-ui.md)
+are enforced by the API. Either sign-in page opens the workspace for the role
+returned by the API; end the session to switch accounts. Legacy demo mode requires
+separate customer and support sessions. See [execution timeline UI](docs/execution-timeline-ui.md)
 for setup, behavior, verification limits, and the database-backed walkthrough.
 
 The support report page also offers **Analyze evidence** and **Refresh saved

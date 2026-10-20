@@ -3,7 +3,7 @@ import type { components } from '@resolve-flow/api-client'
 import { useQuery } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
 import { z } from 'zod'
-import { useDemoToken } from '../session/demo-session'
+import { useSessionToken } from '../session/workspace-session'
 import { MetricsApiError, MetricsResponseError, metricsAccessLost, metricsErrorMessage } from './api'
 
 const count = z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER)
@@ -54,7 +54,7 @@ export async function readAccounting(token: string, reportId: string, offset: nu
 }
 
 export function AccountingPanel({ reportId, onAccessLost }: { reportId: string; onAccessLost: () => void }) {
-  const token = useDemoToken()
+  const token = useSessionToken()
   const [offset, setOffset] = useState(0)
   const query = useQuery({    
 queryKey: ['model-accounting', token, reportId, offset], gcTime: 0, staleTime: 0, retry: false,

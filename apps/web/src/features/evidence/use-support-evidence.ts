@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useMemo, useRef, useState } from 'react'
 
-import { useDemoToken, useSessionIsCurrent } from '../session/demo-session'
+import { useSessionToken, useSessionIsCurrent } from '../session/workspace-session'
 import {
   evidenceAccessLost,
   evidenceApi,
@@ -21,7 +21,7 @@ export function useSupportEvidence({
   reportId: string
   onAccessLost: () => void
 }) {
-  const token = useDemoToken()
+  const token = useSessionToken()
   const isCurrent = useSessionIsCurrent()
   const client = useQueryClient()
   const key = useMemo(

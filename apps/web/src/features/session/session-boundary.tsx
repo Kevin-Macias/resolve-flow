@@ -1,18 +1,21 @@
 import { useRouterState } from '@tanstack/react-router'
 import type { ReactNode } from 'react'
 
-import { DemoSession } from './demo-session'
+import { WorkspaceSession } from './workspace-session'
 
 export function SessionBoundary({ children, authMode }: { children: ReactNode; authMode?: 'demo' | 'password' }) {
   const support = useRouterState({
-    select: (state) =>
-      state.location.pathname === '/support' ||
-      state.location.pathname.startsWith('/support/'),
+    select: (state) => {
+      // Match the displayed outlet, rather than a navigation still in progress.
+      const pathname = state.matches.at(-1)?.pathname ?? state.location.pathname
+      return pathname === '/support' || pathname.startsWith('/support/')
+    },
   })
   const experience = support ? 'support' : 'customer'
+  const mode = authMode ?? (import.meta.env.VITE_AUTH_MODE === 'demo' ? 'demo' : 'password')
   return (
-    <DemoSession key={experience} experience={experience} authMode={authMode ?? (import.meta.env.VITE_AUTH_MODE === 'demo' ? 'demo' : 'password')}>
+    <WorkspaceSession key={mode === 'demo' ? `demo-${experience}` : 'password'} experience={experience} authMode={mode}>
       {children}
-    </DemoSession>
+    </WorkspaceSession>
   )
 }

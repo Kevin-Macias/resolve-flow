@@ -79,6 +79,7 @@ services:
       args:
         VITE_API_URL: ${VITE_API_URL:-http://localhost:8000}
         VITE_AUTH_MODE: ${AUTH_MODE:-password}
+        VITE_INVITATION_EMAIL: ${VITE_INVITATION_EMAIL:-}
     environment:
       HOST: 0.0.0.0
       PORT: 3000

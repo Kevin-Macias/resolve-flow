@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
-import { useDemoToken } from '../session/demo-session'
+import { useSessionToken } from '../session/workspace-session'
 import {
   metricsAccessLost,
   metricsApi,
@@ -22,7 +22,7 @@ export function MetricsPanel({
   onAccessLost: () => void
 }) {
   const [showAccounting, setShowAccounting] = useState(false)
-  const token = useDemoToken()
+  const token = useSessionToken()
   const [online, setOnline] = useState(true)
   const [disconnectedAt, setDisconnectedAt] = useState(0)
   useEffect(() => {

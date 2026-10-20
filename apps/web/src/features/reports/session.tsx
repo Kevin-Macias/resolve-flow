@@ -1,9 +1,9 @@
 import type { ReactNode } from 'react'
 
-import { DemoSession } from '../session/demo-session'
+import { WorkspaceSession } from '../session/workspace-session'
 
-export { useDemoToken, useSessionIsCurrent } from '../session/demo-session'
+export { useSessionToken, useSessionIsCurrent } from '../session/workspace-session'
 
 export function CustomerSession({ children }: { children: ReactNode }) {
-  return <DemoSession>{children}</DemoSession>
+  return <WorkspaceSession>{children}</WorkspaceSession>
 }

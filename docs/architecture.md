@@ -92,6 +92,11 @@ manage access; the recipient sets a password and later uses email/password login
 Administrator capability is separate from report-account grants. Session identity
 snapshots reject role/account/admin changes, while support checks read current
 grants. Browser tokens live in memory; logout revokes the server session.
+Separate customer and support entry pages accept either account role. Password
+sessions retain the validated role across navigation and redirect to that role's
+workspace before rendering private screens. The boundary uses the displayed route
+matches so pending navigation cannot expose the previous workspace with a new
+session. Sign-out cancels queries, clears the cache, and invalidates late results.
 Explicit `AUTH_MODE=demo` retains legacy environment maps without a password-mode
 fallback. Offline evaluation fixtures select demo mode explicitly.
 

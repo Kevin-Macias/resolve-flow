@@ -11,7 +11,7 @@ import {
 } from '@tanstack/react-router'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import { DemoSession } from '../session/demo-session'
+import { WorkspaceSession } from '../session/workspace-session'
 import { SupportReport } from '../execution-timeline/screens/support-report'
 import timelineFixture from '../execution-timeline/timeline.fixture.json'
 import evidenceFixture from '../evidence/evidence.fixture.json'
@@ -38,9 +38,9 @@ function mount(onLost = vi.fn(), combined = false) {
   vi.stubGlobal('scrollTo', vi.fn())
   const root = createRootRoute({
     component: () => (
-      <DemoSession experience="support">
+      <WorkspaceSession experience="support">
         <Outlet />
-      </DemoSession>
+      </WorkspaceSession>
     ),
   })
   const page = createRoute({

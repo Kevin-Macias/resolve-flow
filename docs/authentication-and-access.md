@@ -3,6 +3,37 @@
 Kevin accepted final PAIR implementation review on 2026-10-18. He selected
 permanent invitation onboarding and email/password repeat login.
 
+Customer (`/reports`) and support (`/support`) entry pages share a responsive
+hero layout, with separate headings and links to switch areas. The navigation
+header appears after sign-in. `WorkspaceSession` manages the in-memory session
+and query cache; `CustomerSignIn` and `SupportSignIn` compose the shared forms.
+The support entry shares the light two-column layout. Its own introduction
+component uses a console label, sans-serif heading, and icon rows for reports,
+evidence, and proposal review. The form has a green top border and an **Internal
+access** label. A quiet customer-reports link sits below it.
+On narrow screens, compact headings and spacing bring sign-in and invitation
+actions forward. Introductory descriptions are hidden, and the support capability
+list follows the form. Session-memory guidance sits below the actions. Fields
+and buttons remain full width; longer forms scroll.
+
+Both entry pages accept email/password sign-in and invitation setup for either
+role. The validated session response determines the workspace: customers open
+`/reports`, support users open `/support`. Matching workspace links, including
+report URLs, stay in place. The session survives the redirect, and the other
+workspace does not render with that token. Signed-in users stay within their
+account's workspace; end the session to use another account. API access checks
+remain authoritative. Legacy demo tokens still require separate workspace sessions.
+
+Full-width cards stack beneath the sign-in form for invitation setup and switching
+workspaces. Each has a distinct color, icon, and description; the invitation card
+switches back to sign-in during setup. Invitation requests use an underlined link
+inside the form card.
+Set `VITE_INVITATION_EMAIL` in `apps/web/.env` (or the web service's build
+variables) to show **Request an invitation**. It opens the visitor's email app
+with a subject filled in. The address is public; administrators still review
+requests and issue invitations manually. Restart development or rebuild the web
+image after changing this value.
+
 ## Account lifecycle
 
 A trusted local operator creates the first access administrator. That admin

@@ -7,10 +7,10 @@ import { IntakePanel } from '../../customer-intake/components/intake-panel'
 import { reportKeys, reportsApi } from '../api'
 import { ErrorNotice } from '../components/error-notice'
 import { ReportContent } from '../components/report-content'
-import { useDemoToken } from '../session'
+import { useSessionToken } from '../session'
 
 export function ReportDetail({ reportId }: { reportId: string }) {
-  const token = useDemoToken()
+  const token = useSessionToken()
   const [lostScope, setLostScope] = useState('')
   const scope = `${token}:${reportId}`
   const accessLost = lostScope === scope

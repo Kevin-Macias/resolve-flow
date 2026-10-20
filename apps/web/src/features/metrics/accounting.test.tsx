@@ -2,7 +2,7 @@ import { act, cleanup, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { createMemoryHistory, createRootRoute, createRoute, createRouter, Outlet, RouterProvider } from '@tanstack/react-router'
 import { afterEach, expect, it, vi } from 'vitest'
-import { DemoSession } from '../session/demo-session'
+import { WorkspaceSession } from '../session/workspace-session'
 import { AccountingPanel, accountingSchema } from './accounting'
 import { MetricsPanel } from './metrics-panel'
 
@@ -19,7 +19,7 @@ function saved() {
 function json(value: unknown, status = 200) { return new Response(JSON.stringify(value), { status, headers: { 'Content-Type': 'application/json' } }) }
 function mount(legacy = false) {
   const lost = vi.fn()
-  const root = createRootRoute({ component: () => <DemoSession experience="support"><Outlet /></DemoSession> })
+  const root = createRootRoute({ component: () => <WorkspaceSession experience="support"><Outlet /></WorkspaceSession> })
   const page = createRoute({ getParentRoute: () => root, path: '/support/reports/$reportId', component: () => legacy ? <MetricsPanel reportId={id} onAccessLost={lost} /> : <AccountingPanel reportId={id} onAccessLost={lost} /> })
   const router = createRouter({ routeTree: root.addChildren([page]), history: createMemoryHistory({ initialEntries: [`/support/reports/${id}`] }) })
   render(<RouterProvider router={router} />)

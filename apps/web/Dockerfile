@@ -10,6 +10,8 @@ COPY apps/web apps/web
 COPY packages/api-client packages/api-client
 ARG VITE_API_URL=http://localhost:8000
 ARG VITE_AUTH_MODE=password
+ARG VITE_INVITATION_EMAIL=
+ENV VITE_INVITATION_EMAIL=$VITE_INVITATION_EMAIL
 ENV VITE_API_URL=$VITE_API_URL VITE_AUTH_MODE=$VITE_AUTH_MODE
 RUN pnpm --filter @resolve-flow/web build
 
