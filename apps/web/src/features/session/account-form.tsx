@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 
 import { accountApi, enrollmentSchema, loginSchema } from './account-api'
+import { COOKIE_SESSION_PREFIX } from '../api/browser-client'
 import { EntryCardContent } from './entry-card-content'
 
 export function AccountForm({ experience, onConnect }: {
@@ -32,10 +33,10 @@ export function AccountForm({ experience, onConnect }: {
         ? await accountApi.enroll(enrollmentSchema.parse(fields))
         : await accountApi.login(loginSchema.parse(fields))
       if (!mounted.current) {
-        void accountApi.logout(session.access_token).catch(() => undefined)
+        void accountApi.logout(`${COOKIE_SESSION_PREFIX}${session.session_id}`).catch(() => undefined)
         return
       }
-      onConnect(session.access_token, session.user.user_type)
+      onConnect(`${COOKIE_SESSION_PREFIX}${session.session_id}:${crypto.randomUUID()}`, session.user.user_type)
     } catch (error) {
       if (mounted.current) setError(error instanceof TypeError
         ? enrolling ? 'Could not confirm account setup. Try signing in with the email and password you entered.' : 'Could not reach ResolveFlow. Try signing in again.'

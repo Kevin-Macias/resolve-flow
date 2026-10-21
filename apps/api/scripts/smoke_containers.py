@@ -66,6 +66,7 @@ def main() -> None:
         "POSTGRES_PORT": str(db_port),
         "API_PORT": str(api_port),
         "WEB_PORT": str(web_port),
+        "WEB_ORIGIN": f"http://127.0.0.1:{web_port}",
         "VITE_API_URL": f"http://127.0.0.1:{api_port}",
         "CORS_ORIGINS": f"http://127.0.0.1:{web_port}",
         "AUTH_MODE": "password",

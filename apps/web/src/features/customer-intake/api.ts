@@ -1,5 +1,5 @@
 import { limitErrorMessage } from '../api/limit-errors'
-import { createApiClient } from '@resolve-flow/api-client'
+import { apiBaseUrl, browserApiClient, sessionHeaders } from '../api/browser-client'
 
 import { customerRunSchema, type ClarificationRequest } from './schemas'
 
@@ -40,10 +40,8 @@ export const intakeKeys = {
     ['customer-intake', token, reportId] as const,
 }
 export function intakeApi(token: string, reportId: string) {
-  const client = createApiClient(
-    import.meta.env.VITE_API_URL ?? 'http://localhost:8000',
-  )
-  const headers = { Authorization: `Bearer ${token}` }
+  const client = browserApiClient(token)
+  const headers = sessionHeaders(token)
   function parse(data: unknown, response: Response, runId?: string) {
     if (!response.ok) throw new IntakeApiError(response.status)
     const result = customerRunSchema.safeParse(data)
@@ -89,7 +87,7 @@ export function intakeApi(token: string, reportId: string) {
       return parse(data, response, runId)
     },
     streamUrl(runId: string) {
-      return `${import.meta.env.VITE_API_URL ?? 'http://localhost:8000'}/intake-runs/${runId}/events`
+      return `${apiBaseUrl(token)}/intake-runs/${runId}/events`
     },
   }
 }

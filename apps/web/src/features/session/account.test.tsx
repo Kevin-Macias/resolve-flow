@@ -8,16 +8,20 @@ import { useQueryClient, type QueryClient } from '@tanstack/react-query'
 import { SessionBoundary } from './session-boundary'
 import { useSessionToken } from './workspace-session'
 
-const token = `rfs_${'a'.repeat(43)}`
+const token = `cookie:${'a'.repeat(64)}:11111111-1111-4111-8111-111111111111`
 const password = 'Correct horse battery staple.'
 function session(role: 'customer' | 'support' = 'customer') {
   return {
-    access_token: token, token_type: 'bearer', expires_at: new Date(Date.now() + 3_600_000).toISOString(),
+    session_id: 'a'.repeat(64), expires_at: new Date(Date.now() + 3_600_000).toISOString(),
     user: { id: '11111111-1111-4111-8111-111111111111', email: 'person@example.com', name: 'Invited', last_name: 'Person', user_type: role, customer_account_id: role === 'customer' ? '22222222-2222-4222-8222-222222222222' : null, is_admin: false },
   }
 }
 function json(value: unknown, status = 200) { return new Response(JSON.stringify(value), { status, headers: { 'Content-Type': 'application/json' } }) }
-function mount(experience: 'customer' | 'support' = 'customer', initialPath?: string) {
+function mount(experience: 'customer' | 'support' = 'customer', initialPath?: string, restored: unknown = null) {
+  vi.spyOn(crypto, 'randomUUID').mockReturnValue('11111111-1111-4111-8111-111111111111')
+  const handler = globalThis.fetch
+  vi.stubGlobal('fetch', (request: Request) => request.url.endsWith('/auth/session')
+    ? typeof restored === 'function' ? restored() : Promise.resolve(json(restored ?? {}, restored ? 200 : 401)) : handler(request))
   const opened = vi.fn()
   const caches: QueryClient[] = []
   function PrivatePage({ role }: { role: 'customer' | 'support' }) {
@@ -41,6 +45,62 @@ async function login(user: ReturnType<typeof userEvent.setup>) {
 afterEach(() => { cleanup(); vi.unstubAllGlobals(); vi.unstubAllEnvs() })
 
 describe('Permanent invitation accounts', () => {
+  it('restores the signed-in workspace after recreating the app without exposing a bearer token', async () => {
+    const first = mount('customer', undefined, session())
+    await screen.findByText('Private reports')
+    first.caches[0].setQueryData(['private-report'], 'cached before reload')
+    first.unmount()
+    const second = mount('customer', undefined, session())
+    await screen.findByText('Private reports')
+    expect(second.caches[0].getQueryData(['private-report'])).toBeUndefined()
+    expect(second.opened.mock.calls).toEqual([['customer', token]])
+    expect(window.localStorage.length).toBe(0)
+    expect(window.sessionStorage.length).toBe(0)
+  })
+
+  it('routes a restored support identity to its workspace before opening private pages', async () => {
+    const { opened } = mount('customer', undefined, session('support'))
+    await screen.findByText('Private support')
+    expect(opened.mock.calls).toEqual([['support', token]])
+  })
+
+  it('clears private data when a protected request reports an expired session', async () => {
+    const { caches } = mount('customer', undefined, session())
+    await screen.findByText('Private reports')
+    caches[0].setQueryData(['private-report'], 'private data')
+    act(() => { window.dispatchEvent(new CustomEvent('resolveflow:session-ended', { detail: token })) })
+    await screen.findByLabelText('Email')
+    expect(caches[0].getQueryCache().getAll()).toHaveLength(0)
+    expect(screen.queryByText('Private reports')).toBeNull()
+  })
+
+  it('offers retry after an unavailable restoration without showing a login form', async () => {
+    let available = false
+    const { opened, user } = mount('customer', undefined, () => available
+      ? Promise.resolve(json(session())) : Promise.reject(new TypeError('Offline')))
+    expect((await screen.findByRole('alert')).textContent).toContain('Could not check your session')
+    expect(screen.queryByLabelText('Email')).toBeNull()
+    expect(opened).not.toHaveBeenCalled()
+    available = true
+    await user.click(screen.getByRole('button', { name: 'Try again' }))
+    await screen.findByText('Private reports')
+  })
+
+  it('waits for logout to finish before allowing another sign-in', async () => {
+    let finish!: (response: Response) => void
+    const pending = new Promise<Response>((resolve) => { finish = resolve })
+    vi.stubGlobal('fetch', vi.fn((request: Request) => request.url.endsWith('/auth/logout')
+      ? pending : Promise.resolve(json(session()))))
+    const { user } = mount()
+    await login(user)
+    await screen.findByText('Private reports')
+    await user.click(screen.getByRole('button', { name: 'Log out' }))
+    expect(await screen.findByText('Signing out…')).toBeDefined()
+    expect(screen.queryByLabelText('Email')).toBeNull()
+    await act(async () => { finish(new Response(null, { status: 204 })); await pending })
+    await screen.findByLabelText('Email')
+  })
+
   it('opens an email draft to request an invitation when a contact address is configured', async () => {
     vi.stubEnv('VITE_INVITATION_EMAIL', 'invitations@example.com')
     mount()
@@ -76,7 +136,8 @@ describe('Permanent invitation accounts', () => {
     expect(screen.queryByRole('banner')).toBeNull()
     await waitFor(() => expect(calls.length).toBe(2))
     expect(calls[1].method).toBe('POST')
-    expect(calls[1].headers.get('Authorization')).toBe(`Bearer ${token}`)
+    expect(calls[1].headers.get('Authorization')).toBeNull()
+    expect(calls[1].headers.get('X-ResolveFlow-Request')).toBe('1')
   })
 
   it('accepts an invitation without asking the recipient to choose permissions', async () => {
@@ -185,10 +246,10 @@ describe('Permanent invitation accounts', () => {
 
   it('clears cached customer data before signing in to a different account', async () => {
     let activeRole: 'customer' | 'support' = 'customer'
-    const nextToken = `rfs_${'b'.repeat(43)}`
+    const nextToken = token
     vi.stubGlobal('fetch', vi.fn(async (request: Request) => request.url.endsWith('/auth/logout')
       ? new Response(null, { status: 204 })
-      : json({ ...session(activeRole), access_token: activeRole === 'customer' ? token : nextToken })))
+      : json(session(activeRole))))
     const { user, caches, opened } = mount()
     await login(user)
     await screen.findByText('Private reports')

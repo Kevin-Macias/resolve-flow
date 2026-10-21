@@ -1,5 +1,5 @@
 import { limitErrorMessage } from '../api/limit-errors'
-import { createApiClient } from '@resolve-flow/api-client'
+import { browserApiClient, sessionHeaders } from '../api/browser-client'
 import { supportMetricsSchema, type GeneratedMetrics } from './schemas'
 
 export class MetricsApiError extends Error {
@@ -29,15 +29,13 @@ export function metricsAccessLost(error: unknown) {
   )
 }
 export function metricsApi(token: string, reportId: string) {
-  const client = createApiClient(
-    import.meta.env.VITE_API_URL ?? 'http://localhost:8000',
-  )
+  const client = browserApiClient(token)
   return {
     async read(signal?: AbortSignal) {
       const { data, response } = await client.GET(
         '/support/issue-reports/{report_id}/execution-metrics',
         {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: sessionHeaders(token),
           params: { path: { report_id: reportId } },
           signal,
         },

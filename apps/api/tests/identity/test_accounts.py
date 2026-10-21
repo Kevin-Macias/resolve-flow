@@ -492,3 +492,52 @@ async def test_demo_config_is_strict_and_never_creates_admin(
                 "/issue-reports/", headers={"Authorization": "Bearer token"}
             )
         ).status_code == 503
+
+
+@pytest.mark.anyio
+async def test_session_metadata_restores_identity_without_returning_token(
+    accounts: Accounts,
+) -> None:
+    response = await accounts.client.get("/auth/session", headers=accounts.admin)
+    assert response.status_code == 200
+    assert response.headers["Cache-Control"] == "no-store"
+    assert set(response.json()) == {"expires_at", "user"}
+    assert response.json()["user"]["id"] == str(accounts.admin_id)
+    assert response.json()["user"]["is_admin"] is True
+    assert (await accounts.client.get("/auth/session")).status_code == 401
+    assert (
+        await accounts.client.post("/auth/logout", headers=accounts.admin)
+    ).status_code == 204
+    assert (
+        await accounts.client.get("/auth/session", headers=accounts.admin)
+    ).status_code == 401
+
+
+@pytest.mark.anyio
+async def test_session_metadata_rejects_expired_or_disabled_identity(
+    accounts: Accounts,
+) -> None:
+    async with accounts.sessions() as session:
+        await session.execute(
+            update(AuthSession)
+            .where(AuthSession.user_id == accounts.admin_id)
+            .values(expires_at=func.clock_timestamp() - timedelta(seconds=1))
+        )
+        await session.commit()
+    assert (
+        await accounts.client.get("/auth/session", headers=accounts.admin)
+    ).status_code == 401
+    signed_in = await accounts.client.post(
+        "/auth/login", json={"email": "admin@example.com", "password": PASSWORD}
+    )
+    headers = {"Authorization": f"Bearer {signed_in.json()['access_token']}"}
+    async with accounts.sessions() as session:
+        await session.execute(
+            update(AuthCredential)
+            .where(AuthCredential.user_id == accounts.admin_id)
+            .values(disabled_at=func.clock_timestamp())
+        )
+        await session.commit()
+    assert (
+        await accounts.client.get("/auth/session", headers=headers)
+    ).status_code == 401

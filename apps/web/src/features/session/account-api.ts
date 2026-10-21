@@ -1,6 +1,9 @@
-import { limitErrorMessage } from '../api/limit-errors'
-import { createApiClient } from '@resolve-flow/api-client'
 import { z } from 'zod'
+
+import { limitErrorMessage } from '../api/limit-errors'
+import { browserApiClient, COOKIE_SESSION_PREFIX, sessionHeaders } from '../api/browser-client'
+import { sessionSchema } from './session-contract'
+export { sessionSchema, type AccountSession } from './session-contract'
 
 export const loginSchema = z.strictObject({
   email: z.email().trim().toLowerCase(),
@@ -13,24 +16,8 @@ export const enrollmentSchema = z.strictObject({
   last_name: z.string().trim().min(1, 'Enter your last name.').max(200),
   password: z.string().min(15, 'Use at least 15 characters.').max(128),
 })
-export const sessionSchema = z.strictObject({
-  access_token: z.string().regex(/^rfs_[A-Za-z0-9_-]{43}$/),
-  token_type: z.literal('bearer'),
-  expires_at: z.iso.datetime({ offset: true }),
-  user: z.strictObject({
-    id: z.uuid(), email: z.email(), name: z.string(), last_name: z.string(),
-    user_type: z.enum(['customer', 'support']),
-    customer_account_id: z.uuid().nullable(), is_admin: z.boolean(),
-  }).superRefine((user, ctx) => {
-    if ((user.user_type === 'customer') !== (user.customer_account_id !== null) || (user.is_admin && user.user_type !== 'support'))
-      ctx.addIssue({ code: 'custom', message: 'Invalid account scope.' })
-  }),
-})
-export type AccountSession = z.infer<typeof sessionSchema>
 
-function client() {
-  return createApiClient(import.meta.env.VITE_API_URL ?? 'http://localhost:8000')
-}
+function client() { return browserApiClient(COOKIE_SESSION_PREFIX) }
 
 async function parse(data: unknown, response: Response, enroll: boolean) {
   if (!response.ok) throw new Error(
@@ -48,16 +35,21 @@ async function parse(data: unknown, response: Response, enroll: boolean) {
 }
 
 export const accountApi = {
+  async restore(signal?: AbortSignal) {
+    const { data, response } = await client().GET('/auth/session', { signal })
+    if (response.status === 401) return null
+    return parse(data, response, false)
+  },
   async login(body: z.infer<typeof loginSchema>) {
-    const { data, response } = await client().POST('/auth/login', { body })
+    const { data, response } = await client().POST('/auth/login', { body, headers: sessionHeaders(COOKIE_SESSION_PREFIX) })
     return parse(data, response, false)
   },
   async enroll(body: z.infer<typeof enrollmentSchema>) {
-    const { data, response } = await client().POST('/auth/invitations/redeem', { body })
+    const { data, response } = await client().POST('/auth/invitations/redeem', { body, headers: sessionHeaders(COOKIE_SESSION_PREFIX) })
     return parse(data, response, true)
   },
-  async logout(token: string) {
-    const { response } = await client().POST('/auth/logout', { headers: { Authorization: `Bearer ${token}` } })
+  async logout(session: string) {
+    const { response } = await client().POST('/auth/logout', { headers: sessionHeaders(session) })
     if (!response.ok) throw new Error('Server sign-out could not be confirmed.')
   },
 }

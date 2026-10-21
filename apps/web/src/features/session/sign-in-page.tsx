@@ -30,7 +30,6 @@ function SignInLayout({ introduction, children, workspaceLink, details, appearan
         <div className="sign-in-card-stack">
           {children}
           {workspaceLink}
-          <p className="hint sign-in-session-note">Your session stays in memory. Reloading signs you out on this browser.</p>
         </div>
         {details && <div className="sign-in-details">{details}</div>}
       </section>

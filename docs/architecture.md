@@ -93,7 +93,12 @@ to sign in. Migration `0010` removes invitation email bindings; tokens retain
 their fixed role, tenant, grants, expiry, and single-use checks.
 Administrator capability is separate from report-account grants. Session identity
 snapshots reject role/account/admin changes, while support checks read current
-grants. Browser tokens live in memory; logout revokes the server session.
+grants. Browser password sessions use a same-origin `/api` server proxy with a
+host-only HttpOnly cookie. The proxy keeps bearers out of JavaScript and restores
+validated session metadata on reload; logout revokes the server session and
+clears the cookie. Runtime `API_ORIGIN` and `WEB_ORIGIN` configure the boundary.
+The [authentication contract](authentication-and-access.md) records cookie,
+request-origin, stale-tab, and streaming rules.
 Separate customer and support entry pages accept either account role. Password
 sessions retain the validated role across navigation and redirect to that role's
 workspace before rendering private screens. The boundary uses the displayed route
@@ -226,9 +231,9 @@ on report details. Full saved views provide questions and accepted answers;
 SSE revisions prevent submitting an obsolete form, and commands use explicit
 operation/revision/pause bindings. The
 [internal timeline UI](execution-timeline-ui.md) at `/support` reads authorized
-saved intake events. Customer and support routes use separate in-memory sessions;
-access loss removes cached history, while temporary read failures show a stale
-notice. Database-backed browser verification passed on 2026-10-12; the broader
+saved intake events. Legacy demo routes use separate in-memory sessions;
+password sessions restore from their protected cookie. Access loss removes cached
+history, while temporary read failures show a stale notice. Database-backed browser verification passed on 2026-10-12; the broader
 platform walkthrough remains pending.
 RF-511 customer endpoints do not expose RF-310's internal events or authorize
 support checkpoint reads. RF-513 provides a separate

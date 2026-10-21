@@ -1,3 +1,4 @@
+import { sessionHeaders, sessionEnded } from '../api/browser-client'
 import {
   acceptSnapshot,
   decodeEvent,
@@ -92,7 +93,7 @@ export function startCustomerStream(options: StreamOptions) {
         armTimeout()
         const headers: Record<string, string> = {
           Accept: 'text/event-stream',
-          Authorization: `Bearer ${options.token}`,
+          ...sessionHeaders(options.token),
         }
         if (previous)
           headers['Last-Event-ID'] = `${options.runId}:${previous.revision}`
@@ -103,6 +104,7 @@ export function startCustomerStream(options: StreamOptions) {
           cache: 'no-store',
         })
         if (signal.aborted) return
+        sessionEnded(options.token, response.status)
         if ([401, 403, 404].includes(response.status)) throw new AccessLost()
         if (!response.ok) {
           if (response.status >= 500 || response.status === 429)

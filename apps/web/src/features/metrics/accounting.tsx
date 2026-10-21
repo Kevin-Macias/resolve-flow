@@ -1,4 +1,4 @@
-import { createApiClient } from '@resolve-flow/api-client'
+import { browserApiClient, sessionHeaders } from '../api/browser-client'
 import type { components } from '@resolve-flow/api-client'
 import { useQuery } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
@@ -43,9 +43,9 @@ export const accountingSchema = z.strictObject({
 })
 
 export async function readAccounting(token: string, reportId: string, offset: number, signal?: AbortSignal) {
-  const client = createApiClient(import.meta.env.VITE_API_URL ?? 'http://localhost:8000')
+  const client = browserApiClient(token)
   const { data, response } = await client.GET('/support/issue-reports/{report_id}/model-accounting', {
-    params: { path: { report_id: reportId }, query: { offset } }, headers: { Authorization: `Bearer ${token}` }, signal,
+    params: { path: { report_id: reportId }, query: { offset } }, headers: sessionHeaders(token), signal,
   })
   if (!response.ok) throw new MetricsApiError(response.status)
   const parsed = accountingSchema.safeParse(data)

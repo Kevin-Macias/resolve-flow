@@ -1,5 +1,5 @@
 import { limitErrorMessage } from '../api/limit-errors'
-import { createApiClient } from '@resolve-flow/api-client'
+import { browserApiClient, sessionHeaders } from '../api/browser-client'
 
 import { supportRunSchema } from './schemas'
 
@@ -35,15 +35,13 @@ export function timelineErrorMessage(error: unknown) {
 }
 
 export function supportRunsApi(token: string) {
-  const client = createApiClient(
-    import.meta.env.VITE_API_URL ?? 'http://localhost:8000',
-  )
+  const client = browserApiClient(token)
   return {
     async get(reportId: string, signal?: AbortSignal) {
       const { data, response } = await client.GET(
         '/support/issue-reports/{report_id}/intake-run',
         {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: sessionHeaders(token),
           params: { path: { report_id: reportId } },
           signal,
         },

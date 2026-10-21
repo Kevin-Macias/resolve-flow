@@ -26,6 +26,7 @@ from api.identity.schemas import (
     LoginRequest,
     RedeemInvitation,
     SessionCreated,
+    SessionView,
 )
 from api.identity.security import (
     DUMMY_HASH,
@@ -293,3 +294,43 @@ async def replace_support_grants(
         for account in accounts
     )
     await session.commit()
+
+
+async def session_view(
+    session: AsyncSession, token: str, context: RequestContext
+) -> SessionView:
+    """Return metadata for the already authenticated session without its bearer."""
+    row = (
+        await session.execute(
+            select(AuthSession, AuthCredential, User)
+            .join(AuthCredential, AuthCredential.user_id == AuthSession.user_id)
+            .join(User, User.id == AuthCredential.user_id)
+            .where(
+                AuthSession.token_hash == token_hash("session", token),
+                AuthSession.user_id == context.user_id,
+                AuthSession.revoked_at.is_(None),
+                AuthSession.expires_at > func.clock_timestamp(),
+                AuthCredential.disabled_at.is_(None),
+                AuthSession.user_type == User.user_type,
+                AuthSession.customer_account_id.is_not_distinct_from(
+                    User.customer_account_id
+                ),
+                AuthSession.is_admin == AuthCredential.is_admin,
+            )
+        )
+    ).one_or_none()
+    if row is None:
+        raise HTTPException(401, "Invalid identity")
+    saved, credential, user = row
+    return SessionView(
+        expires_at=saved.expires_at,
+        user=AuthUser(
+            id=user.id,
+            email=credential.email,
+            name=user.name,
+            last_name=user.last_name,
+            user_type=context.user_type,
+            customer_account_id=context.customer_account_id,
+            is_admin=context.is_admin,
+        ),
+    )

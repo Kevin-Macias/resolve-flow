@@ -83,6 +83,8 @@ services:
     environment:
       HOST: 0.0.0.0
       PORT: 3000
+      API_ORIGIN: http://api:8000
+      WEB_ORIGIN: ${WEB_ORIGIN:-http://localhost:3000}
     ports:
       - "127.0.0.1:${WEB_PORT:-3000}:3000"
     depends_on:

@@ -80,10 +80,10 @@ which requires a successful page response.
    [web variables](../deploy/railway/web/.env.example), replacing both domain
    placeholders with their actual HTTPS origins.
 4. Deploy `api`. Confirm the pre-deploy initializer succeeds and `/ready`
-   returns 200. Deploy `web`, then check the login page. `VITE_API_URL` is public
-   build-time configuration: rebuilding the web image is required after changing
-   it. Database credentials and model keys belong only on the API/database
-   services, never in `VITE_` variables.
+   returns 200. Deploy `web`, then check the login page. Configure runtime
+   `API_ORIGIN` and `WEB_ORIGIN` using the cookie rollout below. Database
+   credentials and model keys belong only on the API/database services, never
+   in `VITE_` variables.
 5. In an authenticated Railway shell for `api`, run the shipped admin command:
 
    ```bash
@@ -167,3 +167,32 @@ Dashboard settings are used for this first deployment. Railway's former
 project automation can use its current
 [Infrastructure as Code](https://docs.railway.com/infrastructure-as-code) support
 after the hosted settings have been verified.
+
+## Cookie session rollout
+
+Kevin approved the same-origin web proxy on 2026-10-20. It uses the existing
+web/API/database services and session tables; this change needs no migration.
+Browser password traffic, including SSE, goes to the web service's `/api` route.
+FastAPI continues to authenticate bearer requests from the proxy and CLI clients.
+
+Set these runtime variables on the Railway web service:
+
+- `WEB_ORIGIN=https://resolve-flowweb-production.up.railway.app`
+- `API_ORIGIN=https://api-production-98d1.up.railway.app`
+
+Use exact origins without paths. Production requests fail closed if either is
+missing or invalid. The API origin is server-only configuration. Keep
+`VITE_AUTH_MODE=password`; an existing `VITE_API_URL` is ignored by password
+sessions and remains relevant only to explicit legacy demo-token sessions.
+No custom domain or new service is required. API CORS settings may remain.
+
+Deploy the API first so `GET /auth/session` is available, then the web build
+with these runtime settings. Existing memory-only browser sessions require a
+fresh login. Verify login, reload on a report deep link, customer/support role
+routing, expiry/revocation, logout followed by reload, rejected cross-site
+writes, and a live intake event stream. Confirm the HTTPS cookie is host-only,
+HttpOnly, Secure, and SameSite=Lax and browser responses contain no bearer.
+The API's existing shared peer-rate allowance now also sees traffic from the
+web proxy; forwarded browser IP headers remain untrusted and ignored.
+
+Production rollout and Kevin's hands-on acceptance remain pending until performed.

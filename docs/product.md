@@ -45,7 +45,8 @@ remain explicit.
 [Invitation onboarding](authentication-and-access.md) creates permanent users
 with a fixed role and scope. Recipients choose their email and password during
 setup, then use them to sign in again. Sessions
-expire and can be revoked; static fixtures require explicit legacy demo mode.
+survive page reloads, expire after eight hours, and can be revoked. Static
+fixtures require explicit legacy demo mode.
 
 ## MVP demonstration
 

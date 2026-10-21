@@ -23,6 +23,15 @@ Kevin approved recipient-chosen invitation emails on 2026-10-20. Follow-up
 implementation and verification are recorded in `authentication-and-access.md`;
 RF-710 remains NEXT.
 
+Kevin approved cookie sessions through the existing web server on 2026-10-20.
+This RF-702/RF-710 PAIR follow-up covers reload restoration, logout and rejected
+sessions, same-origin request checks, stale-tab account isolation, and streamed
+API forwarding. The contract is in `authentication-and-access.md`; rollout is
+in `railway-deployment.md`. Final `pnpm check` passed with all 876 backend and
+251 frontend tests; real browser reload, deep links, writes, SSE, and logout
+also passed against isolated local services. Production is unchanged. RF-710
+remains NEXT pending hosted verification and Kevin's hands-on review.
+
 ## Current milestone
 
 **Milestone 5: incident workspace with visible state and approval.**

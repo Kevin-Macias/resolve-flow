@@ -78,11 +78,14 @@ class AuthUser(EmailContract):
     is_admin: bool
 
 
-class SessionCreated(Contract):
-    access_token: str
-    token_type: Literal["bearer"] = "bearer"
+class SessionView(Contract):
     expires_at: datetime
     user: AuthUser
+
+
+class SessionCreated(SessionView):
+    access_token: str
+    token_type: Literal["bearer"] = "bearer"
 
 
 class SupportGrantsRequest(Contract):

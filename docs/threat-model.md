@@ -23,8 +23,8 @@ default. Explicit legacy demo mode retains static token maps. Possession of a
 bearer token allows impersonation until expiry/revocation. Browser routes and
 CORS do not establish identity or replace API authorization.
 
-The API process, database administrator, deployment configuration, and knowledge
-manifest maintainers are trusted to enforce policy. Their compromise can defeat
+The web proxy, API process, database administrator, deployment configuration,
+and knowledge manifest maintainers are trusted to enforce policy. Their compromise can defeat
 application checks. Source prose and model output remain untrusted even when
 their storage and metadata are maintained by a trusted operator. Knowledge files
 are loaded from a configured repository root; there is no customer upload API.
@@ -51,8 +51,9 @@ harm without an attacker.
 
 ```mermaid
 flowchart TD
-    C[Customer browser] -->|Bearer token and untrusted input| A[FastAPI]
-    S[Support browser] -->|Bearer token and review commands| A
+    C[Customer browser] -->|Cookie and untrusted input| W[Web server proxy]
+    S[Support browser] -->|Cookie and review commands| W
+    W -->|Bearer and checked request| A[FastAPI]
     A --> I[Resolve user and current account grants]
     I --> U[Authorized application services]
     U <-->|Reports, registries, checkpoints| D[(PostgreSQL)]
@@ -130,7 +131,7 @@ session generations prevent obsolete responses from updating the active view.
 Evidence: [`test_support_reads.py`](../apps/api/tests/intake/test_support_reads.py),
 [`test_evidence.py`](../apps/api/tests/intake/test_evidence.py),
 [`test_transport.py`](../apps/api/tests/streaming/test_transport.py), and
-[`demo-session.tsx`](../apps/web/src/features/session/demo-session.tsx).
+[`workspace-session.tsx`](../apps/web/src/features/session/workspace-session.tsx).
 
 Gap: live extraction, evidence analysis, embeddings, and judging can disclose
 selected inputs to a provider. [`extraction/provider.py`](../apps/api/src/api/extraction/provider.py)
@@ -151,7 +152,12 @@ Argon2id password hashes, one-use expiring invitations, hashed expiring sessions
 logout, user disabling, and local password reset with session revocation.
 Admin capability cannot be supplied at signup and grants no report access.
 Current role/tenant checks and explicit support grants still scope operations.
-Tokens stay in browser memory. Password mode never accepts legacy demo tokens.
+Browser password sessions use the web server proxy and protected HttpOnly cookie
+specified in [authentication and access](authentication-and-access.md). The proxy
+checks write origins, prevents stale tabs from acting as a replacement account,
+and keeps bearer credentials out of browser JavaScript. Script injection can
+still issue requests as the user; HttpOnly prevents direct cookie reads, not
+all effects of injected scripts. Password mode never accepts legacy demo tokens.
 
 Evidence: [`identity/dependencies.py`](../apps/api/src/api/identity/dependencies.py),
 [`identity/service.py`](../apps/api/src/api/identity/service.py),

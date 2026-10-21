@@ -51,9 +51,12 @@ keep its existing value when restarting a stack whose data you want to retain.
 `docker compose down --volumes` deletes that stack's configured database volume.
 
 Ports bind to localhost. `POSTGRES_PORT`, `API_PORT`, and `WEB_PORT` still choose
-the host ports. The web image embeds `VITE_API_URL` and authentication mode at
-build time; rebuild it when those values change. Container-internal API/web
-ports remain 8000/3000. Set `CORS_ORIGINS` to the browser's web origin.
+the host ports. The web server proxies password-session requests to
+`API_ORIGIN=http://api:8000`; `WEB_ORIGIN` must match the browser's origin,
+including a changed host port. Compose defaults it to `http://localhost:3000`.
+Authentication mode and the legacy demo-only `VITE_API_URL` are build-time
+settings; rebuild after changing them. Container-internal API/web ports remain
+8000/3000. Set `CORS_ORIGINS` to the browser's web origin.
 
 A fresh database has no user accounts. Create an administrator interactively:
 

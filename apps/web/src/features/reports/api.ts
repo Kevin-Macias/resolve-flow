@@ -1,5 +1,6 @@
 import { limitErrorMessage } from '../api/limit-errors'
-import { createApiClient, type components } from '@resolve-flow/api-client'
+import type { components } from '@resolve-flow/api-client'
+import { browserApiClient, sessionHeaders } from '../api/browser-client'
 
 import {
   parseReportResponse,
@@ -29,10 +30,8 @@ export class ReportApiError extends Error {
 }
 
 export function reportsApi(token: string) {
-  const client = createApiClient(
-    import.meta.env.VITE_API_URL ?? 'http://localhost:8000',
-  )
-  const headers = { Authorization: `Bearer ${token}` }
+  const client = browserApiClient(token)
+  const headers = sessionHeaders(token)
   return {
     async list(signal?: AbortSignal) {
       const { data, response } = await client.GET('/issue-reports/', {

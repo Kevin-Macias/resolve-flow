@@ -19,6 +19,7 @@ from api.identity.schemas import (
     LoginRequest,
     RedeemInvitation,
     SessionCreated,
+    SessionView,
     SupportGrantsRequest,
 )
 from api.limits.http import limit_authenticated
@@ -49,6 +50,20 @@ Admin = Annotated[RequestContext, Depends(require_admin)]
 def no_cache(response: Response) -> None:
     response.headers["Cache-Control"] = "no-store"
     response.headers["Pragma"] = "no-cache"
+
+
+@router.get("/auth/session", response_model=SessionView)
+async def current_session(
+    response: Response,
+    session: Session,
+    credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(bearer)],
+    context: Annotated[RequestContext, Depends(get_request_context)],
+    _limits: Annotated[None, Depends(limit_authenticated)],
+) -> SessionView:
+    service.require_password_mode()
+    no_cache(response)
+    assert credentials is not None
+    return await service.session_view(session, credentials.credentials, context)
 
 
 @router.post("/auth/login", response_model=SessionCreated)

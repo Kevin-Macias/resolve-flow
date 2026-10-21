@@ -74,9 +74,11 @@ OpenAPI schema. After changing an API route or schema, run
 `pnpm generate:api-client` and commit both generated files. `pnpm check` detects
 client drift. The web app imports the typed client from the workspace package.
 
-The web app uses
-`VITE_API_URL=http://localhost:8000` by default; copy `apps/web/.env.example`
-to `apps/web/.env` to override it.
+Password sessions call `/api` on the web server and survive page reloads.
+The server uses `API_ORIGIN=http://localhost:8000` and
+`WEB_ORIGIN=http://localhost:3000` in local development. Copy
+`apps/web/.env.example` to `apps/web/.env` to override them; restart Vite after
+changes. `VITE_API_URL` applies only to explicit legacy demo-token sessions.
 
 Customer report screens are available at `/reports`. The default uses permanent
 invited accounts and email/password sign-in, with account access enforced by
@@ -153,8 +155,10 @@ The application Dockerfiles are independent deployment targets:
 
 On Railway or a similar platform, provision managed PostgreSQL and pass its
 `DATABASE_URL` to a one-shot `python -m api.bootstrap` release command and the
-API. Complete initialization before starting API instances. Set `CORS_ORIGINS` to the public web URL. Build the
-web image with `VITE_API_URL` set to the public API URL. Do not deploy the local
+API. Complete initialization before starting API instances. Set `CORS_ORIGINS`
+to the public web URL. Configure the web server's runtime `WEB_ORIGIN` as its
+public HTTPS origin and `API_ORIGIN` as the API origin. See the
+[cookie rollout](docs/railway-deployment.md#cookie-session-rollout). Do not deploy the local
 PostgreSQL service or reuse the development password in production.
 
 Knowledge ingestion and pgvector setup are documented in

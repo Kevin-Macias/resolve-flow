@@ -1,5 +1,5 @@
 import { limitErrorMessage } from '../api/limit-errors'
-import { createApiClient } from '@resolve-flow/api-client'
+import { browserApiClient, sessionHeaders } from '../api/browser-client'
 
 import { supportEvidenceSchema } from './schemas'
 
@@ -28,10 +28,8 @@ export const evidenceAccessLost = (error: unknown) =>
   error instanceof EvidenceApiError && [401, 403, 404].includes(error.status)
 
 export function evidenceApi(token: string, reportId: string) {
-  const client = createApiClient(
-    import.meta.env.VITE_API_URL ?? 'http://localhost:8000',
-  )
-  const headers = { Authorization: `Bearer ${token}` }
+  const client = browserApiClient(token)
+  const headers = sessionHeaders(token)
   const params = { path: { report_id: reportId } }
   function parse(data: unknown, response: Response) {
     if (!response.ok) throw new EvidenceApiError(response.status)

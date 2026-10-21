@@ -5,15 +5,15 @@ permanent invitation onboarding and email/password repeat login.
 
 Customer (`/reports`) and support (`/support`) entry pages share a responsive
 hero layout, with separate headings and links to switch areas. The navigation
-header appears after sign-in. `WorkspaceSession` manages the in-memory session
-and query cache; `CustomerSignIn` and `SupportSignIn` compose the shared forms.
+header appears after sign-in. `WorkspaceSession` restores the browser session and owns its
+query cache; `CustomerSignIn` and `SupportSignIn` compose the shared forms.
 The support entry shares the light two-column layout. Its own introduction
 component uses a console label, sans-serif heading, and icon rows for reports,
 evidence, and proposal review. The form has a green top border and an **Internal
 access** label. A quiet customer-reports link sits below it.
 On narrow screens, compact headings and spacing bring sign-in and invitation
 actions forward. Introductory descriptions are hidden, and the support capability
-list follows the form. Session-memory guidance sits below the actions. Fields
+list follows the form. Fields
 and buttons remain full width; longer forms scroll.
 
 Both entry pages accept email/password sign-in and invitation setup for either
@@ -59,8 +59,32 @@ successful attempts; further attempts return 429 with `Retry-After: 600`.
 Sessions are opaque bearer credentials with an eight-hour expiry. Only hashes
 of session and invitation tokens are stored. Password hashes are separate from
 user profiles. Secret-bearing responses use `Cache-Control: no-store`.
-The browser keeps its session token in memory; reload requires login again.
-Passwords and invitation tokens are never written to browser storage.
+Browser password sessions use the web server's `/api` proxy. It stores the bearer
+in a host-only HttpOnly cookie, strips it from login/enrollment responses, and
+forwards it to FastAPI as an Authorization header. JavaScript receives only
+validated user metadata, expiry, and a public session identifier. It never stores
+the bearer, password, or invitation token in localStorage or sessionStorage.
+
+On HTTPS the cookie is `__Host-resolveflow-session`, with `Secure`, `HttpOnly`,
+`SameSite=Lax`, `Path=/`, and the server session's expiry. HTTP localhost uses a
+separate development cookie. Reload calls `GET /api/auth/session` before showing
+private content. An unavailable check offers retry; an expired or revoked session
+shows sign-in. A protected HTTP 401 clears private browser state and cached data.
+
+The proxy requires the configured web Origin and `X-ResolveFlow-Request` header
+on writes, rejects cross-site fetch metadata, and supplies no cross-origin access
+headers. Authenticated operations also carry the public session identifier; if
+another tab changes the cookie, stale requests fail before reaching the API.
+The identifier is a SHA-256 fingerprint of the opaque random token, not a bearer.
+It is combined with a fresh browser cache key on each login or restoration.
+
+The proxy allows only browser auth, report, intake, and support-report paths.
+It uses a fixed configured upstream, rejects encoded paths and redirects, bounds
+request bodies to 64 KiB, preserves retry hints, and streams SSE without buffering.
+Browser cookies and supplied Authorization headers never reach the API. Admin
+APIs and CLI clients retain their existing explicit bearer authentication.
+See [deployment settings](railway-deployment.md#cookie-session-rollout) for the
+runtime origins and rollout order.
 
 Logout revokes the presented session. Disabling a user revokes all their sessions
 and prevents login. A local password reset also revokes all sessions and keeps
@@ -129,6 +153,7 @@ allow a chosen email. Deploy the API and web changes together. Rolling back
 | --- | --- |
 | `POST /auth/login` | Public; email/password creates a session |
 | `POST /auth/invitations/redeem` | Public; one valid invitation creates an account and session |
+| `GET /auth/session` | Current bearer required; returns user and expiry without the token |
 | `POST /auth/logout` | Bearer required; revokes that token, including idempotent logout of an expired/revoked token |
 | `POST /admin/invitations` | Active support administrator; creates an invitation |
 | `DELETE /admin/invitations/{id}` | Active support administrator; revokes an invitation |
@@ -170,8 +195,10 @@ Malformed identity configuration fails closed with 503.
 
 Fresh support reads, stream sends, and execution checks recheck current access.
 Revocation takes effect at these checks; it does not undo a completed response
-or effect. If browser logout cannot reach the server, the UI clears local access
-and reports that server revocation is unconfirmed.
+or effect. Logout clears the browser cookie even if FastAPI is unavailable when
+the web server receives it. If the browser cannot reach the web server, it hides
+private content and reports that logout is unconfirmed; reload may restore the
+cookie until the user reconnects and signs out.
 
 ## Legacy demo mode and limits
 
@@ -218,3 +245,28 @@ database; CLI help and documentation links/whitespace passed. The first full run
 hit the previously recorded checkpoint restart flake; it passed in isolation
 and in the full rerun without changes to that test. The project database is
 unchanged. No live providers or hands-on browser verification were used.
+
+## Cookie session verification (2026-10-20)
+
+Kevin approved this PAIR follow-up to retain authentication across reloads.
+The proxy tests cover protected cookie creation, bearer removal, session
+restoration, write-origin checks, stale-tab requests, cookie ambiguity, bounded
+bodies, upstream failures/redirects, retry hints, and SSE reads/cancellation.
+Browser interaction tests cover restored roles, cache clearing, restoration
+retry, expired-session handling, and waiting for logout before another login.
+The PostgreSQL lifecycle tests verify metadata reads and revoked, expired, and
+disabled sessions.
+
+Headless Chromium against the production web build and real FastAPI/PostgreSQL
+passed login, HttpOnly cookie isolation, bearer-free session responses, full
+reload, report deep-link reload, report creation, intake SSE, rejected writes
+without the required header, logout followed by reload, and checks for credentials
+in browser storage. All browser data was fictional and used a separate temporary
+database. The HTTPS cookie attributes are also asserted in proxy tests.
+The final `pnpm check` passed: all 876 backend and 251 frontend tests, with no
+skips, formatting/lint, generated-client drift, type checks, and production build.
+An earlier run hit one existing process-restart checkpoint assertion; all 13
+checkpoint tests passed on focused rerun and the final full run passed. Temporary
+services, browser credentials, and both test databases were removed. The project
+database and production services were unchanged.
+Production rollout and Kevin's final hands-on review remain pending.
