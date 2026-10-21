@@ -195,4 +195,18 @@ HttpOnly, Secure, and SameSite=Lax and browser responses contain no bearer.
 The API's existing shared peer-rate allowance now also sees traffic from the
 web proxy; forwarded browser IP headers remain untrusted and ignored.
 
-Production rollout and Kevin's hands-on acceptance remain pending until performed.
+On 2026-10-21 Kevin accepted the local implementation and requested the commit
+and Railway configuration. Commit `30005fa` contains the verified session change.
+Both runtime origins above were saved on the existing production web service
+with automatic deployment suppressed. `VITE_AUTH_MODE` remains `password`.
+
+The API-first rollout attempt returned `Deploys have been paused temporarily`.
+No new deployment was created; the API still runs its previous successful
+release. Railway's [status page](https://status.railway.com/) reported an active
+outage affecting builds and deployments. The current web `/reports` and API
+`/health` and `/ready` endpoints each returned HTTP 200 after the attempt.
+
+Retry the API deployment once Railway resumes builds, wait for readiness, then
+deploy the web service and perform the authenticated checks above. The saved
+origin variables are already configured. Hosted cookie verification and Kevin's
+hands-on acceptance remain pending.

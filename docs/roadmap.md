@@ -29,8 +29,11 @@ sessions, same-origin request checks, stale-tab account isolation, and streamed
 API forwarding. The contract is in `authentication-and-access.md`; rollout is
 in `railway-deployment.md`. Final `pnpm check` passed with all 876 backend and
 251 frontend tests; real browser reload, deep links, writes, SSE, and logout
-also passed against isolated local services. Production is unchanged. RF-710
-remains NEXT pending hosted verification and Kevin's hands-on review.
+also passed against isolated local services. Kevin accepted the change on
+2026-10-21; implementation commit `30005fa` is recorded. The required Railway
+web origins are configured, but the platform's deployment pause prevented the
+API-first rollout; existing services remain healthy. RF-710 remains NEXT pending
+Railway recovery, hosted verification, and Kevin's hands-on review.
 
 ## Current milestone
 
